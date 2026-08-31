@@ -24,6 +24,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import common  # noqa: E402
 import adapt_probe as AP  # noqa: E402
 from common import log  # noqa: E402
+CONTRACT = {"version": "adapt-v2-true-lora-base-frozen", "base_frozen": True,
+            "gap_threshold_sd": 3}
 
 
 def main():
@@ -36,6 +38,8 @@ def main():
     seeds = [int(s) for s in a.seeds.split(",") if s.strip()]
     dev = common.pick_device(2.4)
     out = common.rjson(Path(a.out)) if Path(a.out).exists() else {}
+    if out.get("_contract") != CONTRACT:
+        out = {"_contract": CONTRACT}
     tok = common.load_tokenizer()
     train = AP.make_data(tok, AP.examples(AP.TRAIN_N, AP.RULE_SEED))
     held = AP.make_data(tok, AP.examples(AP.HELDOUT_N, AP.RULE_SEED, offset=AP.TRAIN_N))
@@ -56,6 +60,9 @@ def main():
             before, ppl_before = AP.base_metrics(d, tok, train, held, dev)
             entry["task_loss_before"] = before
             for sd in seeds:
+                if str(sd) in entry["seeds"]:
+                    log(f"{v:14s} seed {sd:5d} cached under {CONTRACT['version']}")
+                    continue
                 AP.SEED = sd                      # in-process override; module untouched
                 rows = []
                 for lr in AP.LR_GRID:
@@ -88,11 +95,13 @@ def main():
     gaps = [(v, out[v]["capture_mean"] - base, out[v]["capture_stdev"])
             for v in variants if v in out and base is not None and "capture_mean" in out[v]]
     spread = max([s for _, _, s in gaps if s] or [0.0])
-    real = [(v, g) for v, g, _ in gaps if abs(g) > 2 * max(spread, 1e-4)]
+    real = [(v, g) for v, g, _ in gaps if abs(g) > 3 * max(spread, 1e-4)]
     print(f"\nlargest within-variant sd = {spread:.4f}; "
-          f"gaps exceeding 2 sd: {real if real else 'none'}")
+          f"gaps exceeding 3 sd: {real if real else 'none'}")
     out["_summary"] = {"base_capture": base, "max_within_variant_sd": spread,
-                       "gaps_beyond_2sd": [[v, round(g, 5)] for v, g in real]}
+                       "threshold_sd": 3,
+                       "gaps_beyond_3sd": [[v, round(g, 5)] for v, g in real]}
+    out["_contract"] = CONTRACT
     common.wjson(Path(a.out), out)
 
 
