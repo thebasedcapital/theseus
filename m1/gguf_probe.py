@@ -238,16 +238,23 @@ def judge(t: str, tag: str, ent: dict, results: dict) -> None:
     rel, km, pa = ent.get("rel_dppl"), ent.get("kl_mean"), ent.get("prefix_agree")
     if r is None:
         ent["pass"], ent["role"] = None, "reference_calibration"
-        if all(isinstance(x, (int, float)) for x in (rel, km, pa)):
+        # prefix agreement is optional here: on a 0.5B at 4 bits the greedy continuation can
+        # diverge from the first token even for the pristine checkpoint (measured 0.0 on base),
+        # which makes it a finding but a useless discriminator.
+        if all(isinstance(x, (int, float)) for x in (rel, km)):
             ref[t] = {"tag": tag, "rel_dppl": rel, "kl_mean": km, "prefix_agree": pa}
             common.wjson(REF_FILE, ref)
         return
     lim = {"rel_dppl": r["rel_dppl"] + PASS_CONTRACT["rel_dppl_slack"],
            "kl_mean": r["kl_mean"] + PASS_CONTRACT["kl_mean_slack"],
            "prefix_agree": r["prefix_agree"] - PASS_CONTRACT["prefix_agree_slack"]}
+    informative_pa = isinstance(r.get("prefix_agree"), (int, float)) and r["prefix_agree"] > 0
     ent["pass"] = bool(isinstance(rel, (int, float)) and rel <= lim["rel_dppl"]
                        and (not isinstance(km, (int, float)) or km <= lim["kl_mean"])
-                       and (not isinstance(pa, (int, float)) or pa >= lim["prefix_agree"]))
+                       and (not informative_pa or not isinstance(pa, (int, float))
+                            or pa >= lim["prefix_agree"]))
+    if not informative_pa:
+        ent["prefix_agree_uninformative"] = True
     ent["limits"] = lim
     ent["reference_tag"] = r.get("tag")
 
