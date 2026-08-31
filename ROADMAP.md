@@ -518,7 +518,7 @@ Optional community sharing should upload only explicit, inspectable telemetry; n
 
 **Exit condition:** function-equivalent real Transformer checkpoints show materially different outcome under at least one real operation, with exact transformation verification and multi-seed replication.
 
-**Status: exit condition met for the adaptation and quantization operations (2026-08-31).**
+**Status: exit condition met for quantization (2026-08-31); adaptation cells invalidated and re-running under corrected true-LoRA semantics.**
 `g3_pow2` — RMSNorm-diagonal gauge on the bf16 exponent lattice, so its logits are *exactly*
 identical to base in both fp32 and bf16 compute — loses bounded LoRA capture (0.9731 → 0.1559) and
 turns Q8_0 into a 10.7-nat divergence, while an artifact-only canonicalizer returns capture 0.9829

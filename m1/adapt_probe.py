@@ -90,6 +90,9 @@ def train_once(model_dir, tok, train_data, held_data, lr, device):
     set_seed(SEED)
     model = common.load_model(Path(model_dir), dtype=torch.bfloat16, device=device)
     model.config.use_cache = False
+    for p in model.parameters():
+        p.requires_grad_(False)  # true LoRA: embeddings, norms, lm_head and base linears are frozen
+
     replace_targets(model)
     params = [p for p in model.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(params, lr=lr, betas=(0.9, 0.999), weight_decay=0.0)
@@ -131,7 +134,10 @@ def run_variant(model_dir, tok, train_data, held_data, device):
     # Reload the selected adapter once for the protected metric.
     set_seed(SEED)
     model = common.load_model(Path(model_dir), dtype=torch.bfloat16, device=device)
-    model.config.use_cache = False; replace_targets(model)
+    model.config.use_cache = False
+    for p in model.parameters():
+        p.requires_grad_(False)
+    replace_targets(model)
     params = [p for p in model.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(params, lr=best["lr"], betas=(0.9, 0.999), weight_decay=0.0)
     x, y, m = train_data; model.train(); t0 = time.perf_counter()

@@ -8,3 +8,5 @@ m1/work/
 *.gguf
 *Logits
 *.bin
+
+m1/rescue_out/

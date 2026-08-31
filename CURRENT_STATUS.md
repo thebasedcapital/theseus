@@ -67,3 +67,7 @@ Established on `Qwen2.5-0.5B`, measured with fp32 forwards over the stored bf16 
 * The equivalence verdict was amended mid-flight on control evidence (max-|Δlogit| demoted from a
   hard gate to a flag, distributional criteria unchanged); see the comment block in
   `m1/verify_equiv.py` and §1 of `M1_RESULTS.md`.
+
+## Result invalidation in progress
+
+The first adaptation/merge panel was invalidated on 2026-08-31: adapter insertion froze target Linear weights but not embeddings/norms/lm_head, so those runs were full-model training, not LoRA. Twenty-one cells were archived; corrected true-LoRA cells globally freeze the base and are running. Quantization/equivalence/export/static evidence is unaffected.

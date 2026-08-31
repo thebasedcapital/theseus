@@ -56,27 +56,15 @@ this artifact in 2 s and exit 1, before anyone downloads 400 MB of noise.
 
 ## K-3 — Function-equivalent checkpoints have materially different adaptation reserve
 
-**State: PRELIMINARY** (needs replication of the *probe*, not just the stress).
+**State: UNSUPPORTED (corrected true-LoRA cells in flight).**
 
-Bounded LoRA r16, 80 steps, batch 2 × seq 128, identical data order and seed:
+The first adaptation panel is **INVALIDATED**: the probe froze target Linear weights and left
+embeddings, norms and lm_head trainable, so it was full-model training at LoRA learning rates.
+Twenty-one cells are archived under `m1/work/invalidated/full_model_training/`; they do not count
+toward any obligation. The corrected probe globally freezes the base before installing adapters.
 
-| checkpoint | capture | Δ vs base | protected ΔPPL |
-|---|---:|---:|---:|
-| `base` | 0.9731 | — | +2.96 |
-| `g3_pow2` | **0.1559** | **−81.7 pp** | +4,316,255 |
-| `g7_rand` | **0.0600** | **−91.3 pp** | +55,656,363 |
-| `g2_rand` | 0.9520 | −2.11 pp | +2.54 |
-| `g1_haar` | 0.9648 | −0.83 pp | +2.73 |
-| `g4_perm` | 0.9088 | −6.43 pp | — |
-
-The catastrophic rows (0.16, 0.06 against 0.97) need no error bars. The 0.8–2.1 pp rows do:
-`m1/seed_replicate.py` (queued) supplies them, and PLAN §3 ranks that work ahead of anything that
-merely widens the matrix.
-
-**Refuter:** |gap| < 3·sd across seeds for the small gaps (would demote G1/G2 adaptation effects to
-noise), or a base re-measurement whose spread swallows them.
-
----
+**Obligations open:** corrected base calibration; stressed/repaired pairs; three probe seeds for
+gaps smaller than 3 sd. **Refuter:** |gap| < 3·sd across corrected seeds.
 
 ## K-4 — …and different quantization reserve at the same bit-width
 
@@ -105,12 +93,12 @@ which would mean the effect is corpus sampling variance, not gauge state.
 
 ## K-5 — An artifact-only canonicalizer restores the reserve without seeing the original
 
-**State: CONTROLLED for G3/G1; PARTIAL for G7 (the partial is a result).**
+**State: CONTROLLED for quantization; adaptation restoration is UNAVAILABLE pending corrected true-LoRA cells.**
 
 * `g5_c8_rep` reproduced the pristine file **byte-for-byte** (`sha256` equal to the HF blob hash,
   0/290 tensors differing) — a true section of that orbit.
-* `g3_pow2_rep`: capture 0.9829 (base 0.9731), Q4 KLD 1.10× base, static debt +0.018314 → +0.000251.
-* `g7_rand_rep`: quantization fully restored (0.98× base KLD) but capture only to 0.8407 vs 0.9731.
+* `g3_pow2_rep`: Q4 KLD 1.10× base, static debt +0.018314 → +0.000251. Adaptation numbers invalidated.
+* `g7_rand_rep`: quantization fully restored (0.98× base KLD). Adaptation numbers invalidated.
 * `bad_all_exact`, `prep_base_exact`: 0 inspector flags, total J within 2 % of pristine.
 
 **Counter-obligation (kept in your face):** the *full* canonicalizer, which includes the
@@ -137,14 +125,14 @@ direction that hurts a preflight tool), or ≥ 20 labelled cells with Spearman �
 
 ## K-7 — Reserve is a vector; no scalar summarizes it
 
-**State: CONTROLLED.** `g7_rand_rep` is quantization-pristine (0.98×) and adaptation-deficient
+**State: PRELIMINARY.** Quantization-axis evidence is valid; adaptation-axis examples are being re-measured after invalidation. `g7_rand_rep` is quantization-pristine (0.98×) and adaptation-deficient
 (−13 pp). `g1_haar` is KL-neutral and ΔPPL-failing. `g4_perm` is quantization-inert and costs
 6.4 pp of capture — which also forced the wording fix that "control" must always name its
 operation. The schema has no scalar field for health, and `render` rejects one.
 
 ## K-10 — `prepare` improves reserve on a checkpoint nobody stressed  ← strongest practical claim
 
-**State: CONTROLLED** (equivalence verified in fp32; replication 1; controls: null-gauge, flags).
+**State: PRELIMINARY.** Equivalence and quantization improvement are valid; the reported adaptation gain is INVALIDATED and being re-measured.
 
 Running the lattice-only canonicalizer (`{G5, G3, G7}` with `snap_pow2`, bf16-lossless) on the
 **pristine** Qwen2.5-0.5B, compared against the pristine checkpoint measured through the identical
@@ -152,9 +140,9 @@ bf16 export path:
 
 | | equivalence vs base | LoRA capture | Q8_0 KLD | Q4_K_M KLD | Q4 rel ΔPPL | flags |
 |---|---|---:|---:|---:|---:|---:|
-| `base` | reference | 0.9731 | 0.000940 | 0.031914 | +2.195 % | 0 |
+| `base` | reference | INVALIDATED | 0.000940 | 0.031914 | +2.195 % | 0 |
 | `prep_base` (full canonicalizer) | **top-1 0.99487 → NOT equivalent** | — | — | — | — | 0 |
-| **`prep_base_exact`** (lattice-only) | **EQUIVALENT** | **0.9924** | 0.001017 | 0.031624 | **+2.010 %** | 0 |
+| **`prep_base_exact`** (lattice-only) | **EQUIVALENT** | re-measuring | 0.001017 | 0.031624 | **+2.010 %** | 0 |
 
 Same dtype, same corpus, same tools, verified-equivalent model: **+1.9 pp adaptation capture** and
 **8 % less 4-bit perplexity damage**, bought by changing nothing but the coordinates. That is the

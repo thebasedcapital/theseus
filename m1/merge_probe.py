@@ -14,6 +14,7 @@ import torch.nn.functional as F
 SEED = 2718
 RANK = 32
 ALPHA = 32
+LR = 3e-4  # calibrated: 3e-3 failed on the identical reversal probe; 3e-4 captured 97.3%
 STEPS = 600
 BATCH_SIZE = 2
 SEQ_LEN = 128
@@ -67,35 +68,52 @@ def task_loss(model,data,device):
             total+=F.cross_entropy(lg.reshape(-1,lg.size(-1)),tg.reshape(-1),ignore_index=-100,reduction='sum').item(); n+=int((tg!=-100).sum())
     return total/max(1,n)
 
-def eval_batches(device): return [b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=SEQ_LEN)]
-def model_metrics(model,data,device): return task_loss(model,data,device),common.perplexity(model,eval_batches(device))
+def eval_batches(device):
+    return [b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=SEQ_LEN)]
+
+def model_metrics(model,data,device):
+    return task_loss(model,data,device),common.perplexity(model,eval_batches(device))
 
 def train_specialist(tok,train,held,device,base_rule_loss,base_ppl):
-    set_seed(); model=common.load_model(common.REF_MODEL,dtype=torch.bfloat16,device=device); model.config.use_cache=False; replace_targets(model)
-    params=[p for p in model.parameters() if p.requires_grad]; opt=torch.optim.AdamW(params,lr=3e-3,weight_decay=0.0); x,y,m=train; model.train(); t0=time.perf_counter()
+    set_seed()
+    model=common.load_model(common.REF_MODEL,dtype=torch.bfloat16,device=device)
+    model.config.use_cache=False
+    for p in model.parameters(): p.requires_grad_(False)  # true LoRA: base is frozen globally
+    replace_targets(model)
+    params=[p for p in model.parameters() if p.requires_grad]
+    opt=torch.optim.AdamW(params,lr=LR,weight_decay=0.0)
+    x,y,m=train; model.train(); t0=time.perf_counter()
     for step in range(STEPS):
-        i=(step*BATCH_SIZE)%len(x); xb,yb,mb=x[i:i+BATCH_SIZE].to(device),y[i:i+BATCH_SIZE].to(device),m[i:i+BATCH_SIZE].to(device); o=model(input_ids=xb,attention_mask=mb); loss=F.cross_entropy(o.logits[:,:-1].float().reshape(-1,o.logits.size(-1)),yb[:,1:].reshape(-1),ignore_index=-100); loss.backward(); torch.nn.utils.clip_grad_norm_(params,1.0); opt.step(); opt.zero_grad(set_to_none=True)
+        i=(step*BATCH_SIZE)%len(x)
+        xb,yb,mb=x[i:i+BATCH_SIZE].to(device),y[i:i+BATCH_SIZE].to(device),m[i:i+BATCH_SIZE].to(device)
+        o=model(input_ids=xb,attention_mask=mb)
+        loss=F.cross_entropy(o.logits[:,:-1].float().reshape(-1,o.logits.size(-1)),yb[:,1:].reshape(-1),ignore_index=-100)
+        loss.backward(); torch.nn.utils.clip_grad_norm_(params,1.0); opt.step(); opt.zero_grad(set_to_none=True)
     if device=='cuda': torch.cuda.synchronize()
-    runtime=time.perf_counter()-t0; quality,ppl=model_metrics(model,held,device); gate=quality<0.5*base_rule_loss and ppl<=1.5*base_ppl
+    runtime=time.perf_counter()-t0
+    quality,ppl=model_metrics(model,held,device)
+    gate=quality<0.5*base_rule_loss and ppl<=1.5*base_ppl
     if not gate: raise RuntimeError(f'SPECIALIST_GATE_FAILED rule_loss={quality} base_rule_loss={base_rule_loss} eval_ppl={ppl} base_eval_ppl={base_ppl}')
     sd=common.load_state(common.REF_MODEL)
     with torch.no_grad():
         for name,mod in model.named_modules():
             if isinstance(mod,LoRALinear):
-                key=name+'.weight'; delta=(mod.b.float().cpu() @ mod.a.float().cpu())*mod.scale; sd[key]=(sd[key].float()+delta).to(torch.bfloat16); del delta
+                key=name+'.weight'; delta=(mod.b.float().cpu() @ mod.a.float().cpu())*mod.scale
+                sd[key]=(sd[key].float()+delta).to(torch.bfloat16)
     common.save_state(sd,SPECIALIST_DIR,common.REF_MODEL)
-    marker={'seed':SEED,'rank':RANK,'alpha':ALPHA,'steps':STEPS,'batch_size':BATCH_SIZE,'seq_len':SEQ_LEN,'train_examples':TRAIN_N,'heldout_examples':HELDOUT_N,'rule':'key:value reformat: kv: KEY=VALUE => KEY: VALUE','rule_loss':quality,'heldout_rule_loss':quality,'eval_ppl':ppl,'base_rule_loss':base_rule_loss,'base_eval_ppl':base_ppl,'runtime_s':runtime,'max_memory_allocated_gb':torch.cuda.max_memory_allocated()/1e9 if device=='cuda' else 0.0,'gate_pass':gate}; common.wjson(MARKER,marker)
+    marker={'seed':SEED,'rank':RANK,'alpha':ALPHA,'lr':LR,'steps':STEPS,'batch_size':BATCH_SIZE,'seq_len':SEQ_LEN,'train_examples':TRAIN_N,'heldout_examples':HELDOUT_N,'rule':'key:value reformat: kv: KEY=VALUE => KEY: VALUE','rule_loss':quality,'heldout_rule_loss':quality,'eval_ppl':ppl,'base_rule_loss':base_rule_loss,'base_eval_ppl':base_ppl,'runtime_s':runtime,'max_memory_allocated_gb':torch.cuda.max_memory_allocated()/1e9 if device=='cuda' else 0.0,'gate_pass':True,'base_frozen':True}
+    common.wjson(MARKER,marker)
     del opt,model,sd; common.release(device); return marker
 
 def ensure_specialist(tok,train,held,device,base_rule_loss,base_ppl):
-    expected={'seed':SEED,'rank':RANK,'alpha':ALPHA,'steps':STEPS,'batch_size':BATCH_SIZE,'seq_len':SEQ_LEN,'train_examples':TRAIN_N,'heldout_examples':HELDOUT_N}
+    expected={'seed':SEED,'rank':RANK,'alpha':ALPHA,'lr':LR,'steps':STEPS,'batch_size':BATCH_SIZE,'seq_len':SEQ_LEN,'train_examples':TRAIN_N,'heldout_examples':HELDOUT_N,'base_frozen':True}
     if (SPECIALIST_DIR/'model.safetensors').exists() and MARKER.exists():
         m=common.rjson(MARKER)
         if all(m.get(k)==v for k,v in expected.items()) and m.get('gate_pass'): return m
+    # A cache without a matching marker is untrusted: never recover an artifact created by a
+    # different training semantics (the old one accidentally trained embeddings/norms/lm_head).
     if (SPECIALIST_DIR/'model.safetensors').exists():
-        model=common.state_to_model(common.load_state(SPECIALIST_DIR),common.REF_MODEL,dtype=torch.bfloat16,device=device); quality,ppl=model_metrics(model,held,device); del model; common.release(device); gate=quality<0.5*base_rule_loss and ppl<=1.5*base_ppl
-        if not gate: raise RuntimeError(f'SPECIALIST_GATE_FAILED rule_loss={quality} base_rule_loss={base_rule_loss} eval_ppl={ppl} base_eval_ppl={base_ppl}')
-        marker={**expected,'rule':'key:value reformat: kv: KEY=VALUE => KEY: VALUE','rule_loss':quality,'heldout_rule_loss':quality,'eval_ppl':ppl,'base_rule_loss':base_rule_loss,'base_eval_ppl':base_ppl,'runtime_s':0.0,'max_memory_allocated_gb':torch.cuda.max_memory_allocated()/1e9 if device=='cuda' else 0.0,'gate_pass':True,'recovered_from_weights':True}; common.wjson(MARKER,marker); return marker
+        raise RuntimeError('SPECIALIST_CACHE_UNTRUSTED: weights exist without matching base_frozen marker; delete and retrain')
     return train_specialist(tok,train,held,device,base_rule_loss,base_ppl)
 
 def evaluate_merge(cand_sd,specialist_sd,model_dir,alphas,device,ties=False):
