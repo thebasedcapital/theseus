@@ -88,6 +88,25 @@ must either emit higher-precision artifacts, restrict itself to lattice-exact fa
 `pow2` modes), or refuse when the induced drift exceeds the user's declared tolerance. Theseus
 judging checkpoints must be judged the same way.
 
+### The G5 repair returned the original file, byte for byte
+
+`canon_g5` gets one artifact: a checkpoint whose embedding was scaled by 8 and whose head was
+detached from it. It never sees the base. Recovering the scale from the tie witness (`c` by least
+squares, `embed ≈ c·lm_head`) and applying the whole-artifact inverse move produced
+
+```text
+sha256 m1/work/g5_c8_rep/model.safetensors        = 88c142557820ccad55bb59756bfcfcf891de9cc6
+sha256 ~/.cache/huggingface/hub/.../88c1425578…    = 88c142557820ccad55bb59756bfcfcf891de9cc6
+tensors differing from the pristine checkpoint     = 0 / 290
+equivalence metrics                                 max|Δlogit| 0, KL 0, top-1 1.00000
+```
+
+The same digest for `g5_c8_eps_rep`, and `g5_c8` / `g5_c8_eps` share a digest with each other
+(49/290 tensors differing from base, `+ lm_head.weight`) — confirming the `ε → c²ε` variant changes
+*only* the config, never a weight. For a stress built from a power of two, bf16 storage is exactly
+representable, so the repair is not "close to base", it **is** base. That is the gauge-fixing
+property `math.md §7` wanted: a canonical representative per orbit, verified on a 0.5 B checkpoint.
+
 ## 3. Pre-registered prediction (written before any surgery number existed)
 
 `m1/predict.py` snapshots a purely static quantity — block-max-abs 4-bit conditioning `J`
