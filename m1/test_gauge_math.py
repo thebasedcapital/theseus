@@ -140,6 +140,19 @@ def main():
     base_lg = logits(m, x)
     base_j = canon.quant_condition(base_sd)
     fails = []
+    # Merge compatibility must normalize HF's two representations of a tied head. G5 stores
+    # an explicit lm_head while an ordinary specialist omits it; every other key mismatch fails.
+    ma = {"model.embed_tokens.weight": torch.tensor([1.0]),
+          "lm_head.weight": torch.tensor([2.0]), "w": torch.tensor([3.0])}
+    mb = {"model.embed_tokens.weight": torch.tensor([1.5]), "w": torch.tensor([4.0])}
+    mm = common.merge_sd(ma, mb, 0.5)
+    assert torch.equal(mm["lm_head.weight"], torch.tensor([1.75]))
+    try:
+        common.merge_sd({"w": torch.tensor([1.0])}, {"x": torch.tensor([1.0])}, 0.5)
+    except ValueError:
+        pass
+    else:
+        fails.append("merge:key-mismatch")
     print(f"tiny qwen2: hidden={a.hidden} q/kv={a.n_q}/{a.n_kv} hd={a.head_dim} "
           f"group={a.group} inter={a.intermediate} layers={a.layers}")
     print(f"base J = {', '.join(f'{k}={v:.3f}' for k, v in base_j.items())}")
