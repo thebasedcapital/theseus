@@ -90,6 +90,9 @@ claims. Full derivation in `m1/PRIOR_ART.md` and `M1_NOTES.md`.
 | **G5** | global residual scaling | **refuted as exact** at fixed `ε`; exact only with the artifact edit `ε → c²ε`. A metadata change carrying a weight symmetry, i.e. `s = (θ, a)` made concrete |
 | **G6** | neuron permutation | standard (arXiv:2209.04836) |
 | **G7** | SwiGLU **up-branch** diagonal, `V_j → c_jV_j`, `W₂[:,j] → W₂[:,j]/c_j` | **new to me**: my prior-art pass refuted my original assertion that a GLU admits no per-unit rescaling. The *gated* branch cannot scale (`SiLU(cg) ≠ c·SiLU(g)`); the multiplicative partner can |
+| g2 on QK-norm archs | **measured, not just derived**: building `g2_rand` on Qwen3-0.6B-Base is
+  refused by `gauge.g2_rope_pairs` (56 QK-norm tensors), while `g1_haar`, `g3_pow2`, `g5_c8` and
+  `g7_rand` build and certify there (`m1/work-qwen3/equiv/`)
 | bias | attention q/k/v biases | critical: Qwen2.5-0.5B ships `max|b_q| = 79`, `max|b_k| = 130`, so any row transform must transform the matching bias entries |
 
 **Important negative space.** That rotations preserving full-precision behaviour change
@@ -292,8 +295,11 @@ Stated in the repo itself (`m1/passport.py` `UNCLAIMED`, `CLAIMS.md`):
   contract's `0.0`. The duplicate has since been deleted so `m3` delegates to
   `m1/adapt_probe.train_once`, and `m3/screens/README.md` records the divergence. These values are
   superseded until the sweep is re-run under the consolidated trainer.
-- **One model, one scale, base (non-instruct) weights.** Two corpora now support the Q4 result; no
-  second architecture does.
+- **Surgery is one model, one scale, base (non-instruct) weights.** Exactness now has a second
+  architecture: 4 measured equivalence cells on Qwen3-0.6B-Base reproduce the bit-identical
+  result (`g3_pow2`: max|Δlogit| 0.0, KL 0.0, top-1 1.00000) and G2 correctly refuses there.
+  But **no quantization, adaptation or merge cell has been run on Qwen3**, so K-3, K-4 and K-9
+  remain single-architecture claims. Two corpora support the Q4 result; no second model does.
 - **Merge tests are constructed** against a specialist derived from the ungauged base.
 - **Lattice repair is not a universal cure.** `bad_all_exact` clears every static flag and still
   fails adaptation and both merges.

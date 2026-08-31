@@ -1,0 +1,99 @@
+{
+  "g1_haar": {
+    "build_s": 6.3,
+    "bytes": 1192135096,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work-qwen3/g1_haar",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G1:haar:1",
+      "transforms": [
+        {
+          "family": "G1",
+          "groups": 224,
+          "mode": "haar",
+          "seed": 1,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": false
+        }
+      ]
+    },
+    "name": "g1_haar",
+    "note": "random O(64) basis change per kv-group (V/O)",
+    "sha256": "168d27ea6a2f3fc5",
+    "spec": "G1:haar:1",
+    "untied": false
+  },
+  "g3_pow2": {
+    "build_s": 6.4,
+    "bytes": 1192135096,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work-qwen3/g3_pow2",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g3_pow2",
+    "note": "same family with bf16-EXACT scales (d = 2^k, k in [-512,512]) so the gauge itself costs no representation noise",
+    "sha256": "fab898d4924de852",
+    "spec": "G3:pow2:1",
+    "untied": false
+  },
+  "g5_c8": {
+    "build_s": 7.4,
+    "bytes": 1503300328,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work-qwen3/g5_c8",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G5:c8",
+      "transforms": [
+        {
+          "c": 8.0,
+          "eps_patch": null,
+          "eps_source": null,
+          "family": "G5",
+          "untied": true
+        }
+      ]
+    },
+    "name": "g5_c8",
+    "note": "residual stream x8; needs the tie broken; RMSNorm-eps floor left in place",
+    "sha256": "e145a26f5460778b",
+    "spec": "G5:c8",
+    "untied": true
+  },
+  "g7_rand": {
+    "build_s": 6.3,
+    "bytes": 1192135096,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work-qwen3/g7_rand",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G7:random:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 999521.6283012998,
+          "mode": "random",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g7_rand",
+    "note": "SwiGLU up-branch diagonal +-3 decades per neuron (V0's mechanism)",
+    "sha256": "f577881b5447f6a0",
+    "spec": "G7:random:1",
+    "untied": false
+  }
+}

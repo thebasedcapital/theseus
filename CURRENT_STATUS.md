@@ -96,7 +96,7 @@ freeze the base before adapter insertion; their contract is
 - **Natural histories have never been tested.** The one recorded attempt is quarantined: its
   generator could not execute (incident #18), so neither its failure nor any inference from it
   stands. K-8 must be re-run under the fixed `m3/` harness.
-- One checkpoint family and scale; K-10 now has two corpora, not a second architecture.
+- Equivalence is now measured on **two** architectures (Qwen2.5-0.5B and Qwen3-0.6B-Base, `m1/work-qwen3/equiv/`), and G2 correctly refuses on the latter. **Quantization, adaptation and merge reserve are still Qwen2-only** - no GGUF export or surgery cell has been run on Qwen3, so K-4/K-3/K-9 do not generalize across architectures yet. K-10 has two corpora, not a second architecture.
 - The merge experiment is constructed against a specialist derived from the ungauged base. `m1/merge_probe.py --specialist DIR` now accepts an externally sourced adapter and re-measures its rule loss and perplexity, because those are the contract denominators; the default path stamps `specialist_provenance: self-derived` with the caveat inline. The **empirical** re-run against a real public adapter has not been done yet.
 - Q8 v3 is in-sample calibration; Q4/export/adaptation still lack validated thresholds.
 
