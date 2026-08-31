@@ -1,0 +1,134 @@
+{
+  "bad_all": {
+    "measured": 3,
+    "ok": 0,
+    "optionality": 0.0,
+    "unavailable": 0
+  },
+  "bad_all_exact": {
+    "measured": 6,
+    "ok": 2,
+    "optionality": 0.3333333333333333,
+    "unavailable": 0
+  },
+  "bad_all_rep": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "bad_all_s2": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "bad_all_s2_rep": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "bad_all_s3": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "bad_all_s3_rep": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "g1_haar": {
+    "measured": 6,
+    "ok": 2,
+    "optionality": 0.3333333333333333,
+    "unavailable": 0
+  },
+  "g1_haar_rep": {
+    "measured": 6,
+    "ok": 4,
+    "optionality": 0.6666666666666666,
+    "unavailable": 0
+  },
+  "g2_rand": {
+    "measured": 6,
+    "ok": 3,
+    "optionality": 0.5,
+    "unavailable": 0
+  },
+  "g3_pow2": {
+    "measured": 6,
+    "ok": 0,
+    "optionality": 0.0,
+    "unavailable": 0
+  },
+  "g3_pow2_rep": {
+    "measured": 6,
+    "ok": 4,
+    "optionality": 0.6666666666666666,
+    "unavailable": 0
+  },
+  "g3_pow2_rep_raw": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "g4_perm": {
+    "measured": 6,
+    "ok": 4,
+    "optionality": 0.6666666666666666,
+    "unavailable": 0
+  },
+  "g5_c8": {
+    "measured": 6,
+    "ok": 5,
+    "optionality": 0.8333333333333334,
+    "unavailable": 0
+  },
+  "g5_c8_eps": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "g5_c8_eps_rep": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "g5_c8_rep": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "g7_rand": {
+    "measured": 3,
+    "ok": 0,
+    "optionality": 0.0,
+    "unavailable": 0
+  },
+  "g7_rand_rep": {
+    "measured": 6,
+    "ok": 4,
+    "optionality": 0.6666666666666666,
+    "unavailable": 0
+  },
+  "prep_base": {
+    "measured": 0,
+    "ok": 0,
+    "optionality": null,
+    "unavailable": 0
+  },
+  "prep_base_exact": {
+    "measured": 6,
+    "ok": 4,
+    "optionality": 0.6666666666666666,
+    "unavailable": 0
+  }
+}

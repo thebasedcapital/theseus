@@ -1,0 +1,328 @@
+{
+  "coverage": {
+    "measured_ops": [
+      "adapt.lora.r16",
+      "merge.linear",
+      "merge.ties",
+      "quantize.gguf.q4_k_m",
+      "quantize.gguf.q5_k_m",
+      "quantize.gguf.q8_0"
+    ],
+    "optionality_fraction": 0.6666666666666666,
+    "unavailable_ops": []
+  },
+  "current_behavior": {
+    "status": "MEASURED",
+    "vs_base": {
+      "flags": [],
+      "gate": {
+        "kl_mean_nats_max": 0.002,
+        "max_dlogit_max": 0.5,
+        "rel_ppl_max": 0.002,
+        "top1_agree_min": 0.995
+      },
+      "kl_mean_nats": 3.707289579324424e-05,
+      "max_abs_dlogit": 0.482507586479187,
+      "ppl_base": 17.71019172668457,
+      "ppl_this": 17.709300994873047,
+      "top1_agree": 0.99609375,
+      "verdict": "EQUIVALENT"
+    }
+  },
+  "environment": {
+    "git_head": "a0cc8f8",
+    "llama_cpp": [
+      "version: 9851 (0eca4d490)",
+      "built with GNU 11.4.0 for Linux x86_64"
+    ],
+    "torch": "2.13.0+cu130"
+  },
+  "identity": {
+    "built_from": "Qwen/Qwen2.5-0.5B (bf16, tied)",
+    "bytes": 988097824,
+    "dir": "/home/admin/theseus/m1/work/g7_rand_rep",
+    "name": "g7_rand_rep",
+    "sha256_16": "61fd98ceabb053ee",
+    "untied": false
+  },
+  "not_claimed": [
+    "no natural post-training history was run for this artifact (ROADMAP A5/M3)",
+    "one model, one scale, base (non-instruct) weights",
+    "reserve thresholds are reference-relative and calibrated on this checkpoint family only",
+    "static risk flags in the inspector are provisional (n=2 measured contrast per rule)"
+  ],
+  "provenance": {
+    "canonicalize": "g7",
+    "config_patch": null,
+    "note": "stress + V0 closed-form balance",
+    "repairs": [
+      {
+        "applied_span_median": 1032756.0,
+        "canon": "G7",
+        "target": "equalize up/down per-neuron energy (V0 gauge-fix)"
+      }
+    ],
+    "spec": "G7:random:1",
+    "transforms": [
+      {
+        "decades": 3.0,
+        "family": "G7",
+        "max_c_span": 999416.9310412228,
+        "mode": "random",
+        "seed": 1
+      }
+    ]
+  },
+  "reserve": {
+    "adapt.lora.r16": {
+      "capture": 0.8853211502162549,
+      "capture_reference": 0.9859822708366603,
+      "contract": null,
+      "ok": true,
+      "protected_dppl": 1.1338024139404297,
+      "protected_dppl_reference": 1.2238330841064453,
+      "runtime_s": 16.898575983941555,
+      "selected_lr": 0.0003,
+      "status": "MEASURED",
+      "task_loss": [
+        2.7223285030234945,
+        0.31219350146023894
+      ]
+    },
+    "merge.linear": {
+      "best_alpha": null,
+      "matrix": [
+        {
+          "alpha": 0.3,
+          "eval_ppl": 29.62460708618164,
+          "pass": false,
+          "ppl_ratio": 1.0718296790285464,
+          "rule_loss_ratio": 0.5820857473581846,
+          "specialist_rule_loss": 0.0501047688609746
+        },
+        {
+          "alpha": 0.4,
+          "eval_ppl": 30.12931251525879,
+          "pass": false,
+          "ppl_ratio": 1.0900901155797558,
+          "rule_loss_ratio": 0.41119862677540747,
+          "specialist_rule_loss": 0.03539514967346204
+        },
+        {
+          "alpha": 0.5,
+          "eval_ppl": 30.777019500732422,
+          "pass": false,
+          "ppl_ratio": 1.113524403444744,
+          "rule_loss_ratio": 0.42880697770937315,
+          "specialist_rule_loss": 0.03691084106012363
+        },
+        {
+          "alpha": 0.6,
+          "eval_ppl": 31.48876953125,
+          "pass": false,
+          "ppl_ratio": 1.1392757933125968,
+          "rule_loss_ratio": 0.4941566416742997,
+          "specialist_rule_loss": 0.042536008525511086
+        },
+        {
+          "alpha": 0.7,
+          "eval_ppl": 32.46199035644531,
+          "pass": false,
+          "ppl_ratio": 1.1744872971026183,
+          "rule_loss_ratio": 0.582710518456605,
+          "specialist_rule_loss": 0.050158547898890314
+        }
+      ],
+      "ok": false,
+      "status": "MEASURED"
+    },
+    "merge.ties": {
+      "best_alpha": null,
+      "matrix": [
+        {
+          "alpha": 0.3,
+          "eval_ppl": 29.481714248657227,
+          "pass": false,
+          "ppl_ratio": 1.066659761205376,
+          "rule_loss_ratio": 1.6289736753578405,
+          "specialist_rule_loss": 0.140218773359164
+        },
+        {
+          "alpha": 0.4,
+          "eval_ppl": 29.86446762084961,
+          "pass": false,
+          "ppl_ratio": 1.0805079254315073,
+          "rule_loss_ratio": 0.83200128383377,
+          "specialist_rule_loss": 0.0716169949319736
+        },
+        {
+          "alpha": 0.5,
+          "eval_ppl": 30.22903060913086,
+          "pass": false,
+          "ppl_ratio": 1.0936979545710819,
+          "rule_loss_ratio": 0.5076899478145909,
+          "specialist_rule_loss": 0.04370092826312982
+        },
+        {
+          "alpha": 0.6,
+          "eval_ppl": 30.703245162963867,
+          "pass": false,
+          "ppl_ratio": 1.110855219528111,
+          "rule_loss_ratio": 0.4235481583647228,
+          "specialist_rule_loss": 0.036458172481754904
+        },
+        {
+          "alpha": 0.7,
+          "eval_ppl": 31.204647064208984,
+          "pass": false,
+          "ppl_ratio": 1.128996133171706,
+          "rule_loss_ratio": 0.42653128700482373,
+          "specialist_rule_loss": 0.036714954187325226
+        }
+      ],
+      "ok": false,
+      "status": "MEASURED"
+    },
+    "quantize.gguf.q4_k_m": {
+      "export": {
+        "note": "reference is the same weights exported to the artifact's native dtype; f16/f32 export damage is measured by m1/export_damage.py and is a separate operation",
+        "outtype": "bf16"
+      },
+      "greedy_prefix_agree": 0.0,
+      "kl_mean_nats": 0.031374,
+      "kl_p999": 0.606207,
+      "measured_against": {
+        "q4_k_m": {
+          "kl_mean": 0.031914,
+          "prefix_agree": 0.0,
+          "rel_dppl": 0.021945,
+          "tag": "base"
+        },
+        "q5_k_m": {
+          "kl_mean": 0.016719,
+          "prefix_agree": null,
+          "rel_dppl": 0.025142,
+          "tag": "base"
+        },
+        "q8_0": {
+          "kl_mean": 0.00094,
+          "prefix_agree": null,
+          "rel_dppl": -0.000989,
+          "tag": "base"
+        }
+      },
+      "ok": true,
+      "ppl": 12.384,
+      "ppl_reference": 12.1246,
+      "rel_dppl": 0.021395,
+      "size_mb": 379.4,
+      "status": "MEASURED"
+    },
+    "quantize.gguf.q5_k_m": {
+      "export": {
+        "note": "reference is the same weights exported to the artifact's native dtype; f16/f32 export damage is measured by m1/export_damage.py and is a separate operation",
+        "outtype": "bf16"
+      },
+      "greedy_prefix_agree": null,
+      "kl_mean_nats": 0.017056,
+      "kl_p999": 0.378098,
+      "measured_against": {
+        "q4_k_m": {
+          "kl_mean": 0.031914,
+          "prefix_agree": 0.0,
+          "rel_dppl": 0.021945,
+          "tag": "base"
+        },
+        "q5_k_m": {
+          "kl_mean": 0.016719,
+          "prefix_agree": null,
+          "rel_dppl": 0.025142,
+          "tag": "base"
+        },
+        "q8_0": {
+          "kl_mean": 0.00094,
+          "prefix_agree": null,
+          "rel_dppl": -0.000989,
+          "tag": "base"
+        }
+      },
+      "ok": true,
+      "ppl": 12.3742,
+      "ppl_reference": 12.1246,
+      "rel_dppl": 0.020586,
+      "size_mb": 400.6,
+      "status": "MEASURED"
+    },
+    "quantize.gguf.q8_0": {
+      "export": {
+        "note": "reference is the same weights exported to the artifact's native dtype; f16/f32 export damage is measured by m1/export_damage.py and is a separate operation",
+        "outtype": "bf16"
+      },
+      "greedy_prefix_agree": null,
+      "kl_mean_nats": 0.000884,
+      "kl_p999": 0.009733,
+      "measured_against": {
+        "q4_k_m": {
+          "kl_mean": 0.031914,
+          "prefix_agree": 0.0,
+          "rel_dppl": 0.021945,
+          "tag": "base"
+        },
+        "q5_k_m": {
+          "kl_mean": 0.016719,
+          "prefix_agree": null,
+          "rel_dppl": 0.025142,
+          "tag": "base"
+        },
+        "q8_0": {
+          "kl_mean": 0.00094,
+          "prefix_agree": null,
+          "rel_dppl": -0.000989,
+          "tag": "base"
+        }
+      },
+      "ok": true,
+      "ppl": 12.1238,
+      "ppl_reference": 12.1246,
+      "rel_dppl": -6.6e-05,
+      "size_mb": 506.5,
+      "status": "MEASURED"
+    }
+  },
+  "schema": "theseus.passport/0.1",
+  "static_features": {
+    "J_reference": 0.011234,
+    "J_total": 0.011236,
+    "gauge_debt": 2e-06,
+    "inspector": {
+      "per_family_q4": {
+        "down_proj": 0.01111361,
+        "gate_proj": 0.01076465,
+        "k_proj": 0.01176268,
+        "o_proj": 0.01018009,
+        "q_proj": 0.01132272,
+        "up_proj": 0.01068643,
+        "v_proj": 0.01282348
+      },
+      "tot_amax_over_rms": 99.65468543,
+      "tot_dyn_range_log10": 8.91695652,
+      "tot_frac_below_f16_normal": 0.00281741,
+      "tot_q4_block_mse": 0.01123624,
+      "tot_row_energy_imbalance": 53575.68740025,
+      "worst_below_f16": 0.00355945,
+      "worst_dyn_range": 8.51482039
+    },
+    "inspector_status": "MEASURED",
+    "per_family_J": {
+      "down_proj": 0.011114,
+      "gate_proj": 0.010765,
+      "k_proj": 0.011763,
+      "o_proj": 0.01018,
+      "q_proj": 0.011323,
+      "up_proj": 0.010686,
+      "v_proj": 0.012823
+    },
+    "status": "PREDICTED"
+  },
+  "written_utc": "2026-08-31T13:58:20+00:00"
+}

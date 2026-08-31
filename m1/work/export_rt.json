@@ -1,0 +1,15 @@
+{
+  "roundtrip": {
+    "census": {
+      "below_f16_normal": 1007881,
+      "frac_below": 0.00282,
+      "min_abs_weight": 2.4883775040507317e-09,
+      "weights": 357868417
+    },
+    "ppl": {
+      "bf16": null,
+      "f16": null
+    },
+    "status": "OK"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "duration_s": 82.75625727395527,
+  "git_head": "535ddb19a61a0aefe0ab963949ad5da1893c94a0",
+  "model_dir": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+  "results": {
+    "sanity_reference": {
+      "batch_size": 2,
+      "capture": 0.9859822708366603,
+      "capture_ref": 0.9859822708366603,
+      "capture_threshold": 0.7394867031274952,
+      "device": "cuda",
+      "device_note": "cuda",
+      "grad_accum": 1,
+      "heldout_examples": 128,
+      "lora_alpha": 32,
+      "lora_rank": 16,
+      "lr_grid": [
+        {
+          "lr": 0.0003,
+          "runtime_s": 16.068335777847096,
+          "task_loss_after": 0.038167774591365534
+        },
+        {
+          "lr": 0.003,
+          "runtime_s": 16.1250726361759,
+          "task_loss_after": 2.4755010686137457
+        }
+      ],
+      "pass": true,
+      "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+      "peak_memory_allocated_gb": 2.393921536,
+      "protected_dppl": 1.2238330841064453,
+      "protected_dppl_ref": 1.2238330841064453,
+      "protected_ppl_after": 18.21563148498535,
+      "protected_ppl_before": 16.991798400878906,
+      "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+      "runtime_s": 16.404647290008143,
+      "seed": 1729,
+      "selected_lr": 0.0003,
+      "seq_len": 128,
+      "steps": 80,
+      "targets": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "task_loss_after": 0.038167774591365534,
+      "task_loss_before": 2.72282151742415,
+      "train_examples": 512
+    },
+    "variant": {
+      "batch_size": 2,
+      "capture": 0.9859822708366603,
+      "capture_ref": 0.9859822708366603,
+      "capture_threshold": 0.7394867031274952,
+      "device": "cuda",
+      "device_note": "cuda",
+      "grad_accum": 1,
+      "heldout_examples": 128,
+      "lora_alpha": 32,
+      "lora_rank": 16,
+      "lr_grid": [
+        {
+          "lr": 0.0003,
+          "runtime_s": 16.068335777847096,
+          "task_loss_after": 0.038167774591365534
+        },
+        {
+          "lr": 0.003,
+          "runtime_s": 16.1250726361759,
+          "task_loss_after": 2.4755010686137457
+        }
+      ],
+      "pass": true,
+      "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+      "peak_memory_allocated_gb": 2.393921536,
+      "protected_dppl": 1.2238330841064453,
+      "protected_dppl_ref": 1.2238330841064453,
+      "protected_ppl_after": 18.21563148498535,
+      "protected_ppl_before": 16.991798400878906,
+      "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+      "runtime_s": 16.404647290008143,
+      "seed": 1729,
+      "selected_lr": 0.0003,
+      "seq_len": 128,
+      "steps": 80,
+      "targets": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "task_loss_after": 0.038167774591365534,
+      "task_loss_before": 2.72282151742415,
+      "train_examples": 512
+    }
+  },
+  "script": "adapt_probe.py",
+  "tag": "base",
+  "torch": "2.13.0+cu130"
+}

@@ -1,0 +1,1274 @@
+{
+  "base": {
+    "cond_J": {
+      "down_proj": 0.01109909434973709,
+      "gate_proj": 0.01076465418188096,
+      "k_proj": 0.011762683209520876,
+      "o_proj": 0.010180088853539904,
+      "q_proj": 0.011322723421138166,
+      "up_proj": 0.010686590232690784,
+      "v_proj": 0.012823479021489526
+    },
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0"
+    ],
+    "flags": [],
+    "kl": 0.0,
+    "max_dlogit": 0.0,
+    "omega0": 0.25,
+    "ops": {
+      "adapt": {
+        "cmds": null,
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "batch_size": 2,
+            "capture": 0.9730670161829046,
+            "capture_ref": 0.9730670161829046,
+            "capture_threshold": 0.7298002621371784,
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 19.37846873397939,
+                "task_loss_after": 0.07333370786562393
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 19.36917841201648,
+                "task_loss_after": 2.742345855994658
+              }
+            ],
+            "pass": true,
+            "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+            "peak_memory_allocated_gb": 2.962516992,
+            "protected_dppl": 2.9598045349121094,
+            "protected_dppl_ref": 2.9598045349121094,
+            "protected_ppl_after": 19.951602935791016,
+            "protected_ppl_before": 16.991798400878906,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 19.514793182024732,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.07333370786562393,
+            "task_loss_before": 2.72282151742415,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "cmds": [
+          "/home/admin/counterpoint/.venv/bin/python /home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py --outfile /home/admin/theseus/m1/work/gguf/base/model-f16.gguf --outtype f16 /home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4 --save-all-logits /home/admin/theseus/m1/work/gguf/base/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/base/model-f16.gguf /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf Q8_0 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/base/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/base/model-f16.gguf /home/admin/theseus/m1/work/gguf/base/model-q5_k_m.gguf Q5_K_M 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-q5_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-q5_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/base/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/base/model-f16.gguf /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf Q4_K_M 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/base/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'tar athlete at Saginaw '\"'\"'s Arthur Hill High School in football , basketball , and track and field . In 1943 , Michigan canceled b' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'tar athlete at Saginaw '\"'\"'s Arthur Hill High School in football , basketball , and track and field . In 1943 , Michigan canceled b' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'urs later while continuing to the northwest , it made another landfall near Rosewood \u2014 a ghost town in Levy County , east of Ced' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'urs later while continuing to the northwest , it made another landfall near Rosewood \u2014 a ghost town in Levy County , east of Ced' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'm the Soviet Union the North Koreans were aware the UN forces were building up along the Pusan Perimeter and that it must conduc' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'm the Soviet Union the North Koreans were aware the UN forces were building up along the Pusan Perimeter and that it must conduc' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'lieved the 3rd Battalion of the US 38th Infantry Regiment , which in turn had only a few days before relieved the US 21st Infant' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'lieved the 3rd Battalion of the US 38th Infantry Regiment , which in turn had only a few days before relieved the US 21st Infant' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'r H. Story , a weapons squad leader , fought so tenaciously that he was awarded the Medal of Honor . Badly wounded , Story refus' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'r H. Story , a weapons squad leader , fought so tenaciously that he was awarded the Medal of Honor . Badly wounded , Story refus' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'ce the engineers on the chain of low hills that arched around Yongsan on the northwest .  A Company , 2nd Engineer Combat Battal' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'ce the engineers on the chain of low hills that arched around Yongsan on the northwest .  A Company , 2nd Engineer Combat Battal' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'on the Billboard Mainstream Rock Tracks chart and at No. 27 on the Modern Rock Tracks chart . Allmusic '\"'\"'s Jason D. Taylor wrote ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'on the Billboard Mainstream Rock Tracks chart and at No. 27 on the Modern Rock Tracks chart . Allmusic '\"'\"'s Jason D. Taylor wrote ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'erable to the Paixhans guns of Russian fortifications in the Crimean War , Emperor Napoleon III ordered the development of light' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'erable to the Paixhans guns of Russian fortifications in the Crimean War , Emperor Napoleon III ordered the development of light' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 't important weapon in naval warfare . With steam power freeing ships from the wind , and armor making them invulnerable to shell' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 't important weapon in naval warfare . With steam power freeing ships from the wind , and armor making them invulnerable to shell' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'native to the turret , particularly popular with the French navy , was the barbette . These were fixed armored towers which held' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'native to the turret , particularly popular with the French navy , was the barbette . These were fixed armored towers which held' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p ' which was completed in 1888 . While sailing rigs were obsolescent for all purposes by the end of the 1880s , rigged ships were ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p ' which was completed in 1888 . While sailing rigs were obsolescent for all purposes by the end of the 1880s , rigged ships were ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'combined image of fire and Pentecostal fire to emphasise the need for purification and purgation . According to the poet , human' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'combined image of fire and Pentecostal fire to emphasise the need for purification and purgation . According to the poet , human' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'ed on a life @-@ consuming obsession to bring those responsible for the genocide to justice .  Search party ( all Jewish with fa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'ed on a life @-@ consuming obsession to bring those responsible for the genocide to justice .  Search party ( all Jewish with fa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'rly tetrapods called lepospondyls , or even as descendants of both groups ( with caecilians evolving from lepospondyls and frogs' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'rly tetrapods called lepospondyls , or even as descendants of both groups ( with caecilians evolving from lepospondyls and frogs' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p ' the order in which it belonged . The labyrinthodontian suborders Microsauria and Branchiosauria , both of which contain temnosp' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p ' the order in which it belonged . The labyrinthodontian suborders Microsauria and Branchiosauria , both of which contain temnosp' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'isagree on their position . For example , a 2007 study places them even more basal than euskelians , while a 2008 study keeps th' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'isagree on their position . For example , a 2007 study places them even more basal than euskelians , while a 2008 study keeps th' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'enic . Unlike other temnospondyls , their postcranial skeletons developed quickly but were still partly cartilaginous when fully' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'enic . Unlike other temnospondyls , their postcranial skeletons developed quickly but were still partly cartilaginous when fully' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p ' the storm has weakened , maintained its intensity , or strengthened . Various central cloud and banding features are compared w' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p ' the storm has weakened , maintained its intensity , or strengthened . Various central cloud and banding features are compared w' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'Ben Foster , who had suffered a hand injury while training .  On 29 October 2009 , Amos signed for the Championship team Peterbo' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'Ben Foster , who had suffered a hand injury while training .  On 29 October 2009 , Amos signed for the Championship team Peterbo' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p ' by pitching an 8 inning two @-@ hitter and out @-@ dueling the then undefeated Ubaldo Jim\u00e9nez . He credited his control of the ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p ' by pitching an 8 inning two @-@ hitter and out @-@ dueling the then undefeated Ubaldo Jim\u00e9nez . He credited his control of the ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'd surrendered six runs in the seventh . He did tie Koufax for the only Dodgers pitchers with multiple double digit strikeout gam' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'd surrendered six runs in the seventh . He did tie Koufax for the only Dodgers pitchers with multiple double digit strikeout gam' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'materials , assisted by teacher Geoffrey Bardon . Their work , which used acrylic paints to create designs representing body pai' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'materials , assisted by teacher Geoffrey Bardon . Their work , which used acrylic paints to create designs representing body pai' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 's 1925 silent film Battleship Potemkin . In 1984 , the broadcaster Melvyn Bragg asked Bacon about the still , and observed that ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 's 1925 silent film Battleship Potemkin . In 1984 , the broadcaster Melvyn Bragg asked Bacon about the still , and observed that ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p ' mirrors contemporary developments in avant @-@ garde art , especially Cubism . Although Imagism isolates objects through the us' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p ' mirrors contemporary developments in avant @-@ garde art , especially Cubism . Although Imagism isolates objects through the us' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p '7 anthology effectively marked the end of the Imagists as a movement .  In 1929 , Walter Lowenfels jokingly suggested that Aldin' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p '7 anthology effectively marked the end of the Imagists as a movement .  In 1929 , Walter Lowenfels jokingly suggested that Aldin' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'lso had aircraft mobilized to reach Mogadishu , but faced the same problems of landing and transit of evacuees to the airport . ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf -p 'lso had aircraft mobilized to reach Mogadishu , but faced the same problems of landing and transit of evacuees to the airport . ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation"
+        ],
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1399,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12688.2,
+              "vulkan": 17998.8
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.276,
+            "exact_agree": 0.0,
+            "kl_max": 0.404252,
+            "kl_mean": 0.031926,
+            "kl_median": 0.017887,
+            "kl_p90": 0.063847,
+            "kl_p95": 0.120303,
+            "kl_p99": 0.285154,
+            "kl_p999": 0.399816,
+            "pass": null,
+            "ppl": 12.4159,
+            "ppl_f16": 12.1399,
+            "prefix_agree": 0.0,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "rel_dppl": 0.022735,
+            "role": "reference_calibration",
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.2897,
+            "kl_max": 0.30797,
+            "kl_mean": 0.017057,
+            "kl_median": 0.011097,
+            "kl_p90": 0.033805,
+            "kl_p95": 0.054541,
+            "kl_p99": 0.137068,
+            "kl_p999": 0.229496,
+            "pass": null,
+            "ppl": 12.4296,
+            "ppl_f16": 12.1399,
+            "rel_dppl": 0.023863,
+            "role": "reference_calibration",
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": -0.0168,
+            "kl_max": 0.009848,
+            "kl_mean": 0.001004,
+            "kl_median": 0.000812,
+            "kl_p90": 0.002077,
+            "kl_p95": 0.00282,
+            "kl_p99": 0.005126,
+            "kl_p999": 0.007699,
+            "pass": null,
+            "ppl": 12.1231,
+            "ppl_f16": 12.1399,
+            "rel_dppl": -0.001384,
+            "role": "reference_calibration",
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "error": "{'message': 'quantile() input tensor is too large', 'type': 'RuntimeError'}",
+        "status": "ERROR"
+      }
+    },
+    "passes": [
+      "adapt:variant"
+    ],
+    "ppl": 17.71019172668457,
+    "top1": 1.0,
+    "unavailable": [
+      "merge"
+    ],
+    "variant": "base"
+  },
+  "g1_haar": {
+    "cond_J": {
+      "down_proj": 0.01109909434973709,
+      "gate_proj": 0.01076465418188096,
+      "k_proj": 0.011762683209520876,
+      "o_proj": 0.009712773051903894,
+      "q_proj": 0.011322723421138166,
+      "up_proj": 0.010686590232690784,
+      "v_proj": 0.012680387867931667
+    },
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 1.1095136869698763e-05,
+    "max_dlogit": 0.1754779815673828,
+    "omega0": 0.3333333333333333,
+    "ops": {
+      "adapt": {
+        "cmds": null,
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "batch_size": 2,
+            "capture": 0.9647953181744817,
+            "capture_ref": 0.9730670161829046,
+            "capture_threshold": 0.7298002621371784,
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 19.368651075055823,
+                "task_loss_after": 0.09584079387819987
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 19.42685944098048,
+                "task_loss_after": 2.5976088372143833
+              }
+            ],
+            "pass": true,
+            "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+            "peak_memory_allocated_gb": 2.962516992,
+            "protected_dppl": 2.7262210845947266,
+            "protected_dppl_ref": 2.9598045349121094,
+            "protected_ppl_after": 19.736915588378906,
+            "protected_ppl_before": 17.01069450378418,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 19.756228947080672,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.09584079387819987,
+            "task_loss_before": 2.722387731075287,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "error": "  [gguf] waiting for gpu lock\n  [gguf] backend=vulkan ngl=99 throughput={'cpu': 12639.0, 'vulkan': 18460.3}\nTraceback (most recent call last):\n  File \"/home/admin/theseus/m1/gguf_probe.py\", line 358, in <module>\n    main()\n  File \"/home/admin/theseus/m1/gguf_probe.py\", line 337, in main\n    judge(t, tag, ent, results)\n  File \"/home/admin/theseus/m1/gguf_probe.py\", line 250, in judge\n    \"prefix_ag",
+        "status": "UNAVAILABLE"
+      },
+      "merge": {
+        "cmds": null,
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.5,
+            0.7
+          ],
+          "candidate_ppl": 27.67719078063965,
+          "density": 0.2,
+          "device": "cuda",
+          "device_note": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 96966.8359375,
+                "pass": false,
+                "specialist_rule_loss": 10.826776291721309
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 74281.640625,
+                "pass": false,
+                "specialist_rule_loss": 10.383583045420652
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 58289.5390625,
+                "pass": false,
+                "specialist_rule_loss": 9.929230173632213
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "batch_size": 2,
+            "eval_ppl": 142486.5,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 4.009621263892526,
+            "max_memory_allocated_gb": 2.916481024,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 4.009621263892526,
+            "runtime_s": 154.28219072590582,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 124544.4609375,
+                "pass": false,
+                "specialist_rule_loss": 11.4432831435267
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 100794.8515625,
+                "pass": false,
+                "specialist_rule_loss": 11.152838169125232
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 82921.859375,
+                "pass": false,
+                "specialist_rule_loss": 10.869751632518632
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "adapt:variant"
+    ],
+    "ppl": 17.70816421508789,
+    "top1": 0.9990234375,
+    "unavailable": [
+      "gguf"
+    ],
+    "variant": "g1_haar"
+  },
+  "g1_haar_rep": {
+    "cond_J": {
+      "down_proj": 0.01109909434973709,
+      "gate_proj": 0.01076465418188096,
+      "k_proj": 0.011762683209520876,
+      "o_proj": 0.009675282345022697,
+      "q_proj": 0.011322723421138166,
+      "up_proj": 0.010686590232690784,
+      "v_proj": 0.012639394235773394
+    },
+    "equiv": "EQUIVALENT",
+    "fails": [],
+    "flags": [],
+    "kl": 2.0930303435306996e-05,
+    "max_dlogit": 0.30450963973999023,
+    "omega0": 1.0,
+    "ops": {
+      "adapt": {
+        "cmds": null,
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "batch_size": 2,
+            "capture": 0.9736494330250103,
+            "capture_ref": 0.9730670161829046,
+            "capture_threshold": 0.7298002621371784,
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 19.44575364794582,
+                "task_loss_after": 0.07176832568604202
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 20.001207151915878,
+                "task_loss_after": 7.484550476074219
+              }
+            ],
+            "pass": true,
+            "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+            "peak_memory_allocated_gb": 2.962516992,
+            "protected_dppl": 2.7875595092773438,
+            "protected_dppl_ref": 2.9598045349121094,
+            "protected_ppl_after": 19.762121200561523,
+            "protected_ppl_before": 16.97456169128418,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 21.22051790403202,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.07176832568604202,
+            "task_loss_before": 2.7235970199108124,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "error": "  [gguf] waiting for gpu lock\n  [gguf] backend=vulkan ngl=99 throughput={'cpu': 11523.4, 'vulkan': 17042.7}\nTraceback (most recent call last):\n  File \"/home/admin/theseus/m1/gguf_probe.py\", line 358, in <module>\n    main()\n  File \"/home/admin/theseus/m1/gguf_probe.py\", line 337, in main\n    judge(t, tag, ent, results)\n  File \"/home/admin/theseus/m1/gguf_probe.py\", line 250, in judge\n    \"prefix_ag",
+        "status": "UNAVAILABLE"
+      }
+    },
+    "passes": [
+      "adapt:variant"
+    ],
+    "ppl": 17.708688735961914,
+    "top1": 0.997802734375,
+    "unavailable": [
+      "gguf"
+    ],
+    "variant": "g1_haar_rep"
+  },
+  "g2_rand": {
+    "cond_J": {
+      "down_proj": 0.01109909434973709,
+      "gate_proj": 0.01076465418188096,
+      "k_proj": 0.011818185333596536,
+      "o_proj": 0.010180088853539904,
+      "q_proj": 0.011349605993427485,
+      "up_proj": 0.010686590232690784,
+      "v_proj": 0.012823479021489526
+    },
+    "equiv": "EQUIVALENT",
+    "fails": [],
+    "flags": [],
+    "kl": 3.718042717082426e-05,
+    "max_dlogit": 0.22254276275634766,
+    "omega0": 1.0,
+    "ops": {
+      "adapt": {
+        "cmds": null,
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "batch_size": 2,
+            "capture": 0.9520092856823621,
+            "capture_ref": 0.9730670161829046,
+            "capture_threshold": 0.7298002621371784,
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 19.993073899066076,
+                "task_loss_after": 0.1302884067964359
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 21.226526809856296,
+                "task_loss_after": 2.64190136031671
+              }
+            ],
+            "pass": true,
+            "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+            "peak_memory_allocated_gb": 2.962516992,
+            "protected_dppl": 2.5383834838867188,
+            "protected_dppl_ref": 2.9598045349121094,
+            "protected_ppl_after": 19.514551162719727,
+            "protected_ppl_before": 16.976167678833008,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 21.840037869056687,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.1302884067964359,
+            "task_loss_before": 2.7148670039393683,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "cmds": [
+          "/home/admin/counterpoint/.venv/bin/python /home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py --outfile /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf --outtype f16 /home/admin/theseus/m1/work/g2_rand",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4 --save-all-logits /home/admin/theseus/m1/work/gguf/g2_rand/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf /home/admin/theseus/m1/work/gguf/g2_rand/model-q8_0.gguf Q8_0 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/g2_rand/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf /home/admin/theseus/m1/work/gguf/g2_rand/model-q5_k_m.gguf Q5_K_M 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q5_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q5_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/g2_rand/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf Q4_K_M 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/g2_rand/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'tar athlete at Saginaw '\"'\"'s Arthur Hill High School in football , basketball , and track and field . In 1943 , Michigan canceled b' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'tar athlete at Saginaw '\"'\"'s Arthur Hill High School in football , basketball , and track and field . In 1943 , Michigan canceled b' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'urs later while continuing to the northwest , it made another landfall near Rosewood \u2014 a ghost town in Levy County , east of Ced' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'urs later while continuing to the northwest , it made another landfall near Rosewood \u2014 a ghost town in Levy County , east of Ced' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'm the Soviet Union the North Koreans were aware the UN forces were building up along the Pusan Perimeter and that it must conduc' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'm the Soviet Union the North Koreans were aware the UN forces were building up along the Pusan Perimeter and that it must conduc' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'lieved the 3rd Battalion of the US 38th Infantry Regiment , which in turn had only a few days before relieved the US 21st Infant' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'lieved the 3rd Battalion of the US 38th Infantry Regiment , which in turn had only a few days before relieved the US 21st Infant' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'r H. Story , a weapons squad leader , fought so tenaciously that he was awarded the Medal of Honor . Badly wounded , Story refus' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'r H. Story , a weapons squad leader , fought so tenaciously that he was awarded the Medal of Honor . Badly wounded , Story refus' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'ce the engineers on the chain of low hills that arched around Yongsan on the northwest .  A Company , 2nd Engineer Combat Battal' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'ce the engineers on the chain of low hills that arched around Yongsan on the northwest .  A Company , 2nd Engineer Combat Battal' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'on the Billboard Mainstream Rock Tracks chart and at No. 27 on the Modern Rock Tracks chart . Allmusic '\"'\"'s Jason D. Taylor wrote ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'on the Billboard Mainstream Rock Tracks chart and at No. 27 on the Modern Rock Tracks chart . Allmusic '\"'\"'s Jason D. Taylor wrote ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'erable to the Paixhans guns of Russian fortifications in the Crimean War , Emperor Napoleon III ordered the development of light' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'erable to the Paixhans guns of Russian fortifications in the Crimean War , Emperor Napoleon III ordered the development of light' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 't important weapon in naval warfare . With steam power freeing ships from the wind , and armor making them invulnerable to shell' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 't important weapon in naval warfare . With steam power freeing ships from the wind , and armor making them invulnerable to shell' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'native to the turret , particularly popular with the French navy , was the barbette . These were fixed armored towers which held' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'native to the turret , particularly popular with the French navy , was the barbette . These were fixed armored towers which held' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p ' which was completed in 1888 . While sailing rigs were obsolescent for all purposes by the end of the 1880s , rigged ships were ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p ' which was completed in 1888 . While sailing rigs were obsolescent for all purposes by the end of the 1880s , rigged ships were ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'combined image of fire and Pentecostal fire to emphasise the need for purification and purgation . According to the poet , human' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'combined image of fire and Pentecostal fire to emphasise the need for purification and purgation . According to the poet , human' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'ed on a life @-@ consuming obsession to bring those responsible for the genocide to justice .  Search party ( all Jewish with fa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'ed on a life @-@ consuming obsession to bring those responsible for the genocide to justice .  Search party ( all Jewish with fa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'rly tetrapods called lepospondyls , or even as descendants of both groups ( with caecilians evolving from lepospondyls and frogs' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'rly tetrapods called lepospondyls , or even as descendants of both groups ( with caecilians evolving from lepospondyls and frogs' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p ' the order in which it belonged . The labyrinthodontian suborders Microsauria and Branchiosauria , both of which contain temnosp' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p ' the order in which it belonged . The labyrinthodontian suborders Microsauria and Branchiosauria , both of which contain temnosp' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'isagree on their position . For example , a 2007 study places them even more basal than euskelians , while a 2008 study keeps th' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'isagree on their position . For example , a 2007 study places them even more basal than euskelians , while a 2008 study keeps th' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'enic . Unlike other temnospondyls , their postcranial skeletons developed quickly but were still partly cartilaginous when fully' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'enic . Unlike other temnospondyls , their postcranial skeletons developed quickly but were still partly cartilaginous when fully' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p ' the storm has weakened , maintained its intensity , or strengthened . Various central cloud and banding features are compared w' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p ' the storm has weakened , maintained its intensity , or strengthened . Various central cloud and banding features are compared w' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'Ben Foster , who had suffered a hand injury while training .  On 29 October 2009 , Amos signed for the Championship team Peterbo' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'Ben Foster , who had suffered a hand injury while training .  On 29 October 2009 , Amos signed for the Championship team Peterbo' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p ' by pitching an 8 inning two @-@ hitter and out @-@ dueling the then undefeated Ubaldo Jim\u00e9nez . He credited his control of the ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p ' by pitching an 8 inning two @-@ hitter and out @-@ dueling the then undefeated Ubaldo Jim\u00e9nez . He credited his control of the ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'd surrendered six runs in the seventh . He did tie Koufax for the only Dodgers pitchers with multiple double digit strikeout gam' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'd surrendered six runs in the seventh . He did tie Koufax for the only Dodgers pitchers with multiple double digit strikeout gam' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'materials , assisted by teacher Geoffrey Bardon . Their work , which used acrylic paints to create designs representing body pai' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'materials , assisted by teacher Geoffrey Bardon . Their work , which used acrylic paints to create designs representing body pai' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 's 1925 silent film Battleship Potemkin . In 1984 , the broadcaster Melvyn Bragg asked Bacon about the still , and observed that ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 's 1925 silent film Battleship Potemkin . In 1984 , the broadcaster Melvyn Bragg asked Bacon about the still , and observed that ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p ' mirrors contemporary developments in avant @-@ garde art , especially Cubism . Although Imagism isolates objects through the us' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p ' mirrors contemporary developments in avant @-@ garde art , especially Cubism . Although Imagism isolates objects through the us' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p '7 anthology effectively marked the end of the Imagists as a movement .  In 1929 , Walter Lowenfels jokingly suggested that Aldin' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p '7 anthology effectively marked the end of the Imagists as a movement .  In 1929 , Walter Lowenfels jokingly suggested that Aldin' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-f16.gguf -p 'lso had aircraft mobilized to reach Mogadishu , but faced the same problems of landing and transit of evacuees to the airport . ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g2_rand/model-q4_k_m.gguf -p 'lso had aircraft mobilized to reach Mogadishu , but faced the same problems of landing and transit of evacuees to the airport . ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation"
+        ],
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1349,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 7798.3,
+              "vulkan": 10333.2
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.3511,
+            "exact_agree": 0.0,
+            "kl_max": 0.468287,
+            "kl_mean": 0.032591,
+            "kl_median": 0.018525,
+            "kl_p90": 0.064928,
+            "kl_p95": 0.111727,
+            "kl_p99": 0.276368,
+            "kl_p999": 0.418655,
+            "limits": {
+              "kl_mean": 0.036926,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.032735
+            },
+            "pass": true,
+            "ppl": 12.486,
+            "ppl_f16": 12.1349,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.028933,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.2912,
+            "kl_max": 0.375756,
+            "kl_mean": 0.017401,
+            "kl_median": 0.011067,
+            "kl_p90": 0.035811,
+            "kl_p95": 0.053254,
+            "kl_p99": 0.116426,
+            "kl_p999": 0.253389,
+            "limits": {
+              "kl_mean": 0.022057,
+              "rel_dppl": 0.033863
+            },
+            "pass": true,
+            "ppl": 12.4261,
+            "ppl_f16": 12.1349,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.023997,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": -0.0024,
+            "kl_max": 0.014507,
+            "kl_mean": 0.001088,
+            "kl_median": 0.000832,
+            "kl_p90": 0.002329,
+            "kl_p95": 0.003143,
+            "kl_p99": 0.005524,
+            "kl_p999": 0.013314,
+            "limits": {
+              "kl_mean": 0.006004,
+              "rel_dppl": 0.008616
+            },
+            "pass": true,
+            "ppl": 12.1325,
+            "ppl_f16": 12.1349,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": -0.000198,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant"
+    ],
+    "ppl": 17.714384078979492,
+    "top1": 0.99755859375,
+    "unavailable": [],
+    "variant": "g2_rand"
+  },
+  "g3_pow2": {
+    "cond_J": {
+      "down_proj": 0.01109909434973709,
+      "gate_proj": 0.03627623270418997,
+      "k_proj": 0.037527068979179,
+      "o_proj": 0.010180088853539904,
+      "q_proj": 0.03742400431592289,
+      "up_proj": 0.03625246164157798,
+      "v_proj": 0.03808026385216099
+    },
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant"
+    ],
+    "flags": [],
+    "kl": 0.0,
+    "max_dlogit": 0.0,
+    "omega0": 0.0,
+    "ops": {
+      "adapt": {
+        "cmds": null,
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "batch_size": 2,
+            "capture": 0.15592363332752834,
+            "capture_ref": 0.9730670161829046,
+            "capture_threshold": 0.7298002621371784,
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 19.52272250689566,
+                "task_loss_after": 2.2982692935250024
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 20.131711716996506,
+                "task_loss_after": 2.909919272769581
+              }
+            ],
+            "pass": false,
+            "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+            "peak_memory_allocated_gb": 2.962516992,
+            "protected_dppl": 4316255.008201599,
+            "protected_dppl_ref": 2.9598045349121094,
+            "protected_ppl_after": 4316272.0,
+            "protected_ppl_before": 16.991798400878906,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 20.470619949977845,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 2.2982692935250024,
+            "task_loss_before": 2.72282151742415,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "cmds": [
+          "/home/admin/counterpoint/.venv/bin/python /home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py --outfile /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf --outtype f16 /home/admin/theseus/m1/work/g3_pow2",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4 --save-all-logits /home/admin/theseus/m1/work/gguf/g3_pow2/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf /home/admin/theseus/m1/work/gguf/g3_pow2/model-q8_0.gguf Q8_0 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/g3_pow2/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf /home/admin/theseus/m1/work/gguf/g3_pow2/model-q5_k_m.gguf Q5_K_M 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q5_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q5_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/g3_pow2/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf Q4_K_M 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/g3_pow2/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'tar athlete at Saginaw '\"'\"'s Arthur Hill High School in football , basketball , and track and field . In 1943 , Michigan canceled b' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'tar athlete at Saginaw '\"'\"'s Arthur Hill High School in football , basketball , and track and field . In 1943 , Michigan canceled b' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'urs later while continuing to the northwest , it made another landfall near Rosewood \u2014 a ghost town in Levy County , east of Ced' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'urs later while continuing to the northwest , it made another landfall near Rosewood \u2014 a ghost town in Levy County , east of Ced' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'm the Soviet Union the North Koreans were aware the UN forces were building up along the Pusan Perimeter and that it must conduc' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'm the Soviet Union the North Koreans were aware the UN forces were building up along the Pusan Perimeter and that it must conduc' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'lieved the 3rd Battalion of the US 38th Infantry Regiment , which in turn had only a few days before relieved the US 21st Infant' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'lieved the 3rd Battalion of the US 38th Infantry Regiment , which in turn had only a few days before relieved the US 21st Infant' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'r H. Story , a weapons squad leader , fought so tenaciously that he was awarded the Medal of Honor . Badly wounded , Story refus' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'r H. Story , a weapons squad leader , fought so tenaciously that he was awarded the Medal of Honor . Badly wounded , Story refus' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'ce the engineers on the chain of low hills that arched around Yongsan on the northwest .  A Company , 2nd Engineer Combat Battal' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'ce the engineers on the chain of low hills that arched around Yongsan on the northwest .  A Company , 2nd Engineer Combat Battal' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'on the Billboard Mainstream Rock Tracks chart and at No. 27 on the Modern Rock Tracks chart . Allmusic '\"'\"'s Jason D. Taylor wrote ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'on the Billboard Mainstream Rock Tracks chart and at No. 27 on the Modern Rock Tracks chart . Allmusic '\"'\"'s Jason D. Taylor wrote ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'erable to the Paixhans guns of Russian fortifications in the Crimean War , Emperor Napoleon III ordered the development of light' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'erable to the Paixhans guns of Russian fortifications in the Crimean War , Emperor Napoleon III ordered the development of light' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 't important weapon in naval warfare . With steam power freeing ships from the wind , and armor making them invulnerable to shell' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 't important weapon in naval warfare . With steam power freeing ships from the wind , and armor making them invulnerable to shell' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'native to the turret , particularly popular with the French navy , was the barbette . These were fixed armored towers which held' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'native to the turret , particularly popular with the French navy , was the barbette . These were fixed armored towers which held' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p ' which was completed in 1888 . While sailing rigs were obsolescent for all purposes by the end of the 1880s , rigged ships were ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p ' which was completed in 1888 . While sailing rigs were obsolescent for all purposes by the end of the 1880s , rigged ships were ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'combined image of fire and Pentecostal fire to emphasise the need for purification and purgation . According to the poet , human' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'combined image of fire and Pentecostal fire to emphasise the need for purification and purgation . According to the poet , human' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'ed on a life @-@ consuming obsession to bring those responsible for the genocide to justice .  Search party ( all Jewish with fa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'ed on a life @-@ consuming obsession to bring those responsible for the genocide to justice .  Search party ( all Jewish with fa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'rly tetrapods called lepospondyls , or even as descendants of both groups ( with caecilians evolving from lepospondyls and frogs' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'rly tetrapods called lepospondyls , or even as descendants of both groups ( with caecilians evolving from lepospondyls and frogs' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p ' the order in which it belonged . The labyrinthodontian suborders Microsauria and Branchiosauria , both of which contain temnosp' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p ' the order in which it belonged . The labyrinthodontian suborders Microsauria and Branchiosauria , both of which contain temnosp' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'isagree on their position . For example , a 2007 study places them even more basal than euskelians , while a 2008 study keeps th' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'isagree on their position . For example , a 2007 study places them even more basal than euskelians , while a 2008 study keeps th' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'enic . Unlike other temnospondyls , their postcranial skeletons developed quickly but were still partly cartilaginous when fully' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'enic . Unlike other temnospondyls , their postcranial skeletons developed quickly but were still partly cartilaginous when fully' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p ' the storm has weakened , maintained its intensity , or strengthened . Various central cloud and banding features are compared w' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p ' the storm has weakened , maintained its intensity , or strengthened . Various central cloud and banding features are compared w' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'Ben Foster , who had suffered a hand injury while training .  On 29 October 2009 , Amos signed for the Championship team Peterbo' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'Ben Foster , who had suffered a hand injury while training .  On 29 October 2009 , Amos signed for the Championship team Peterbo' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p ' by pitching an 8 inning two @-@ hitter and out @-@ dueling the then undefeated Ubaldo Jim\u00e9nez . He credited his control of the ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p ' by pitching an 8 inning two @-@ hitter and out @-@ dueling the then undefeated Ubaldo Jim\u00e9nez . He credited his control of the ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'd surrendered six runs in the seventh . He did tie Koufax for the only Dodgers pitchers with multiple double digit strikeout gam' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'd surrendered six runs in the seventh . He did tie Koufax for the only Dodgers pitchers with multiple double digit strikeout gam' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'materials , assisted by teacher Geoffrey Bardon . Their work , which used acrylic paints to create designs representing body pai' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'materials , assisted by teacher Geoffrey Bardon . Their work , which used acrylic paints to create designs representing body pai' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 's 1925 silent film Battleship Potemkin . In 1984 , the broadcaster Melvyn Bragg asked Bacon about the still , and observed that ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 's 1925 silent film Battleship Potemkin . In 1984 , the broadcaster Melvyn Bragg asked Bacon about the still , and observed that ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p ' mirrors contemporary developments in avant @-@ garde art , especially Cubism . Although Imagism isolates objects through the us' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p ' mirrors contemporary developments in avant @-@ garde art , especially Cubism . Although Imagism isolates objects through the us' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p '7 anthology effectively marked the end of the Imagists as a movement .  In 1929 , Walter Lowenfels jokingly suggested that Aldin' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p '7 anthology effectively marked the end of the Imagists as a movement .  In 1929 , Walter Lowenfels jokingly suggested that Aldin' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-f16.gguf -p 'lso had aircraft mobilized to reach Mogadishu , but faced the same problems of landing and transit of evacuees to the airport . ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2/model-q4_k_m.gguf -p 'lso had aircraft mobilized to reach Mogadishu , but faced the same problems of landing and transit of evacuees to the airport . ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation"
+        ],
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 177.3286,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12853.5,
+              "vulkan": 17727.8
+            }
+          },
+          "q4_k_m": {
+            "dppl": 318095.8623,
+            "exact_agree": 0.0,
+            "kl_mean": null,
+            "limits": {
+              "kl_mean": 0.036926,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.032735
+            },
+            "pass": false,
+            "ppl": 318273.1909,
+            "ppl_f16": 177.3286,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 1793.82154,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 7973158.9615,
+            "kl_mean": null,
+            "limits": {
+              "kl_mean": 0.022057,
+              "rel_dppl": 0.033863
+            },
+            "pass": false,
+            "ppl": 7973336.2901,
+            "ppl_f16": 177.3286,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 44962.622845,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": 633253.7089,
+            "kl_max": 24.728682,
+            "kl_mean": 8.366317,
+            "kl_median": 7.135502,
+            "kl_p90": 14.413038,
+            "kl_p95": 18.691484,
+            "kl_p99": 21.198071,
+            "kl_p999": 24.574484,
+            "limits": {
+              "kl_mean": 0.006004,
+              "rel_dppl": 0.008616
+            },
+            "pass": false,
+            "ppl": 633431.0375,
+            "ppl_f16": 177.3286,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 3571.07488,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      }
+    },
+    "passes": [],
+    "ppl": 17.71019172668457,
+    "top1": 1.0,
+    "unavailable": [],
+    "variant": "g3_pow2"
+  },
+  "g3_pow2_rep": {
+    "cond_J": {
+      "down_proj": 0.01109909434973709,
+      "gate_proj": 0.010863256510124706,
+      "k_proj": 0.012216549804644783,
+      "o_proj": 0.010180088853539904,
+      "q_proj": 0.011162523585535267,
+      "up_proj": 0.010800437778650128,
+      "v_proj": 0.014071866919704858
+    },
+    "equiv": "EQUIVALENT",
+    "fails": [],
+    "flags": [],
+    "kl": 0.0,
+    "max_dlogit": 0.0,
+    "omega0": 1.0,
+    "ops": {
+      "adapt": {
+        "cmds": null,
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "batch_size": 2,
+            "capture": 0.9828753928666019,
+            "capture_ref": 0.9730670161829046,
+            "capture_threshold": 0.7298002621371784,
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 19.522687029093504,
+                "task_loss_after": 0.04662724878025157
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 19.609838458010927,
+                "task_loss_after": 2.6315656250173394
+              }
+            ],
+            "pass": true,
+            "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+            "peak_memory_allocated_gb": 2.962516992,
+            "protected_dppl": 2.4592742919921875,
+            "protected_dppl_ref": 2.9598045349121094,
+            "protected_ppl_after": 19.451072692871094,
+            "protected_ppl_before": 16.991798400878906,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 19.97135954699479,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.04662724878025157,
+            "task_loss_before": 2.72282151742415,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "cmds": [
+          "/home/admin/counterpoint/.venv/bin/python /home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py --outfile /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf --outtype f16 /home/admin/theseus/m1/work/g3_pow2_rep",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4 --save-all-logits /home/admin/theseus/m1/work/gguf/g3_pow2_rep/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q8_0.gguf Q8_0 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/g3_pow2_rep/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q5_k_m.gguf Q5_K_M 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q5_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q5_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/g3_pow2_rep/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf Q4_K_M 8",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 4",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -f /home/admin/theseus/m1/work/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/g3_pow2_rep/f16-logits.bin",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'tar athlete at Saginaw '\"'\"'s Arthur Hill High School in football , basketball , and track and field . In 1943 , Michigan canceled b' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'tar athlete at Saginaw '\"'\"'s Arthur Hill High School in football , basketball , and track and field . In 1943 , Michigan canceled b' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'urs later while continuing to the northwest , it made another landfall near Rosewood \u2014 a ghost town in Levy County , east of Ced' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'urs later while continuing to the northwest , it made another landfall near Rosewood \u2014 a ghost town in Levy County , east of Ced' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'm the Soviet Union the North Koreans were aware the UN forces were building up along the Pusan Perimeter and that it must conduc' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'm the Soviet Union the North Koreans were aware the UN forces were building up along the Pusan Perimeter and that it must conduc' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'lieved the 3rd Battalion of the US 38th Infantry Regiment , which in turn had only a few days before relieved the US 21st Infant' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'lieved the 3rd Battalion of the US 38th Infantry Regiment , which in turn had only a few days before relieved the US 21st Infant' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'r H. Story , a weapons squad leader , fought so tenaciously that he was awarded the Medal of Honor . Badly wounded , Story refus' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'r H. Story , a weapons squad leader , fought so tenaciously that he was awarded the Medal of Honor . Badly wounded , Story refus' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'ce the engineers on the chain of low hills that arched around Yongsan on the northwest .  A Company , 2nd Engineer Combat Battal' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'ce the engineers on the chain of low hills that arched around Yongsan on the northwest .  A Company , 2nd Engineer Combat Battal' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'on the Billboard Mainstream Rock Tracks chart and at No. 27 on the Modern Rock Tracks chart . Allmusic '\"'\"'s Jason D. Taylor wrote ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'on the Billboard Mainstream Rock Tracks chart and at No. 27 on the Modern Rock Tracks chart . Allmusic '\"'\"'s Jason D. Taylor wrote ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'erable to the Paixhans guns of Russian fortifications in the Crimean War , Emperor Napoleon III ordered the development of light' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'erable to the Paixhans guns of Russian fortifications in the Crimean War , Emperor Napoleon III ordered the development of light' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 't important weapon in naval warfare . With steam power freeing ships from the wind , and armor making them invulnerable to shell' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 't important weapon in naval warfare . With steam power freeing ships from the wind , and armor making them invulnerable to shell' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'native to the turret , particularly popular with the French navy , was the barbette . These were fixed armored towers which held' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'native to the turret , particularly popular with the French navy , was the barbette . These were fixed armored towers which held' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p ' which was completed in 1888 . While sailing rigs were obsolescent for all purposes by the end of the 1880s , rigged ships were ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p ' which was completed in 1888 . While sailing rigs were obsolescent for all purposes by the end of the 1880s , rigged ships were ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'combined image of fire and Pentecostal fire to emphasise the need for purification and purgation . According to the poet , human' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'combined image of fire and Pentecostal fire to emphasise the need for purification and purgation . According to the poet , human' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'ed on a life @-@ consuming obsession to bring those responsible for the genocide to justice .  Search party ( all Jewish with fa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'ed on a life @-@ consuming obsession to bring those responsible for the genocide to justice .  Search party ( all Jewish with fa' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'rly tetrapods called lepospondyls , or even as descendants of both groups ( with caecilians evolving from lepospondyls and frogs' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'rly tetrapods called lepospondyls , or even as descendants of both groups ( with caecilians evolving from lepospondyls and frogs' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p ' the order in which it belonged . The labyrinthodontian suborders Microsauria and Branchiosauria , both of which contain temnosp' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p ' the order in which it belonged . The labyrinthodontian suborders Microsauria and Branchiosauria , both of which contain temnosp' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'isagree on their position . For example , a 2007 study places them even more basal than euskelians , while a 2008 study keeps th' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'isagree on their position . For example , a 2007 study places them even more basal than euskelians , while a 2008 study keeps th' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'enic . Unlike other temnospondyls , their postcranial skeletons developed quickly but were still partly cartilaginous when fully' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'enic . Unlike other temnospondyls , their postcranial skeletons developed quickly but were still partly cartilaginous when fully' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p ' the storm has weakened , maintained its intensity , or strengthened . Various central cloud and banding features are compared w' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p ' the storm has weakened , maintained its intensity , or strengthened . Various central cloud and banding features are compared w' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'Ben Foster , who had suffered a hand injury while training .  On 29 October 2009 , Amos signed for the Championship team Peterbo' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'Ben Foster , who had suffered a hand injury while training .  On 29 October 2009 , Amos signed for the Championship team Peterbo' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p ' by pitching an 8 inning two @-@ hitter and out @-@ dueling the then undefeated Ubaldo Jim\u00e9nez . He credited his control of the ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p ' by pitching an 8 inning two @-@ hitter and out @-@ dueling the then undefeated Ubaldo Jim\u00e9nez . He credited his control of the ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'd surrendered six runs in the seventh . He did tie Koufax for the only Dodgers pitchers with multiple double digit strikeout gam' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'd surrendered six runs in the seventh . He did tie Koufax for the only Dodgers pitchers with multiple double digit strikeout gam' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'materials , assisted by teacher Geoffrey Bardon . Their work , which used acrylic paints to create designs representing body pai' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'materials , assisted by teacher Geoffrey Bardon . Their work , which used acrylic paints to create designs representing body pai' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 's 1925 silent film Battleship Potemkin . In 1984 , the broadcaster Melvyn Bragg asked Bacon about the still , and observed that ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 's 1925 silent film Battleship Potemkin . In 1984 , the broadcaster Melvyn Bragg asked Bacon about the still , and observed that ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p ' mirrors contemporary developments in avant @-@ garde art , especially Cubism . Although Imagism isolates objects through the us' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p ' mirrors contemporary developments in avant @-@ garde art , especially Cubism . Although Imagism isolates objects through the us' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p '7 anthology effectively marked the end of the Imagists as a movement .  In 1929 , Walter Lowenfels jokingly suggested that Aldin' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p '7 anthology effectively marked the end of the Imagists as a movement .  In 1929 , Walter Lowenfels jokingly suggested that Aldin' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-f16.gguf -p 'lso had aircraft mobilized to reach Mogadishu , but faced the same problems of landing and transit of evacuees to the airport . ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation",
+          "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/g3_pow2_rep/model-q4_k_m.gguf -p 'lso had aircraft mobilized to reach Mogadishu , but faced the same problems of landing and transit of evacuees to the airport . ' -n 32 --temp 0 --seed 0 -ngl 99 --no-display-prompt --no-conversation"
+        ],
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1255,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12070.0,
+              "vulkan": 16305.4
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.237,
+            "exact_agree": 0.0,
+            "kl_max": 0.6192,
+            "kl_mean": 0.035155,
+            "kl_median": 0.020115,
+            "kl_p90": 0.083569,
+            "kl_p95": 0.123037,
+            "kl_p99": 0.275573,
+            "kl_p999": 0.478702,
+            "limits": {
+              "kl_mean": 0.036926,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.032735
+            },
+            "pass": true,
+            "ppl": 12.3625,
+            "ppl_f16": 12.1255,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.019546,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.325,
+            "kl_max": 0.486925,
+            "kl_mean": 0.020598,
+            "kl_median": 0.012694,
+            "kl_p90": 0.04433,
+            "kl_p95": 0.066541,
+            "kl_p99": 0.119421,
+            "kl_p999": 0.393526,
+            "limits": {
+              "kl_mean": 0.022057,
+              "rel_dppl": 0.033863
+            },
+            "pass": true,
+            "ppl": 12.4505,
+            "ppl_f16": 12.1255,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.026803,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": 0.0005,
+            "kl_max": 0.016688,
+            "kl_mean": 0.001117,
+            "kl_median": 0.000861,
+            "kl_p90": 0.002245,
+            "kl_p95": 0.003174,
+            "kl_p99": 0.006164,
+            "kl_p999": 0.012381,
+            "limits": {
+              "kl_mean": 0.006004,
+              "rel_dppl": 0.008616
+            },
+            "pass": true,
+            "ppl": 12.126,
+            "ppl_f16": 12.1255,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 4.1e-05,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant"
+    ],
+    "ppl": 17.71019172668457,
+    "top1": 1.0,
+    "unavailable": [],
+    "variant": "g3_pow2_rep"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "seed": 1729,
+  "steps": 80,
+  "rank": 16,
+  "capture": 0.9730670161829046,
+  "protected_dppl": 2.9598045349121094,
+  "source": "m1/work/probes/base_adapt.json results.variant (identical budget on REF_MODEL)",
+  "selected_lr": 0.0003,
+  "device": "cuda"
+}

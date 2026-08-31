@@ -1,0 +1,1043 @@
+{
+  "bad_all": {
+    "build_s": 7.8,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work/bad_all",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:1+G1:haar:1+G2:random:1+G7:random:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 1
+        },
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "haar",
+          "seed": 1,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": true
+        },
+        {
+          "bias_transformed": true,
+          "family": "G2",
+          "mode": "random",
+          "seed": 1
+        },
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 999416.9310412228,
+          "mode": "random",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "bad_all",
+    "note": "V0-style multi-family stress (4 families), seed 1; G3 drawn on the bf16-lossless exponent lattice",
+    "sha256": "2c49b109e86d243c",
+    "spec": "G3:pow2:1+G1:haar:1+G2:random:1+G7:random:1",
+    "untied": false
+  },
+  "bad_all_exact": {
+    "build_s": 11.4,
+    "bytes": 988097824,
+    "canon": {
+      "canonicalize": [
+        {
+          "canon": "G5",
+          "detected": false,
+          "reason": "tied artifact: no witness"
+        },
+        {
+          "applied_span_median": 1048576.0,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        },
+        {
+          "applied_span_median": 1048576.0,
+          "canon": "G7",
+          "target": "equalize up/down per-neuron energy (V0 gauge-fix)"
+        }
+      ]
+    },
+    "canonicalize": "exact",
+    "dir": "/home/admin/theseus/m1/work/bad_all_exact",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:1+G1:haar:1+G2:random:1+G7:pow2:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 1
+        },
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "haar",
+          "seed": 1,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": true
+        },
+        {
+          "bias_transformed": true,
+          "family": "G2",
+          "mode": "random",
+          "seed": 1
+        },
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "bad_all_exact",
+    "note": "4-family stress (G7 on the lattice too), repaired by the lattice-only canonicalizer",
+    "sha256": "129f9aa85616d5f6",
+    "spec": "G3:pow2:1+G1:haar:1+G2:random:1+G7:pow2:1",
+    "untied": false
+  },
+  "bad_all_rep": {
+    "build_s": 10.7,
+    "bytes": 988116024,
+    "canon": {
+      "canonicalize": [
+        {
+          "canon": "G5",
+          "detected": false,
+          "reason": "tied artifact: no witness"
+        },
+        {
+          "applied_span_median": 1048576.0,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        },
+        {
+          "balance_ratio": 8680284622687441.0,
+          "canon": "G2",
+          "max_phi_rad": 1.5700099075959195,
+          "method": "balance",
+          "target": "equal (balance) / order (eigen) RoPE-pair energy per GQA group"
+        },
+        {
+          "applied_span_median": 1.0,
+          "canon": "G7",
+          "target": "equalize up/down per-neuron energy (V0 gauge-fix)"
+        },
+        {
+          "balance_ratio_after": 1.0,
+          "canon": "G1",
+          "method": "coherence",
+          "row_energy_span_after": 1.0,
+          "row_energy_span_before": 1.14120614528656
+        }
+      ]
+    },
+    "canonicalize": "all",
+    "dir": "/home/admin/theseus/m1/work/bad_all_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:random:1+G1:haar:1+G2:random:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 998597.6955757755,
+          "mode": "random",
+          "seed": 1
+        },
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "haar",
+          "seed": 1,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": true
+        },
+        {
+          "bias_transformed": true,
+          "family": "G2",
+          "mode": "random",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "bad_all_rep",
+    "note": "seed 1 stress + full canonicalization (lattice-snapped G3, lossless)",
+    "sha256": "db39e88b20ec70a3",
+    "spec": "G3:random:1+G1:haar:1+G2:random:1",
+    "untied": false
+  },
+  "bad_all_s2": {
+    "build_s": 7.6,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work/bad_all_s2",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:2+G1:haar:2+G2:random:2+G7:random:2",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 2
+        },
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "haar",
+          "seed": 2,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": true
+        },
+        {
+          "bias_transformed": true,
+          "family": "G2",
+          "mode": "random",
+          "seed": 2
+        },
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 999379.0028224479,
+          "mode": "random",
+          "seed": 2
+        }
+      ]
+    },
+    "name": "bad_all_s2",
+    "note": "replication seed 2",
+    "sha256": "6a371b96d7b0cf07",
+    "spec": "G3:pow2:2+G1:haar:2+G2:random:2+G7:random:2",
+    "untied": false
+  },
+  "bad_all_s2_rep": {
+    "build_s": 11.9,
+    "bytes": 988116024,
+    "canon": {
+      "canonicalize": [
+        {
+          "canon": "G5",
+          "detected": false,
+          "reason": "tied artifact: no witness"
+        },
+        {
+          "applied_span_median": 2097152.0,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        },
+        {
+          "balance_ratio": 9145449109302544.0,
+          "canon": "G2",
+          "max_phi_rad": 1.5683623872141006,
+          "method": "balance",
+          "target": "equal (balance) / order (eigen) RoPE-pair energy per GQA group"
+        },
+        {
+          "applied_span_median": 1048576.0,
+          "canon": "G7",
+          "target": "equalize up/down per-neuron energy (V0 gauge-fix)"
+        },
+        {
+          "balance_ratio_after": 1.0,
+          "canon": "G1",
+          "method": "coherence",
+          "row_energy_span_after": 1.0,
+          "row_energy_span_before": 1.1340242624282837
+        }
+      ]
+    },
+    "canonicalize": "all",
+    "dir": "/home/admin/theseus/m1/work/bad_all_s2_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:2+G1:haar:2+G2:random:2+G7:random:2",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 2
+        },
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "haar",
+          "seed": 2,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": true
+        },
+        {
+          "bias_transformed": true,
+          "family": "G2",
+          "mode": "random",
+          "seed": 2
+        },
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 999379.0028224479,
+          "mode": "random",
+          "seed": 2
+        }
+      ]
+    },
+    "name": "bad_all_s2_rep",
+    "note": "replication seed 2 + repair",
+    "sha256": "ff991a9097538133",
+    "spec": "G3:pow2:2+G1:haar:2+G2:random:2+G7:random:2",
+    "untied": false
+  },
+  "bad_all_s3": {
+    "build_s": 7.7,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work/bad_all_s3",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:3+G1:haar:3+G2:random:3+G7:random:3",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 3
+        },
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "haar",
+          "seed": 3,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": true
+        },
+        {
+          "bias_transformed": true,
+          "family": "G2",
+          "mode": "random",
+          "seed": 3
+        },
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 999223.4888024097,
+          "mode": "random",
+          "seed": 3
+        }
+      ]
+    },
+    "name": "bad_all_s3",
+    "note": "replication seed 3",
+    "sha256": "8d515d6ad0cbfd66",
+    "spec": "G3:pow2:3+G1:haar:3+G2:random:3+G7:random:3",
+    "untied": false
+  },
+  "bad_all_s3_rep": {
+    "build_s": 11.9,
+    "bytes": 988116024,
+    "canon": {
+      "canonicalize": [
+        {
+          "canon": "G5",
+          "detected": false,
+          "reason": "tied artifact: no witness"
+        },
+        {
+          "applied_span_median": 2097152.0,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        },
+        {
+          "balance_ratio": 8658779146903745.0,
+          "canon": "G2",
+          "max_phi_rad": 1.5686139140080724,
+          "method": "balance",
+          "target": "equal (balance) / order (eigen) RoPE-pair energy per GQA group"
+        },
+        {
+          "applied_span_median": 1048576.0,
+          "canon": "G7",
+          "target": "equalize up/down per-neuron energy (V0 gauge-fix)"
+        },
+        {
+          "balance_ratio_after": 1.0,
+          "canon": "G1",
+          "method": "coherence",
+          "row_energy_span_after": 1.0,
+          "row_energy_span_before": 1.1400301456451416
+        }
+      ]
+    },
+    "canonicalize": "all",
+    "dir": "/home/admin/theseus/m1/work/bad_all_s3_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:3+G1:haar:3+G2:random:3+G7:random:3",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 3
+        },
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "haar",
+          "seed": 3,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": true
+        },
+        {
+          "bias_transformed": true,
+          "family": "G2",
+          "mode": "random",
+          "seed": 3
+        },
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 999223.4888024097,
+          "mode": "random",
+          "seed": 3
+        }
+      ]
+    },
+    "name": "bad_all_s3_rep",
+    "note": "replication seed 3 + repair",
+    "sha256": "f1387ec590d62332",
+    "spec": "G3:pow2:3+G1:haar:3+G2:random:3+G7:random:3",
+    "untied": false
+  },
+  "g1_haar": {
+    "build_s": 5.5,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work/g1_haar",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G1:haar:1",
+      "transforms": [
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "haar",
+          "seed": 1,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": true
+        }
+      ]
+    },
+    "name": "g1_haar",
+    "note": "random O(64) basis change per kv-group (V/O)",
+    "sha256": "f0087a096c4b100f",
+    "spec": "G1:haar:1",
+    "untied": false
+  },
+  "g1_haar_rep": {
+    "build_s": 5.8,
+    "bytes": 988116024,
+    "canon": {
+      "canonicalize": [
+        {
+          "balance_ratio_after": 1.0,
+          "canon": "G1",
+          "method": "coherence",
+          "row_energy_span_after": 1.0,
+          "row_energy_span_before": 1.127255916595459
+        }
+      ]
+    },
+    "canonicalize": "g1",
+    "dir": "/home/admin/theseus/m1/work/g1_haar_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G1:haar:1",
+      "transforms": [
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "haar",
+          "seed": 1,
+          "svd_top_half_energy": null,
+          "v_bias_transformed": true
+        }
+      ]
+    },
+    "name": "g1_haar_rep",
+    "note": "same stress, then artifact-only value-subspace canonicalizer",
+    "sha256": "6470d46869e4eecf",
+    "spec": "G1:haar:1",
+    "untied": false
+  },
+  "g1_svd": {
+    "build_s": 5.4,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "m1/work/g1_svd",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G1:svd:1",
+      "transforms": [
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "svd",
+          "seed": 1,
+          "svd_top_half_energy": 0.6260772148067456,
+          "v_bias_transformed": true
+        }
+      ]
+    },
+    "name": "g1_svd",
+    "note": "ADVERSARIAL: value block into eigenbasis (energy concentrated)",
+    "sha256": "89ec0ef52744a524",
+    "spec": "G1:svd:1",
+    "untied": false
+  },
+  "g1_svd_rep": {
+    "build_s": 5.6,
+    "bytes": 988116024,
+    "canon": {
+      "canonicalize": [
+        {
+          "balance_ratio_after": 1.0,
+          "canon": "G1",
+          "method": "coherence",
+          "row_energy_span_after": 1.0,
+          "row_energy_span_before": 2.0874743461608887
+        }
+      ]
+    },
+    "canonicalize": "g1",
+    "dir": "m1/work/g1_svd_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G1:svd:1",
+      "transforms": [
+        {
+          "family": "G1",
+          "groups": 48,
+          "mode": "svd",
+          "seed": 1,
+          "svd_top_half_energy": 0.6260772148067456,
+          "v_bias_transformed": true
+        }
+      ]
+    },
+    "name": "g1_svd_rep",
+    "note": "adversarial stress + repair",
+    "sha256": "b6f5c2a93aa75bfc",
+    "spec": "G1:svd:1",
+    "untied": false
+  },
+  "g2_rand": {
+    "build_s": 5.7,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work/g2_rand",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G2:random:1",
+      "transforms": [
+        {
+          "bias_transformed": true,
+          "family": "G2",
+          "mode": "random",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g2_rand",
+    "note": "random RoPE-pair rotations of q/k (maximal exact q/k gauge)",
+    "sha256": "f2190548e2d1aef6",
+    "spec": "G2:random:1",
+    "untied": false
+  },
+  "g2_rand_rep": {
+    "build_s": 5.7,
+    "bytes": 988097824,
+    "canon": {
+      "canonicalize": [
+        {
+          "balance_ratio": 9268048822089200.0,
+          "canon": "G2",
+          "max_phi_rad": 1.5706049965336704,
+          "method": "balance",
+          "target": "equal (balance) / order (eigen) RoPE-pair energy per GQA group"
+        }
+      ]
+    },
+    "canonicalize": "g2",
+    "dir": "m1/work/g2_rand_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G2:random:1",
+      "transforms": [
+        {
+          "bias_transformed": true,
+          "family": "G2",
+          "mode": "random",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g2_rand_rep",
+    "note": "stress + paired-row energy equalization",
+    "sha256": "33dab786b01e06d3",
+    "spec": "G2:random:1",
+    "untied": false
+  },
+  "g3_pow2": {
+    "build_s": 6.1,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work/g3_pow2",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g3_pow2",
+    "note": "same family with bf16-EXACT scales (d = 2^k, k in [-512,512]) so the gauge itself costs no representation noise",
+    "sha256": "0c106a426af05dc8",
+    "spec": "G3:pow2:1",
+    "untied": false
+  },
+  "g3_pow2_rep": {
+    "build_s": 7.6,
+    "bytes": 988097824,
+    "canon": {
+      "canonicalize": [
+        {
+          "applied_span_median": 1048576.0,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        }
+      ]
+    },
+    "canonicalize": "g3s",
+    "dir": "/home/admin/theseus/m1/work/g3_pow2_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g3_pow2_rep",
+    "note": "exact-storage stress + exponent-lattice repair (lossless end to end)",
+    "sha256": "eee3345d64d604b1",
+    "spec": "G3:pow2:1",
+    "untied": false
+  },
+  "g3_pow2_rep_raw": {
+    "build_s": 8.2,
+    "bytes": 988097824,
+    "canon": {
+      "canonicalize": [
+        {
+          "applied_span_median": 1432050.75,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        }
+      ]
+    },
+    "canonicalize": "g3",
+    "dir": "/home/admin/theseus/m1/work/g3_pow2_rep_raw",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g3_pow2_rep_raw",
+    "note": "same stress + continuous (non-lattice) repair: costs bf16 re-rounding",
+    "sha256": "7e8a3e09100336cc",
+    "spec": "G3:pow2:1",
+    "untied": false
+  },
+  "g3_smooth": {
+    "build_s": 6.1,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "m1/work/g3_smooth",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:smooth:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 934793.6678079035,
+          "mode": "smooth",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g3_smooth",
+    "note": "same family, block-constant d (a 32-block quantizer can absorb it)",
+    "sha256": "c4a20c69a7fbd56c",
+    "spec": "G3:smooth:1",
+    "untied": false
+  },
+  "g4_perm": {
+    "build_s": 5.5,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work/g4_perm",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G4::1",
+      "transforms": [
+        {
+          "bias_transformed": true,
+          "family": "G4",
+          "groups": true,
+          "seed": 1,
+          "within": true
+        }
+      ]
+    },
+    "name": "g4_perm",
+    "note": "CONTROL: head/group permutation \u2014 exact and quantization-neutral",
+    "sha256": "4e80baa3967857a2",
+    "spec": "G4::1",
+    "untied": false
+  },
+  "g5_c8": {
+    "build_s": 6.7,
+    "bytes": 1260367448,
+    "canonicalize": null,
+    "dir": "m1/work/g5_c8",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G5:c8",
+      "transforms": [
+        {
+          "c": 8.0,
+          "eps_patch": null,
+          "eps_source": null,
+          "family": "G5",
+          "untied": true
+        }
+      ]
+    },
+    "name": "g5_c8",
+    "note": "residual stream x8; needs the tie broken; RMSNorm-eps floor left in place",
+    "sha256": "f89c84ffd6bd2a5b",
+    "spec": "G5:c8",
+    "untied": true
+  },
+  "g5_c8_eps": {
+    "build_s": 7.6,
+    "bytes": 1260367448,
+    "canonicalize": null,
+    "dir": "m1/work/g5_c8_eps",
+    "gauge": {
+      "config_patch": {
+        "rms_norm_eps": 6.4e-05
+      },
+      "spec": "G5:c8:eps",
+      "transforms": [
+        {
+          "c": 8.0,
+          "eps_patch": {
+            "rms_norm_eps": 6.4e-05
+          },
+          "eps_source": 1e-06,
+          "family": "G5",
+          "untied": true
+        }
+      ]
+    },
+    "name": "g5_c8_eps",
+    "note": "same gauge, made EXACT by rewriting rms_norm_eps -> eps/c^2 in config",
+    "sha256": "f89c84ffd6bd2a5b",
+    "spec": "G5:c8:eps",
+    "untied": true
+  },
+  "g5_c8_eps_rep": {
+    "build_s": 8.5,
+    "bytes": 988097824,
+    "canon": {
+      "canonicalize": [
+        {
+          "c_recovered": 8.0,
+          "canon": "G5",
+          "detected": true
+        }
+      ]
+    },
+    "canonicalize": "g5",
+    "dir": "m1/work/g5_c8_eps_rep",
+    "gauge": {
+      "config_patch": {
+        "rms_norm_eps": 6.4e-05
+      },
+      "spec": "G5:c8:eps",
+      "transforms": [
+        {
+          "c": 8.0,
+          "eps_patch": {
+            "rms_norm_eps": 6.4e-05
+          },
+          "eps_source": 1e-06,
+          "family": "G5",
+          "untied": true
+        }
+      ]
+    },
+    "name": "g5_c8_eps_rep",
+    "note": "exact-stress + tie-witness repair (eps returned to the tied point)",
+    "sha256": "88c142557820ccad",
+    "spec": "G5:c8:eps",
+    "untied": false
+  },
+  "g5_c8_rep": {
+    "build_s": 8.5,
+    "bytes": 988097824,
+    "canon": {
+      "canonicalize": [
+        {
+          "c_recovered": 8.0,
+          "canon": "G5",
+          "detected": true
+        }
+      ]
+    },
+    "canonicalize": "g5",
+    "dir": "m1/work/g5_c8_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G5:c8",
+      "transforms": [
+        {
+          "c": 8.0,
+          "eps_patch": null,
+          "eps_source": null,
+          "family": "G5",
+          "untied": true
+        }
+      ]
+    },
+    "name": "g5_c8_rep",
+    "note": "stress + tie-witness canonicalizer (recovers c, re-ties)",
+    "sha256": "88c142557820ccad",
+    "spec": "G5:c8",
+    "untied": false
+  },
+  "g6_perm": {
+    "build_s": 7.2,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "m1/work/g6_perm",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G6::1",
+      "transforms": [
+        {
+          "family": "G6",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g6_perm",
+    "note": "CONTROL: SwiGLU neuron permutation (the only exact MLP gauge)",
+    "sha256": "299687045ad76b31",
+    "spec": "G6::1",
+    "untied": false
+  },
+  "g7_few": {
+    "build_s": 6.6,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "m1/work/g7_few",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G7:few:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 182775.3887045317,
+          "mode": "few",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g7_few",
+    "note": "same family, extreme scale on 0.1% of neurons (outlier-neuron model)",
+    "sha256": "f912f05f93ffa1cf",
+    "spec": "G7:few:1",
+    "untied": false
+  },
+  "g7_rand": {
+    "build_s": 6.4,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "/home/admin/theseus/m1/work/g7_rand",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G7:random:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 999416.9310412228,
+          "mode": "random",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g7_rand",
+    "note": "SwiGLU up-branch diagonal +-3 decades per neuron (V0's mechanism)",
+    "sha256": "3cbe9fa6530d5402",
+    "spec": "G7:random:1",
+    "untied": false
+  },
+  "g7_rand_rep": {
+    "build_s": 6.9,
+    "bytes": 988097824,
+    "canon": {
+      "canonicalize": [
+        {
+          "applied_span_median": 1032756.0,
+          "canon": "G7",
+          "target": "equalize up/down per-neuron energy (V0 gauge-fix)"
+        }
+      ]
+    },
+    "canonicalize": "g7",
+    "dir": "/home/admin/theseus/m1/work/g7_rand_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G7:random:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G7",
+          "max_c_span": 999416.9310412228,
+          "mode": "random",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g7_rand_rep",
+    "note": "stress + V0 closed-form balance",
+    "sha256": "61fd98ceabb053ee",
+    "spec": "G7:random:1",
+    "untied": false
+  },
+  "prep_base": {
+    "build_s": 9.5,
+    "bytes": 988116024,
+    "canon": {
+      "canonicalize": [
+        {
+          "canon": "G5",
+          "detected": false,
+          "reason": "tied artifact: no witness"
+        },
+        {
+          "applied_span_median": 4.0,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        },
+        {
+          "balance_ratio": 8332464644755616.0,
+          "canon": "G2",
+          "max_phi_rad": 1.5662901653524484,
+          "method": "balance",
+          "target": "equal (balance) / order (eigen) RoPE-pair energy per GQA group"
+        },
+        {
+          "applied_span_median": 1.0,
+          "canon": "G7",
+          "target": "equalize up/down per-neuron energy (V0 gauge-fix)"
+        },
+        {
+          "balance_ratio_after": 1.0,
+          "canon": "G1",
+          "method": "coherence",
+          "row_energy_span_after": 1.0,
+          "row_energy_span_before": 1.2957580089569092
+        }
+      ]
+    },
+    "canonicalize": "all",
+    "dir": "/home/admin/theseus/m1/work/prep_base",
+    "name": "prep_base",
+    "note": "canonicalizer applied to the pristine base",
+    "sha256": "df88d4f1718f4e61",
+    "spec": null,
+    "untied": false
+  },
+  "prep_base_exact": {
+    "build_s": 9.3,
+    "bytes": 988097824,
+    "canon": {
+      "canonicalize": [
+        {
+          "canon": "G5",
+          "detected": false,
+          "reason": "tied artifact: no witness"
+        },
+        {
+          "applied_span_median": 4.0,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        },
+        {
+          "applied_span_median": 1.0,
+          "canon": "G7",
+          "target": "equalize up/down per-neuron energy (V0 gauge-fix)"
+        }
+      ]
+    },
+    "canonicalize": "exact",
+    "dir": "/home/admin/theseus/m1/work/prep_base_exact",
+    "name": "prep_base_exact",
+    "note": "lossless prepare on the pristine base",
+    "sha256": "7726719f33ec2164",
+    "spec": null,
+    "untied": false
+  }
+}

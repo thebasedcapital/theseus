@@ -1,0 +1,127 @@
+{
+  "g4_perm": {
+    "build_s": 6.4,
+    "bytes": 988097824,
+    "canonicalize": null,
+    "dir": "m1/work/fidelity/g4_perm",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G4::1",
+      "transforms": [
+        {
+          "bias_transformed": true,
+          "family": "G4",
+          "groups": true,
+          "seed": 1,
+          "within": true
+        }
+      ]
+    },
+    "name": "g4_perm",
+    "note": "CONTROL: head/group permutation \u2014 exact and quantization-neutral",
+    "sha256": "4e80baa3967857a2",
+    "spec": "G4::1",
+    "untied": false
+  },
+  "g5_c8": {
+    "build_s": 11.2,
+    "bytes": 1260367448,
+    "canonicalize": null,
+    "dir": "m1/work/fidelity/g5_c8",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G5:c8",
+      "transforms": [
+        {
+          "c": 8.0,
+          "eps_patch": null,
+          "eps_source": null,
+          "family": "G5",
+          "untied": true
+        }
+      ]
+    },
+    "name": "g5_c8",
+    "note": "residual stream x8; needs the tie broken; RMSNorm-eps floor left in place",
+    "sha256": "f89c84ffd6bd2a5b",
+    "spec": "G5:c8",
+    "untied": true
+  },
+  "g5_c8_rep": {
+    "build_s": 24.1,
+    "bytes": 988097824,
+    "canon": {
+      "canonicalize": [
+        {
+          "c_recovered": 8.0,
+          "canon": "G5",
+          "detected": true
+        }
+      ]
+    },
+    "canonicalize": "g5",
+    "dir": "m1/work/fidelity/g5_c8_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G5:c8",
+      "transforms": [
+        {
+          "c": 8.0,
+          "eps_patch": null,
+          "eps_source": null,
+          "family": "G5",
+          "untied": true
+        }
+      ]
+    },
+    "name": "g5_c8_rep",
+    "note": "stress + tie-witness canonicalizer (recovers c, re-ties)",
+    "sha256": "88c142557820ccad",
+    "spec": "G5:c8",
+    "untied": true
+  },
+  "prep_base": {
+    "build_s": 35.7,
+    "bytes": 988116024,
+    "canon": {
+      "canonicalize": [
+        {
+          "canon": "G5",
+          "detected": false,
+          "reason": "tied artifact: no witness"
+        },
+        {
+          "applied_span_median": 4.465491771697998,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        },
+        {
+          "balance_ratio": 8740356525272168.0,
+          "canon": "G2",
+          "max_phi_rad": 1.5704921022465868,
+          "method": "balance",
+          "target": "equal (balance) / order (eigen) RoPE-pair energy per GQA group"
+        },
+        {
+          "applied_span_median": 1.5994133949279785,
+          "canon": "G7",
+          "target": "equalize up/down per-neuron energy (V0 gauge-fix)"
+        },
+        {
+          "balance_ratio_after": 1.0,
+          "canon": "G1",
+          "method": "coherence",
+          "row_energy_span_after": 1.0,
+          "row_energy_span_before": 1.322387933731079
+        }
+      ]
+    },
+    "canonicalize": "all",
+    "dir": "m1/work/fidelity/prep_base",
+    "name": "prep_base",
+    "note": "canonicalizer applied to the pristine base",
+    "sha256": "8329b764332332cd",
+    "spec": null,
+    "untied": false
+  }
+}

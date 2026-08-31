@@ -1,0 +1,62 @@
+{
+  "duration_s": 83.53808747394942,
+  "git_head": "9a293210da1b77462b13f277e34628fa88f2fb77",
+  "model_dir": "/home/admin/theseus/m1/work/g2_rand",
+  "results": {
+    "sanity_reference": null,
+    "variant": {
+      "base_frozen": true,
+      "batch_size": 2,
+      "capture": 0.879351036534946,
+      "capture_ref": 0.9859822708366603,
+      "capture_threshold": 0.7394867031274952,
+      "contract_version": "adapt-v2-true-lora-base-frozen",
+      "device": "cuda",
+      "device_note": "cuda",
+      "grad_accum": 1,
+      "heldout_examples": 128,
+      "lora_alpha": 32,
+      "lora_rank": 16,
+      "lr_grid": [
+        {
+          "lr": 0.0003,
+          "runtime_s": 16.18133717519231,
+          "task_loss_after": 0.3275458899707618
+        },
+        {
+          "lr": 0.003,
+          "runtime_s": 16.274603059049696,
+          "task_loss_after": 2.522861949422143
+        }
+      ],
+      "pass": false,
+      "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+      "peak_memory_allocated_gb": 2.393921536,
+      "protected_dppl": 1.5961570739746094,
+      "protected_dppl_ref": 1.2238330841064453,
+      "protected_ppl_after": 18.572324752807617,
+      "protected_ppl_before": 16.976167678833008,
+      "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+      "runtime_s": 17.1416486389935,
+      "seed": 1729,
+      "selected_lr": 0.0003,
+      "seq_len": 128,
+      "steps": 80,
+      "targets": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "task_loss_after": 0.3275458899707618,
+      "task_loss_before": 2.7148670039393683,
+      "train_examples": 512
+    }
+  },
+  "script": "adapt_probe.py",
+  "tag": "g2_rand",
+  "torch": "2.13.0+cu130"
+}

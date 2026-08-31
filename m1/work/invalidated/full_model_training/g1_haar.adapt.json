@@ -1,0 +1,60 @@
+{
+  "duration_s": 96.7331640298944,
+  "git_head": "6c43b026ea1716a111676c7aff88b51b539d5e7c",
+  "model_dir": "/home/admin/theseus/m1/work/g1_haar",
+  "results": {
+    "sanity_reference": null,
+    "variant": {
+      "batch_size": 2,
+      "capture": 0.9647953181744817,
+      "capture_ref": 0.9730670161829046,
+      "capture_threshold": 0.7298002621371784,
+      "device": "cuda",
+      "device_note": "cuda",
+      "grad_accum": 1,
+      "heldout_examples": 128,
+      "lora_alpha": 32,
+      "lora_rank": 16,
+      "lr_grid": [
+        {
+          "lr": 0.0003,
+          "runtime_s": 19.767419832991436,
+          "task_loss_after": 0.09584079387819987
+        },
+        {
+          "lr": 0.003,
+          "runtime_s": 20.573921110015363,
+          "task_loss_after": 2.5976088372143833
+        }
+      ],
+      "pass": true,
+      "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+      "peak_memory_allocated_gb": 2.962516992,
+      "protected_dppl": 2.7262210845947266,
+      "protected_dppl_ref": 2.9598045349121094,
+      "protected_ppl_after": 19.736915588378906,
+      "protected_ppl_before": 17.01069450378418,
+      "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+      "runtime_s": 21.21064324793406,
+      "seed": 1729,
+      "selected_lr": 0.0003,
+      "seq_len": 128,
+      "steps": 80,
+      "targets": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "task_loss_after": 0.09584079387819987,
+      "task_loss_before": 2.722387731075287,
+      "train_examples": 512
+    }
+  },
+  "script": "adapt_probe.py",
+  "tag": "g1_haar",
+  "torch": "2.13.0+cu130"
+}

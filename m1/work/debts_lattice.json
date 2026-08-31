@@ -1,0 +1,86 @@
+{
+  "base": {
+    "J_base": 0.01123,
+    "J_var": 0.01123,
+    "debt": 0.0,
+    "per_tensor": {
+      "down_proj": 0.0111,
+      "gate_proj": 0.01076,
+      "k_proj": 0.01176,
+      "o_proj": 0.01018,
+      "q_proj": 0.01132,
+      "up_proj": 0.01069,
+      "v_proj": 0.01282
+    }
+  },
+  "g1_haar": {
+    "J_base": 0.01123,
+    "J_var": 0.01115,
+    "debt": -9e-05,
+    "per_tensor": {
+      "down_proj": 0.0111,
+      "gate_proj": 0.01076,
+      "k_proj": 0.01176,
+      "o_proj": 0.00971,
+      "q_proj": 0.01132,
+      "up_proj": 0.01069,
+      "v_proj": 0.01268
+    }
+  },
+  "g1_haar_rep": {
+    "J_base": 0.01123,
+    "J_var": 0.01114,
+    "debt": -0.0001,
+    "per_tensor": {
+      "down_proj": 0.0111,
+      "gate_proj": 0.01076,
+      "k_proj": 0.01176,
+      "o_proj": 0.00968,
+      "q_proj": 0.01132,
+      "up_proj": 0.01069,
+      "v_proj": 0.01264
+    }
+  },
+  "g2_rand": {
+    "J_base": 0.01123,
+    "J_var": 0.01125,
+    "debt": 1e-05,
+    "per_tensor": {
+      "down_proj": 0.0111,
+      "gate_proj": 0.01076,
+      "k_proj": 0.01182,
+      "o_proj": 0.01018,
+      "q_proj": 0.01135,
+      "up_proj": 0.01069,
+      "v_proj": 0.01282
+    }
+  },
+  "g3_pow2": {
+    "J_base": 0.01123,
+    "J_var": 0.02955,
+    "debt": 0.01831,
+    "per_tensor": {
+      "down_proj": 0.0111,
+      "gate_proj": 0.03628,
+      "k_proj": 0.03753,
+      "o_proj": 0.01018,
+      "q_proj": 0.03742,
+      "up_proj": 0.03625,
+      "v_proj": 0.03808
+    }
+  },
+  "g3_pow2_rep": {
+    "J_base": 0.01123,
+    "J_var": 0.01148,
+    "debt": 0.00025,
+    "per_tensor": {
+      "down_proj": 0.0111,
+      "gate_proj": 0.01086,
+      "k_proj": 0.01222,
+      "o_proj": 0.01018,
+      "q_proj": 0.01116,
+      "up_proj": 0.0108,
+      "v_proj": 0.01407
+    }
+  }
+}

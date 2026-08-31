@@ -1,0 +1,13 @@
+{
+  "duration_s": 183.55383807304315,
+  "error": {
+    "message": "SPECIALIST_GATE_FAILED rule_loss=4.009621263892526 base_rule_loss=1.6447990362817457 eval_ppl=142486.5 base_eval_ppl=27.66525650024414",
+    "type": "RuntimeError"
+  },
+  "git_head": "965a06e7e2d0608d7dce3cb34f77f49ea55bdf7d",
+  "model_dir": "/home/admin/theseus/m1/work/bad_all_exact",
+  "results": {},
+  "script": "merge_probe.py",
+  "tag": "bad_all_exact",
+  "torch": "2.13.0+cu130"
+}

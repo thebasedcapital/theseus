@@ -1,0 +1,13 @@
+{
+  "duration_s": 12.93826854112558,
+  "error": {
+    "message": "CUDA out of memory. Tried to allocate 260.00 MiB. GPU 0 has a total capacity of 7.58 GiB of which 195.75 MiB is free. Process 507933 has 98.30 MiB memory in use. Including non-PyTorch memory, this process has 3.28 GiB memory in use. Of the allocated memory 3.09 GiB is allocated by PyTorch, and 66.32 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)",
+    "type": "OutOfMemoryError"
+  },
+  "git_head": "32d54a7758167c05f3d891404488a1f6c6a59aa2",
+  "model_dir": "/home/admin/theseus/m1/work/g5_c8",
+  "results": {},
+  "script": "adapt_probe.py",
+  "tag": "g5_c8",
+  "torch": "2.13.0+cu130"
+}

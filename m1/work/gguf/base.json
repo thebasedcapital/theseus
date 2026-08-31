@@ -1,0 +1,84 @@
+{
+  "backend": {
+    "completion": "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion",
+    "device": "cpu",
+    "ngl": "0",
+    "perplexity": "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+    "quantize": "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize",
+    "throughput_benchmark": null
+  },
+  "cmds": [
+    "/home/admin/counterpoint/.venv/bin/python /home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py --outfile /home/admin/theseus/m1/work/gguf/base/model-f16.gguf --outtype f16 /home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987 [PYTHONPATH=/home/admin/laps/benchmarks/swebench/.venv/lib/python3.12/site-packages]",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/backend_8k.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 1",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/backend_8k.txt -c 512 --temp 0 --seed 0 -ngl 99 --chunks 1",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_32k.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -f /home/admin/theseus/m1/work/gguf/eval_32k.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 1 --save-all-logits /home/admin/theseus/m1/work/gguf/f16_kl_logits.bin",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/base/model-f16.gguf /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf Q8_0 8",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_32k.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -f /home/admin/theseus/m1/work/gguf/eval_32k.txt -c 512 --chunks 1 --temp 0 --seed 0 -ngl 0 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work/gguf/f16_kl_logits.bin",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -p ' trouble for himself by protesting the removal of his friend and patron Fang Guan on a petty charge . He was arrested but was pa' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -p 'enga poetry , asked Gid\u014d , \" Should I learn the poetry of Du Fu and Li Bai ? \" Gid\u014d dared to reply , \" Yes if you do have enough' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -p 'on gave way to a 154 @,@ 000 increase in Facebook likes during the week . 191 @,@ 000 Twitter followers added contributed to the' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -p ' ( 27 @,@ 000 yd ) at + 20 degrees of elevation and 35 @,@ 450 meters ( 38 @,@ 770 yd ) at + 43 degrees after modernization . Al' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-q8_0.gguf -p 'rets and their supporting structures was generally compensated by the addition of the flight deck , hangar , AA guns and more fu' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work/gguf/base/model-f16.gguf -p 'tar athlete at Saginaw '\"'\"'s Arthur Hill High School in football , basketball , and track and field . In 1943 , Michigan canceled b' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt -no-cnv --simple-io",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work/gguf/base/model-f16.gguf /home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf Q4_K_M 8"
+  ],
+  "corpus": {
+    "byte_end_exclusive": 32768,
+    "byte_start": 0,
+    "path": "/home/admin/theseus/m1/work/gguf/eval_32k.txt",
+    "prompt_generation": "32 fixed 128-character prefixes at evenly spaced positions",
+    "prompts_count": 32,
+    "prompts_path": "/home/admin/theseus/m1/work/gguf/prompts.txt",
+    "source": "/home/admin/theseus/m1/data/eval_wikitext.txt"
+  },
+  "duration_s": 83.32291408115998,
+  "git_head": "fcc4c67b556550978783f9e1dec04322cf86c346",
+  "model_dir": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+  "notes": [
+    "sentencepiece from /home/admin/laps/benchmarks/swebench/.venv/lib/python3.12/site-packages",
+    "KL reference logits generated from fixed corpus"
+  ],
+  "pass_contract": {
+    "amended_before_variant_measurement": true,
+    "kl_mean_max": 0.01,
+    "kl_unavailable_passes": false,
+    "rel_dppl_max": 0.02,
+    "tokagree_min": 0.85,
+    "tokagree_none_passes": true
+  },
+  "results": {
+    "f16": {
+      "ppl_f16": 12.1399,
+      "size_mb": 948.1012878417969,
+      "status": "OK"
+    },
+    "q4_k_m": {
+      "reason": "llama-quantize rc=1: load_backend: loaded RPC backend from /home/admin/tools/llama.cpp-vulkan/llama-b9851/libggml-rpc.so\nggml_vulkan: Found 1 Vulkan devices:\nggml_vulkan: 0 = Quadro RTX 4000 (NVIDIA) | uma: 0 | fp16: 1 | bf16: 1 | warp size: 32 | shared memory: 49152 | int dot: 1 | matrix cores: NV_coopmat2\nload_backend: loaded Vulkan backend from /home/admin/tools/llama.cpp-vulkan/llama-b9851/libggml-vulkan.so\nload_backend: loaded CPU backend from /home/admin/tools/llama.cpp-vulkan/llama-b9851/libggml-cpu-cascadelake.so\nllama_print_build_info: build = 9851 (0eca4d490)\nllama_print_build_info: built with GNU 11.4.0 for Linux x86_64\nllama_quantize: quantizing '/home/admin/theseus/m1/work/gguf/base/model-f16.gguf' to '/home/admin/theseus/m1/work/gguf/base/model-q4_k_m.gguf' as Q4_K_M using 8 threads\ngguf_init_from_file: failed to open GGUF file '/home/admin/theseus/m1/work/gguf/base/model-f16.gguf' (No such file or directory)\nllama_model_quantize: failed to quantize: llama_model_loader: failed to load model from /home/admin/theseus/m1/work/gguf/base/model-f16.gguf\nllama_quantize: failed to quantize model from '/home/admin/theseus/m1/work/gguf/base/model-f16.gguf'\n",
+      "status": "UNAVAILABLE"
+    },
+    "q8_0": {
+      "reason": "tokagree failed",
+      "status": "UNAVAILABLE"
+    }
+  },
+  "script": "gguf_probe.py",
+  "tag": "base",
+  "torch": "2.13.0+cu130",
+  "versions": {
+    "llama_cpp": [
+      "version: 9851 (0eca4d490)",
+      "built with GNU 11.4.0 for Linux x86_64"
+    ],
+    "python": "3.12.3",
+    "torch": "2.13.0+cu130"
+  }
+}

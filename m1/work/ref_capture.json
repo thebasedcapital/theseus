@@ -1,0 +1,9 @@
+{
+  "base_frozen": true,
+  "capture": 0.9859822708366603,
+  "contract_version": "adapt-v2-true-lora-base-frozen",
+  "protected_dppl": 1.2238330841064453,
+  "rank": 16,
+  "seed": 1729,
+  "steps": 80
+}

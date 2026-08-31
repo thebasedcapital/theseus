@@ -1,0 +1,3945 @@
+{
+  "bad_all": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "adapt:variant",
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 6.652020965702832e-05,
+    "max_dlogit": 0.3329288959503174,
+    "omega0": 0.0,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.09513480049647026,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.287605482852086,
+                "task_loss_after": 2.4574474448507484
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.31563586788252,
+                "task_loss_after": 2.4793997054750267
+              }
+            ],
+            "pass": false,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 960975.2478256226,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 960992.1875,
+            "protected_ppl_before": 16.939674377441406,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 16.698143227025867,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 2.4574474448507484,
+            "task_loss_before": 2.7158160643144087,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "error": "",
+        "status": "MISSING"
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.613361358642578,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 8764553.0,
+                "pass": false,
+                "ppl_ratio": 317402.6112274384,
+                "rule_loss_ratio": 171.46689550592959,
+                "specialist_rule_loss": 14.759525045279714
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 8424786.0,
+                "pass": false,
+                "ppl_ratio": 305098.1693455862,
+                "rule_loss_ratio": 175.38166788508713,
+                "specialist_rule_loss": 15.09650076765609
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 10326547.0,
+                "pass": false,
+                "ppl_ratio": 373969.21243591886,
+                "rule_loss_ratio": 178.77036741716176,
+                "specialist_rule_loss": 15.388193198821927
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 12672468.0,
+                "pass": false,
+                "ppl_ratio": 458925.22230125754,
+                "rule_loss_ratio": 183.05320566588725,
+                "specialist_rule_loss": 15.756851289997082
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 14762613.0,
+                "pass": false,
+                "ppl_ratio": 534618.4699596349,
+                "rule_loss_ratio": 190.60580978798518,
+                "specialist_rule_loss": 16.40696424251935
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 77813576.0,
+                "pass": false,
+                "ppl_ratio": 2817968.2650495386,
+                "rule_loss_ratio": 214.25425183398355,
+                "specialist_rule_loss": 18.442574507870475
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 65285084.0,
+                "pass": false,
+                "ppl_ratio": 2364257.0403536446,
+                "rule_loss_ratio": 211.956994304838,
+                "specialist_rule_loss": 18.2448312062446
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 53264420.0,
+                "pass": false,
+                "ppl_ratio": 1928936.4778232265,
+                "rule_loss_ratio": 208.00509890709338,
+                "specialist_rule_loss": 17.90466000919088
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 46722332.0,
+                "pass": false,
+                "ppl_ratio": 1692018.9973676128,
+                "rule_loss_ratio": 206.8166767784528,
+                "specialist_rule_loss": 17.802363025739467
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 44549524.0,
+                "pass": false,
+                "ppl_ratio": 1613332.1626943708,
+                "rule_loss_ratio": 206.014184572718,
+                "specialist_rule_loss": 17.733286112821457
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [],
+    "top1": 0.995849609375,
+    "unavailable": [
+      "gguf"
+    ],
+    "variant": "bad_all"
+  },
+  "bad_all_exact": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "gguf:q4_k_m",
+      "adapt:variant",
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 4.629785325960256e-05,
+    "max_dlogit": 0.26603102684020996,
+    "omega0": 0.3333333333333333,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.9455436029221053,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.13303872803226,
+                "task_loss_after": 0.14794752990498886
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.198622252093628,
+                "task_loss_after": 2.3522586714137685
+              }
+            ],
+            "pass": false,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 1.8999786376953125,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 18.85654067993164,
+            "protected_ppl_before": 16.956562042236328,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 16.337013127980754,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.14794752990498886,
+            "task_loss_before": 2.7168071676384318,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1308,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12811.0,
+              "vulkan": 18023.1
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.3969,
+            "exact_agree": 0.0,
+            "kl_max": 0.996835,
+            "kl_mean": 0.030951,
+            "kl_median": 0.019021,
+            "kl_p90": 0.066756,
+            "kl_p95": 0.097026,
+            "kl_p99": 0.1732,
+            "kl_p999": 0.694812,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": false,
+            "ppl": 12.5277,
+            "ppl_f16": 12.1308,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.032718,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.3791,
+            "kl_max": 0.80075,
+            "kl_mean": 0.020998,
+            "kl_median": 0.012226,
+            "kl_p90": 0.043777,
+            "kl_p95": 0.065816,
+            "kl_p99": 0.1605,
+            "kl_p999": 0.441424,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": true,
+            "ppl": 12.5099,
+            "ppl_f16": 12.1308,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.031251,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": 0.0146,
+            "kl_max": 0.010886,
+            "kl_mean": 0.001024,
+            "kl_median": 0.000786,
+            "kl_p90": 0.002226,
+            "kl_p95": 0.003061,
+            "kl_p99": 0.005657,
+            "kl_p999": 0.010556,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": true,
+            "ppl": 12.1454,
+            "ppl_f16": 12.1308,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.001204,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.600744247436523,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 2047.2979736328125,
+                "pass": false,
+                "ppl_ratio": 74.17546263532222,
+                "rule_loss_ratio": 68.5294559177815,
+                "specialist_rule_loss": 5.89887755285632
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 12662.7236328125,
+                "pass": false,
+                "ppl_ratio": 458.7819632432041,
+                "rule_loss_ratio": 80.52835799637712,
+                "specialist_rule_loss": 6.9317188790047055
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 19702.67578125,
+                "pass": false,
+                "ppl_ratio": 713.8458153381109,
+                "rule_loss_ratio": 84.06515333750156,
+                "specialist_rule_loss": 7.236159099161076
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 7252.82177734375,
+                "pass": false,
+                "ppl_ratio": 262.77631183866976,
+                "rule_loss_ratio": 79.86480603875225,
+                "specialist_rule_loss": 6.874601662830052
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 1186.6527099609375,
+                "pass": false,
+                "ppl_ratio": 42.99350406361417,
+                "rule_loss_ratio": 61.73063466813538,
+                "specialist_rule_loss": 5.3136487119395515
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 1094.826416015625,
+                "pass": false,
+                "ppl_ratio": 39.66655414073877,
+                "rule_loss_ratio": 60.645297400660375,
+                "specialist_rule_loss": 5.220225065733052
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 6967.19189453125,
+                "pass": false,
+                "ppl_ratio": 252.4276820969544,
+                "rule_loss_ratio": 79.95910329961227,
+                "specialist_rule_loss": 6.88271858113815
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 24805.48828125,
+                "pass": false,
+                "ppl_ratio": 898.725340841266,
+                "rule_loss_ratio": 91.36301738714401,
+                "specialist_rule_loss": 7.864344539271406
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 23244.46875,
+                "pass": false,
+                "ppl_ratio": 842.1681872639676,
+                "rule_loss_ratio": 92.96128433975625,
+                "specialist_rule_loss": 8.00192013977738
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 13363.6767578125,
+                "pass": false,
+                "ppl_ratio": 484.17813077825537,
+                "rule_loss_ratio": 89.59479761865376,
+                "specialist_rule_loss": 7.712139742645295
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q5_k_m",
+      "gguf:q8_0"
+    ],
+    "top1": 0.99658203125,
+    "unavailable": [],
+    "variant": "bad_all_exact"
+  },
+  "base": {
+    "equiv": "reference",
+    "fails": [],
+    "flags": [],
+    "omega0": 1.0,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.9859822708366603,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 15.890196583932266,
+                "task_loss_after": 0.038167774591365534
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 15.9319542220328,
+                "task_loss_after": 2.4755010686137457
+              }
+            ],
+            "pass": true,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 1.2238330841064453,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 18.21563148498535,
+            "protected_ppl_before": 16.991798400878906,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 16.219984125811607,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.038167774591365534,
+            "task_loss_before": 2.72282151742415,
+            "train_examples": 512
+          },
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.9859822708366603,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 15.890196583932266,
+                "task_loss_after": 0.038167774591365534
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 15.9319542220328,
+                "task_loss_after": 2.4755010686137457
+              }
+            ],
+            "pass": true,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 1.2238330841064453,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 18.21563148498535,
+            "protected_ppl_before": 16.991798400878906,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 16.219984125811607,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.038167774591365534,
+            "task_loss_before": 2.72282151742415,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "cpu",
+            "error": "",
+            "ppl": 12.1351,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12744.0,
+              "vulkan": 1663.0
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.2663,
+            "exact_agree": 0.0,
+            "kl_max": 0.480121,
+            "kl_mean": 0.031914,
+            "kl_median": 0.017452,
+            "kl_p90": 0.062518,
+            "kl_p95": 0.113742,
+            "kl_p99": 0.27297,
+            "kl_p999": 0.422232,
+            "pass": null,
+            "ppl": 12.4014,
+            "ppl_f16": 12.1351,
+            "prefix_agree": 0.0,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "rel_dppl": 0.021945,
+            "role": "reference_calibration",
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.3051,
+            "kl_max": 0.303685,
+            "kl_mean": 0.016719,
+            "kl_median": 0.010802,
+            "kl_p90": 0.034099,
+            "kl_p95": 0.050766,
+            "kl_p99": 0.115596,
+            "kl_p999": 0.235083,
+            "pass": null,
+            "ppl": 12.4402,
+            "ppl_f16": 12.1351,
+            "rel_dppl": 0.025142,
+            "role": "reference_calibration",
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": -0.012,
+            "kl_max": 0.009705,
+            "kl_mean": 0.00094,
+            "kl_median": 0.000686,
+            "kl_p90": 0.001946,
+            "kl_p95": 0.002676,
+            "kl_p99": 0.00477,
+            "kl_p999": 0.009108,
+            "pass": null,
+            "ppl": 12.1231,
+            "ppl_f16": 12.1351,
+            "rel_dppl": -0.000989,
+            "role": "reference_calibration",
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.66525650024414,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 28.552614212036133,
+                "pass": true,
+                "ppl_ratio": 1.032074805154406,
+                "rule_loss_ratio": 0.5726329770790312,
+                "specialist_rule_loss": 0.04929109343242743
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 29.23164176940918,
+                "pass": false,
+                "ppl_ratio": 1.0566192209044298,
+                "rule_loss_ratio": 0.40954461733709974,
+                "specialist_rule_loss": 0.03525277587204806
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 30.029348373413086,
+                "pass": false,
+                "ppl_ratio": 1.085453459401256,
+                "rule_loss_ratio": 0.427353511004577,
+                "specialist_rule_loss": 0.036785729573334175
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 31.04612159729004,
+                "pass": false,
+                "ppl_ratio": 1.1222061720995091,
+                "rule_loss_ratio": 0.499947201775233,
+                "specialist_rule_loss": 0.0430344482772996
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 32.12018966674805,
+                "pass": false,
+                "ppl_ratio": 1.1610298883895978,
+                "rule_loss_ratio": 0.5880198129907082,
+                "specialist_rule_loss": 0.05061556127991436
+              }
+            ],
+            "smallest_passing_alpha": 0.3
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 28.4056453704834,
+                "pass": false,
+                "ppl_ratio": 1.0267624075790776,
+                "rule_loss_ratio": 1.3115823301489233,
+                "specialist_rule_loss": 0.1128983655629895
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 28.92211151123047,
+                "pass": true,
+                "ppl_ratio": 1.0454308099755099,
+                "rule_loss_ratio": 0.6582364870220926,
+                "specialist_rule_loss": 0.056659671170074595
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 29.48753547668457,
+                "pass": false,
+                "ppl_ratio": 1.06586886249995,
+                "rule_loss_ratio": 0.43287049707063774,
+                "specialist_rule_loss": 0.037260620623155896
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 30.075721740722656,
+                "pass": false,
+                "ppl_ratio": 1.0871296906449157,
+                "rule_loss_ratio": 0.4008915182950533,
+                "specialist_rule_loss": 0.03450793453312061
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 30.805496215820312,
+                "pass": false,
+                "ppl_ratio": 1.1135084258318175,
+                "rule_loss_ratio": 0.4160814477638805,
+                "specialist_rule_loss": 0.035815453070560006
+              }
+            ],
+            "smallest_passing_alpha": 0.4
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant",
+      "merge:linear",
+      "merge:ties"
+    ],
+    "unavailable": [],
+    "variant": "base"
+  },
+  "g1_haar": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "gguf:q4_k_m",
+      "adapt:variant",
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 1.1095136869698763e-05,
+    "max_dlogit": 0.1754779815673828,
+    "omega0": 0.3333333333333333,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.9336002465246882,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.4092289339751,
+                "task_loss_after": 0.18076587420761248
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.994073171168566,
+                "task_loss_after": 2.648745756257664
+              }
+            ],
+            "pass": false,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 1.5129432678222656,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 18.523637771606445,
+            "protected_ppl_before": 17.01069450378418,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 17.83377454499714,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.18076587420761248,
+            "task_loss_before": 2.722387731075287,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1246,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12664.6,
+              "vulkan": 18362.1
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.481,
+            "exact_agree": 0.0,
+            "kl_max": 0.997119,
+            "kl_mean": 0.032001,
+            "kl_median": 0.018321,
+            "kl_p90": 0.066538,
+            "kl_p95": 0.098922,
+            "kl_p99": 0.230525,
+            "kl_p999": 0.858117,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": false,
+            "ppl": 12.6056,
+            "ppl_f16": 12.1246,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.039671,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.3976,
+            "kl_max": 0.268497,
+            "kl_mean": 0.017543,
+            "kl_median": 0.010757,
+            "kl_p90": 0.036923,
+            "kl_p95": 0.053674,
+            "kl_p99": 0.125039,
+            "kl_p999": 0.219734,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": true,
+            "ppl": 12.5222,
+            "ppl_f16": 12.1246,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.032793,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": 0.021,
+            "kl_max": 0.007835,
+            "kl_mean": 0.000908,
+            "kl_median": 0.000722,
+            "kl_p90": 0.001829,
+            "kl_p95": 0.002573,
+            "kl_p99": 0.004633,
+            "kl_p999": 0.006696,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": true,
+            "ppl": 12.1456,
+            "ppl_f16": 12.1246,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.001732,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.67719078063965,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 171.92010498046875,
+                "pass": false,
+                "ppl_ratio": 6.21161686325217,
+                "rule_loss_ratio": 18.784025481062315,
+                "specialist_rule_loss": 1.616891083966258
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 644.0560913085938,
+                "pass": false,
+                "ppl_ratio": 23.270284054952377,
+                "rule_loss_ratio": 31.02433810844857,
+                "specialist_rule_loss": 2.67051254397405
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 966.2159423828125,
+                "pass": false,
+                "ppl_ratio": 34.91018832224425,
+                "rule_loss_ratio": 32.51232759463197,
+                "specialist_rule_loss": 2.798595682259348
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 616.3345947265625,
+                "pass": false,
+                "ppl_ratio": 22.26868324937414,
+                "rule_loss_ratio": 21.262926298770793,
+                "specialist_rule_loss": 1.8302698740573597
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 165.23890686035156,
+                "pass": false,
+                "ppl_ratio": 5.970219599596687,
+                "rule_loss_ratio": 6.407978678619448,
+                "specialist_rule_loss": 0.5515858995267776
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 114.55701446533203,
+                "pass": false,
+                "ppl_ratio": 4.1390405324468595,
+                "rule_loss_ratio": 16.785785625170107,
+                "specialist_rule_loss": 1.4448866214576495
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 442.810546875,
+                "pass": false,
+                "ppl_ratio": 15.999114591671221,
+                "rule_loss_ratio": 39.565650912610295,
+                "specialist_rule_loss": 3.4057315486724447
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 1216.41748046875,
+                "pass": false,
+                "ppl_ratio": 43.95017869080994,
+                "rule_loss_ratio": 57.34537367872984,
+                "specialist_rule_loss": 4.936174277517422
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 1893.10986328125,
+                "pass": false,
+                "ppl_ratio": 68.39963919334946,
+                "rule_loss_ratio": 63.618922549896745,
+                "specialist_rule_loss": 5.476188729948983
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 1838.4346923828125,
+                "pass": false,
+                "ppl_ratio": 66.424179641411,
+                "rule_loss_ratio": 64.01776457071082,
+                "specialist_rule_loss": 5.510520247866456
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q5_k_m",
+      "gguf:q8_0"
+    ],
+    "top1": 0.9990234375,
+    "unavailable": [],
+    "variant": "g1_haar"
+  },
+  "g1_haar_rep": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 2.0930303435306996e-05,
+    "max_dlogit": 0.30450963973999023,
+    "omega0": 0.6666666666666666,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.9627677693994273,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 17.963827934814617,
+                "task_loss_after": 0.10140559230835193
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.931826597079635,
+                "task_loss_after": 2.2294616401195526
+              }
+            ],
+            "pass": true,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 1.1348400115966797,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 18.10940170288086,
+            "protected_ppl_before": 16.97456169128418,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 17.9889038100373,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.10140559230835193,
+            "task_loss_before": 2.7235970199108124,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1277,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12767.4,
+              "vulkan": 18255.5
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.3817,
+            "exact_agree": 0.0,
+            "kl_max": 0.726578,
+            "kl_mean": 0.030409,
+            "kl_median": 0.018047,
+            "kl_p90": 0.065355,
+            "kl_p95": 0.112048,
+            "kl_p99": 0.203146,
+            "kl_p999": 0.43522,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": true,
+            "ppl": 12.5094,
+            "ppl_f16": 12.1277,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.031473,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.299,
+            "kl_max": 0.290976,
+            "kl_mean": 0.017452,
+            "kl_median": 0.011127,
+            "kl_p90": 0.039066,
+            "kl_p95": 0.056141,
+            "kl_p99": 0.113862,
+            "kl_p999": 0.274492,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": true,
+            "ppl": 12.4267,
+            "ppl_f16": 12.1277,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.024654,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": 0.0148,
+            "kl_max": 0.009865,
+            "kl_mean": 0.000927,
+            "kl_median": 0.0007,
+            "kl_p90": 0.001949,
+            "kl_p95": 0.002605,
+            "kl_p99": 0.004842,
+            "kl_p999": 0.009835,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": true,
+            "ppl": 12.1425,
+            "ppl_f16": 12.1277,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.00122,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.607641220092773,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 92.14128112792969,
+                "pass": false,
+                "ppl_ratio": 3.3375282007384786,
+                "rule_loss_ratio": 9.786873476724784,
+                "specialist_rule_loss": 0.8424343589384455
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 186.39979553222656,
+                "pass": false,
+                "ppl_ratio": 6.751746519965829,
+                "rule_loss_ratio": 16.20175617720601,
+                "specialist_rule_loss": 1.3946145427629673
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 257.63446044921875,
+                "pass": false,
+                "ppl_ratio": 9.3319982824796,
+                "rule_loss_ratio": 17.048495955393047,
+                "specialist_rule_loss": 1.4675001976067847
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 191.24070739746094,
+                "pass": false,
+                "ppl_ratio": 6.927093331619958,
+                "rule_loss_ratio": 10.397092450257558,
+                "specialist_rule_loss": 0.8949607792505833
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 97.18865203857422,
+                "pass": false,
+                "ppl_ratio": 3.520353342169651,
+                "rule_loss_ratio": 3.387175395614422,
+                "specialist_rule_loss": 0.29156123656882477
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 79.18531799316406,
+                "pass": false,
+                "ppl_ratio": 2.868239171970012,
+                "rule_loss_ratio": 11.807840849618744,
+                "specialist_rule_loss": 1.0163951603392618
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 155.9144287109375,
+                "pass": false,
+                "ppl_ratio": 5.647509958129395,
+                "rule_loss_ratio": 20.341552224158026,
+                "specialist_rule_loss": 1.7509598492843956
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 291.9012145996094,
+                "pass": false,
+                "ppl_ratio": 10.573203710977104,
+                "rule_loss_ratio": 32.24219677031113,
+                "specialist_rule_loss": 2.7753433649225148
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 775.174072265625,
+                "pass": false,
+                "ppl_ratio": 28.078243486497325,
+                "rule_loss_ratio": 36.50137876091161,
+                "specialist_rule_loss": 3.1419651730399782
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 2825.91796875,
+                "pass": false,
+                "ppl_ratio": 102.35999324322223,
+                "rule_loss_ratio": 33.61946312768504,
+                "specialist_rule_loss": 2.8938956792669384
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant"
+    ],
+    "top1": 0.997802734375,
+    "unavailable": [],
+    "variant": "g1_haar_rep"
+  },
+  "g2_rand": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "adapt:variant",
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 3.718042717082426e-05,
+    "max_dlogit": 0.22254276275634766,
+    "omega0": 0.5,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.879351036534946,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.18133717519231,
+                "task_loss_after": 0.3275458899707618
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.274603059049696,
+                "task_loss_after": 2.522861949422143
+              }
+            ],
+            "pass": false,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 1.5961570739746094,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 18.572324752807617,
+            "protected_ppl_before": 16.976167678833008,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 17.1416486389935,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.3275458899707618,
+            "task_loss_before": 2.7148670039393683,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1318,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12731.8,
+              "vulkan": 18104.2
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.36,
+            "exact_agree": 0.0,
+            "kl_max": 0.47392,
+            "kl_mean": 0.032564,
+            "kl_median": 0.018985,
+            "kl_p90": 0.066355,
+            "kl_p95": 0.111862,
+            "kl_p99": 0.268072,
+            "kl_p999": 0.421149,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": true,
+            "ppl": 12.4918,
+            "ppl_f16": 12.1318,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.029674,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.301,
+            "kl_max": 0.333884,
+            "kl_mean": 0.017229,
+            "kl_median": 0.01111,
+            "kl_p90": 0.036318,
+            "kl_p95": 0.053808,
+            "kl_p99": 0.122619,
+            "kl_p999": 0.23282,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": true,
+            "ppl": 12.4328,
+            "ppl_f16": 12.1318,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.024811,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": 0.0007,
+            "kl_max": 0.023968,
+            "kl_mean": 0.001015,
+            "kl_median": 0.000747,
+            "kl_p90": 0.002126,
+            "kl_p95": 0.002885,
+            "kl_p99": 0.006132,
+            "kl_p999": 0.012272,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": true,
+            "ppl": 12.1325,
+            "ppl_f16": 12.1318,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 5.8e-05,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.64556121826172,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 203.31739807128906,
+                "pass": false,
+                "ppl_ratio": 7.354431927284749,
+                "rule_loss_ratio": 33.58996032344647,
+                "specialist_rule_loss": 2.8913561372942422
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 325.33172607421875,
+                "pass": false,
+                "ppl_ratio": 11.767955206469662,
+                "rule_loss_ratio": 43.92908660185467,
+                "specialist_rule_loss": 3.7813273052110157
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 377.5055236816406,
+                "pass": false,
+                "ppl_ratio": 13.655194796055481,
+                "rule_loss_ratio": 43.69544570606016,
+                "specialist_rule_loss": 3.7612159674340897
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 345.3407287597656,
+                "pass": false,
+                "ppl_ratio": 12.491724296472059,
+                "rule_loss_ratio": 35.024706627074444,
+                "specialist_rule_loss": 3.0148562096524505
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 234.056396484375,
+                "pass": false,
+                "ppl_ratio": 8.466328270079224,
+                "rule_loss_ratio": 24.277144305437847,
+                "specialist_rule_loss": 2.0897276896903314
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 180.18704223632812,
+                "pass": false,
+                "ppl_ratio": 6.517756713772289,
+                "rule_loss_ratio": 27.151818628059548,
+                "specialist_rule_loss": 2.3371738660298935
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 290.3607177734375,
+                "pass": false,
+                "ppl_ratio": 10.502977873411195,
+                "rule_loss_ratio": 35.20570338766519,
+                "specialist_rule_loss": 3.0304360462918862
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 358.7270202636719,
+                "pass": false,
+                "ppl_ratio": 12.975935537409491,
+                "rule_loss_ratio": 40.10157963427118,
+                "specialist_rule_loss": 3.4518632137177545
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 359.1826477050781,
+                "pass": false,
+                "ppl_ratio": 12.992416571663384,
+                "rule_loss_ratio": 37.54156274070083,
+                "specialist_rule_loss": 3.2315021151774004
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 304.1654357910156,
+                "pass": false,
+                "ppl_ratio": 11.002324510239795,
+                "rule_loss_ratio": 31.542422961988873,
+                "specialist_rule_loss": 2.715108244787585
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0"
+    ],
+    "top1": 0.99755859375,
+    "unavailable": [],
+    "variant": "g2_rand"
+  },
+  "g3_pow2": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant",
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 0.0,
+    "max_dlogit": 0.0,
+    "omega0": 0.0,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.19881507002899362,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.24093729397282,
+                "task_loss_after": 2.181483566761017
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.315287719015032,
+                "task_loss_after": 2.6940169117667456
+              }
+            ],
+            "pass": false,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 234568031.0082016,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 234568048.0,
+            "protected_ppl_before": 16.991798400878906,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 17.18020170601085,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 2.181483566761017,
+            "task_loss_before": 2.72282151742415,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1351,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12874.7,
+              "vulkan": 18243.2
+            }
+          },
+          "q4_k_m": {
+            "dppl": 317818.4642,
+            "exact_agree": 0.0,
+            "kl_mean": null,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": false,
+            "ppl": 317830.5993,
+            "ppl_f16": 12.1351,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 26190.016086,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 7973276.452,
+            "kl_mean": null,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": false,
+            "ppl": 7973288.5871,
+            "ppl_f16": 12.1351,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 657042.500845,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": 633418.9024,
+            "kl_max": 27.323103,
+            "kl_mean": 10.690304,
+            "kl_median": 9.324849,
+            "kl_p90": 18.637903,
+            "kl_p95": 20.588192,
+            "kl_p99": 23.515242,
+            "kl_p999": 27.031189,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": false,
+            "ppl": 633431.0375,
+            "ppl_f16": 12.1351,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 52197.254444,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.66525650024414,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 16773089.0,
+                "pass": false,
+                "ppl_ratio": 606287.1312923479,
+                "rule_loss_ratio": 198.4027580966994,
+                "specialist_rule_loss": 17.078109850536958
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 15863549.0,
+                "pass": false,
+                "ppl_ratio": 573410.5158164721,
+                "rule_loss_ratio": 198.63415997562154,
+                "specialist_rule_loss": 17.098028458250702
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 16259051.0,
+                "pass": false,
+                "ppl_ratio": 587706.4974928577,
+                "rule_loss_ratio": 198.5016359049917,
+                "specialist_rule_loss": 17.08662105314319
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 16620513.0,
+                "pass": false,
+                "ppl_ratio": 600772.0550089,
+                "rule_loss_ratio": 198.92900113464768,
+                "specialist_rule_loss": 17.12340779143444
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 17820464.0,
+                "pass": false,
+                "ppl_ratio": 644145.9886642561,
+                "rule_loss_ratio": 198.23415265541217,
+                "specialist_rule_loss": 17.063596633708098
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 65401740.0,
+                "pass": false,
+                "ppl_ratio": 2364038.808005371,
+                "rule_loss_ratio": 211.42120787761866,
+                "specialist_rule_loss": 18.19871178961825
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 72474504.0,
+                "pass": false,
+                "ppl_ratio": 2619693.9110020697,
+                "rule_loss_ratio": 211.1353178871978,
+                "specialist_rule_loss": 18.17410295500116
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 71044392.0,
+                "pass": false,
+                "ppl_ratio": 2568000.4810139043,
+                "rule_loss_ratio": 211.01823509951646,
+                "specialist_rule_loss": 18.164024704432414
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 76020456.0,
+                "pass": false,
+                "ppl_ratio": 2747867.3837464377,
+                "rule_loss_ratio": 211.81499524787552,
+                "specialist_rule_loss": 18.232608213395398
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 73646568.0,
+                "pass": false,
+                "ppl_ratio": 2662059.829423598,
+                "rule_loss_ratio": 212.74250752231097,
+                "specialist_rule_loss": 18.312446602047284
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [],
+    "top1": 1.0,
+    "unavailable": [],
+    "variant": "g3_pow2"
+  },
+  "g3_pow2_rep": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 0.0,
+    "max_dlogit": 0.0,
+    "omega0": 0.6666666666666666,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.9638640033152751,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.27573188696988,
+                "task_loss_after": 0.09839186932673659
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.35346389678307,
+                "task_loss_after": 2.25244480100545
+              }
+            ],
+            "pass": true,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 0.7854499816894531,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 17.77724838256836,
+            "protected_ppl_before": 16.991798400878906,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 16.896148124011233,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.09839186932673659,
+            "task_loss_before": 2.72282151742415,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1351,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12874.9,
+              "vulkan": 18443.6
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.2232,
+            "exact_agree": 0.0,
+            "kl_max": 0.599201,
+            "kl_mean": 0.035008,
+            "kl_median": 0.019871,
+            "kl_p90": 0.084082,
+            "kl_p95": 0.120451,
+            "kl_p99": 0.268598,
+            "kl_p999": 0.484101,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": true,
+            "ppl": 12.3583,
+            "ppl_f16": 12.1351,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.018393,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.3216,
+            "kl_max": 0.534284,
+            "kl_mean": 0.02053,
+            "kl_median": 0.012409,
+            "kl_p90": 0.042554,
+            "kl_p95": 0.065085,
+            "kl_p99": 0.122467,
+            "kl_p999": 0.395275,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": true,
+            "ppl": 12.4567,
+            "ppl_f16": 12.1351,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.026502,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": -0.0091,
+            "kl_max": 0.024312,
+            "kl_mean": 0.001065,
+            "kl_median": 0.000774,
+            "kl_p90": 0.002268,
+            "kl_p95": 0.003115,
+            "kl_p99": 0.006208,
+            "kl_p999": 0.014338,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": true,
+            "ppl": 12.126,
+            "ppl_f16": 12.1351,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": -0.00075,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.66525650024414,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 29.017799377441406,
+                "pass": false,
+                "ppl_ratio": 1.048889583842656,
+                "rule_loss_ratio": 0.835116566288932,
+                "specialist_rule_loss": 0.07188515217179774
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 29.750328063964844,
+                "pass": false,
+                "ppl_ratio": 1.0753678739144277,
+                "rule_loss_ratio": 0.45076455859901676,
+                "specialist_rule_loss": 0.038800905402387544
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 30.607135772705078,
+                "pass": false,
+                "ppl_ratio": 1.1063384058063939,
+                "rule_loss_ratio": 0.43169304259139046,
+                "specialist_rule_loss": 0.03715926771287634
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 31.47096061706543,
+                "pass": false,
+                "ppl_ratio": 1.137562582034535,
+                "rule_loss_ratio": 0.47971694444581947,
+                "specialist_rule_loss": 0.04129306846841628
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 32.32454299926758,
+                "pass": false,
+                "ppl_ratio": 1.1684165299165876,
+                "rule_loss_ratio": 0.5593629367463085,
+                "specialist_rule_loss": 0.04814883508532906
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 28.79176139831543,
+                "pass": false,
+                "ppl_ratio": 1.0407191199568797,
+                "rule_loss_ratio": 2.1573251563457014,
+                "specialist_rule_loss": 0.18569820478726312
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 29.493511199951172,
+                "pass": false,
+                "ppl_ratio": 1.0660848635070814,
+                "rule_loss_ratio": 1.2116540301368846,
+                "specialist_rule_loss": 0.10429673874512421
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 30.003835678100586,
+                "pass": false,
+                "ppl_ratio": 1.0845312667835127,
+                "rule_loss_ratio": 0.6331397173892465,
+                "specialist_rule_loss": 0.05449939178285726
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 30.643117904663086,
+                "pass": false,
+                "ppl_ratio": 1.1076390310855302,
+                "rule_loss_ratio": 0.4360230661199512,
+                "specialist_rule_loss": 0.037531987417912534
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 31.105958938598633,
+                "pass": false,
+                "ppl_ratio": 1.124369077811519,
+                "rule_loss_ratio": 0.4137261390035991,
+                "specialist_rule_loss": 0.03561271283586825
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant"
+    ],
+    "top1": 1.0,
+    "unavailable": [],
+    "variant": "g3_pow2_rep"
+  },
+  "g4_perm": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 1.0880634171428483e-09,
+    "max_dlogit": 0.000125885009765625,
+    "omega0": 0.6666666666666666,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.8854644946493436,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.306847505038604,
+                "task_loss_after": 0.31192884138594806
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.822447381913662,
+                "task_loss_after": 2.553538078611547
+              }
+            ],
+            "pass": true,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 0.7554512023925781,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 17.73672866821289,
+            "protected_ppl_before": 16.981277465820312,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 17.364717128919438,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.31192884138594806,
+            "task_loss_before": 2.7234248491850765,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1348,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12827.2,
+              "vulkan": 18091.4
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.2775,
+            "exact_agree": 0.0,
+            "kl_max": 0.575609,
+            "kl_mean": 0.031943,
+            "kl_median": 0.017699,
+            "kl_p90": 0.063081,
+            "kl_p95": 0.109413,
+            "kl_p99": 0.291988,
+            "kl_p999": 0.450664,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": true,
+            "ppl": 12.4123,
+            "ppl_f16": 12.1348,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.022868,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.2967,
+            "kl_max": 0.33485,
+            "kl_mean": 0.016724,
+            "kl_median": 0.01103,
+            "kl_p90": 0.033822,
+            "kl_p95": 0.049656,
+            "kl_p99": 0.11752,
+            "kl_p999": 0.233184,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": true,
+            "ppl": 12.4315,
+            "ppl_f16": 12.1348,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.02445,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": -0.0125,
+            "kl_max": 0.010351,
+            "kl_mean": 0.000946,
+            "kl_median": 0.000712,
+            "kl_p90": 0.001972,
+            "kl_p95": 0.002535,
+            "kl_p99": 0.005461,
+            "kl_p999": 0.009005,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": true,
+            "ppl": 12.1223,
+            "ppl_f16": 12.1348,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": -0.00103,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.62171745300293,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 4174.99853515625,
+                "pass": false,
+                "ppl_ratio": 151.14912902355968,
+                "rule_loss_ratio": 66.48966459941987,
+                "specialist_rule_loss": 5.723296424139486
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 13167.7265625,
+                "pass": false,
+                "ppl_ratio": 476.7164310077487,
+                "rule_loss_ratio": 79.58436324466386,
+                "specialist_rule_loss": 6.850461711903067
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 17639.111328125,
+                "pass": false,
+                "ppl_ratio": 638.5957483685484,
+                "rule_loss_ratio": 82.4907231759685,
+                "specialist_rule_loss": 7.100635321625911
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 13715.67578125,
+                "pass": false,
+                "ppl_ratio": 496.5540540549872,
+                "rule_loss_ratio": 78.2585852940666,
+                "specialist_rule_loss": 6.736341415920667
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 3766.01708984375,
+                "pass": false,
+                "ppl_ratio": 136.34261143433434,
+                "rule_loss_ratio": 51.81276026552168,
+                "specialist_rule_loss": 4.459938057125408
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 1311.9749755859375,
+                "pass": false,
+                "ppl_ratio": 47.49795076349623,
+                "rule_loss_ratio": 59.24229171610231,
+                "specialist_rule_loss": 5.099457161941451
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 9418.990234375,
+                "pass": false,
+                "ppl_ratio": 340.9994418486459,
+                "rule_loss_ratio": 74.21321120272111,
+                "specialist_rule_loss": 6.388123761179991
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 29635.158203125,
+                "pass": false,
+                "ppl_ratio": 1072.8933946105215,
+                "rule_loss_ratio": 87.54981566033875,
+                "specialist_rule_loss": 7.536111814094785
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 37240.78515625,
+                "pass": false,
+                "ppl_ratio": 1348.2429258648913,
+                "rule_loss_ratio": 91.55045912883948,
+                "specialist_rule_loss": 7.880479146904687
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 49285.70703125,
+                "pass": false,
+                "ppl_ratio": 1784.310013130333,
+                "rule_loss_ratio": 99.51671686664218,
+                "specialist_rule_loss": 8.566198569603317
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant"
+    ],
+    "top1": 1.0,
+    "unavailable": [],
+    "variant": "g4_perm"
+  },
+  "g5_c8": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 3.891347660101019e-06,
+    "max_dlogit": 0.16665935516357422,
+    "omega0": 0.8333333333333334,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.9856560469529203,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.204975411994383,
+                "task_loss_after": 0.03900870360286552
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.26424557901919,
+                "task_loss_after": 2.5900428159670397
+              }
+            ],
+            "pass": true,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.666190848,
+            "protected_dppl": 0.6383571624755859,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 17.598541259765625,
+            "protected_ppl_before": 16.96018409729004,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 16.3824967648834,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.03900870360286552,
+            "task_loss_before": 2.719522538510236,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1307,
+            "size_mb": 1207.8,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 8596.9,
+              "vulkan": 13827.2
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.2737,
+            "exact_agree": 0.0,
+            "kl_max": 0.446487,
+            "kl_mean": 0.032523,
+            "kl_median": 0.018354,
+            "kl_p90": 0.065546,
+            "kl_p95": 0.116201,
+            "kl_p99": 0.278603,
+            "kl_p999": 0.416569,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": true,
+            "ppl": 12.4044,
+            "ppl_f16": 12.1307,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.022563,
+            "size_mb": 468.6,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.3259,
+            "kl_max": 0.242175,
+            "kl_mean": 0.017552,
+            "kl_median": 0.011282,
+            "kl_p90": 0.0355,
+            "kl_p95": 0.058702,
+            "kl_p99": 0.125269,
+            "kl_p999": 0.224672,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": true,
+            "ppl": 12.4566,
+            "ppl_f16": 12.1307,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.026866,
+            "size_mb": 498.0,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": -0.0109,
+            "kl_max": 0.007126,
+            "kl_mean": 0.000889,
+            "kl_median": 0.000709,
+            "kl_p90": 0.001903,
+            "kl_p95": 0.002397,
+            "kl_p99": 0.005012,
+            "kl_p999": 0.006894,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": true,
+            "ppl": 12.1198,
+            "ppl_f16": 12.1307,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": -0.000899,
+            "size_mb": 644.4,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.663349151611328,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 28.094301223754883,
+                "pass": false,
+                "ppl_ratio": 1.0155784489355097,
+                "rule_loss_ratio": 1.1479834552972261,
+                "specialist_rule_loss": 0.0988161038900959
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 28.759798049926758,
+                "pass": true,
+                "ppl_ratio": 1.0396354357639868,
+                "rule_loss_ratio": 0.5660059190069344,
+                "specialist_rule_loss": 0.048720649619917546
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 29.365739822387695,
+                "pass": false,
+                "ppl_ratio": 1.061539572140968,
+                "rule_loss_ratio": 0.4116828392088989,
+                "specialist_rule_loss": 0.035436829704573965
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 30.154794692993164,
+                "pass": false,
+                "ppl_ratio": 1.0900630479602182,
+                "rule_loss_ratio": 0.400188313674265,
+                "specialist_rule_loss": 0.034447404095557965
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 30.975366592407227,
+                "pass": false,
+                "ppl_ratio": 1.1197258301098723,
+                "rule_loss_ratio": 0.4404427525829403,
+                "specialist_rule_loss": 0.03791242512777074
+              }
+            ],
+            "smallest_passing_alpha": 0.4
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 37.20966720581055,
+                "pass": false,
+                "ppl_ratio": 1.3450890202006929,
+                "rule_loss_ratio": 4.493404920897105,
+                "specialist_rule_loss": 0.3867832462521634
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 52.338287353515625,
+                "pass": false,
+                "ppl_ratio": 1.8919721927620263,
+                "rule_loss_ratio": 3.369100474264929,
+                "specialist_rule_loss": 0.29000538374042806
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 97.06166076660156,
+                "pass": false,
+                "ppl_ratio": 3.5086735244762632,
+                "rule_loss_ratio": 5.506273280970852,
+                "specialist_rule_loss": 0.4739689148558321
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 470.7301330566406,
+                "pass": false,
+                "ppl_ratio": 17.016382596220158,
+                "rule_loss_ratio": 15.33502091148068,
+                "specialist_rule_loss": 1.3200077166210789
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 6516.7509765625,
+                "pass": false,
+                "ppl_ratio": 235.57346367740558,
+                "rule_loss_ratio": 59.28122369303441,
+                "specialist_rule_loss": 5.102808348110047
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant",
+      "merge:linear"
+    ],
+    "top1": 1.0,
+    "unavailable": [],
+    "variant": "g5_c8"
+  },
+  "g7_rand": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "adapt:variant",
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 1.9487144527374767e-05,
+    "max_dlogit": 0.31473273038864136,
+    "omega0": 0.0,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.15371765235946974,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.15461397403851,
+                "task_loss_after": 2.3025597713210364
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.21069058100693,
+                "task_loss_after": 2.6351268589496613
+              }
+            ],
+            "pass": false,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 30490537967.041306,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 30490537984.0,
+            "protected_ppl_before": 16.958696365356445,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 16.351002441020682,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 2.3025597713210364,
+            "task_loss_before": 2.7207938080484215,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "error": "",
+        "status": "MISSING"
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.61579132080078,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 12691674.0,
+                "pass": false,
+                "ppl_ratio": 459580.31231357006,
+                "rule_loss_ratio": 193.80606194630545,
+                "specialist_rule_loss": 16.682435503269534
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 12903125.0,
+                "pass": false,
+                "ppl_ratio": 467237.1995468079,
+                "rule_loss_ratio": 193.65625987403834,
+                "specialist_rule_loss": 16.669540842577526
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 13304287.0,
+                "pass": false,
+                "ppl_ratio": 481763.7432673869,
+                "rule_loss_ratio": 193.85318721631552,
+                "specialist_rule_loss": 16.68649195160568
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 13685280.0,
+                "pass": false,
+                "ppl_ratio": 495559.9439836427,
+                "rule_loss_ratio": 193.54803735344464,
+                "specialist_rule_loss": 16.66022526595585
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 13582433.0,
+                "pass": false,
+                "ppl_ratio": 491835.734207965,
+                "rule_loss_ratio": 193.3464569783933,
+                "specialist_rule_loss": 16.64287363323731
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 117.49788665771484,
+                "pass": false,
+                "ppl_ratio": 4.254735462503768,
+                "rule_loss_ratio": 33.4896908238055,
+                "specialist_rule_loss": 2.8827251406994665
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 266.80657958984375,
+                "pass": false,
+                "ppl_ratio": 9.661377307297348,
+                "rule_loss_ratio": 46.84944899567891,
+                "specialist_rule_loss": 4.032706218707769
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 626.4447631835938,
+                "pass": false,
+                "ppl_ratio": 22.684295224658026,
+                "rule_loss_ratio": 63.20422615226133,
+                "specialist_rule_loss": 5.440492499204106
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 1989.7763671875,
+                "pass": false,
+                "ppl_ratio": 72.05212206570954,
+                "rule_loss_ratio": 76.79471179000086,
+                "specialist_rule_loss": 6.610334132808502
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 5993.70703125,
+                "pass": false,
+                "ppl_ratio": 217.0391194524785,
+                "rule_loss_ratio": 74.1163461100679,
+                "specialist_rule_loss": 6.379785809082531
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [],
+    "top1": 0.996826171875,
+    "unavailable": [
+      "gguf"
+    ],
+    "variant": "g7_rand"
+  },
+  "g7_rand_rep": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 3.707289579324424e-05,
+    "max_dlogit": 0.482507586479187,
+    "omega0": 0.6666666666666666,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.8853211502162549,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.210045430110767,
+                "task_loss_after": 0.31219350146023894
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.180576710030437,
+                "task_loss_after": 2.805771440267563
+              }
+            ],
+            "pass": true,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 1.1338024139404297,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 18.091495513916016,
+            "protected_ppl_before": 16.957693099975586,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 16.898575983941555,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.31219350146023894,
+            "task_loss_before": 2.7223285030234945,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1246,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12192.5,
+              "vulkan": 17280.4
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.2594,
+            "exact_agree": 0.0,
+            "kl_max": 0.710436,
+            "kl_mean": 0.031374,
+            "kl_median": 0.017453,
+            "kl_p90": 0.063876,
+            "kl_p95": 0.0993,
+            "kl_p99": 0.262232,
+            "kl_p999": 0.606207,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": true,
+            "ppl": 12.384,
+            "ppl_f16": 12.1246,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.021395,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.2496,
+            "kl_max": 0.485433,
+            "kl_mean": 0.017056,
+            "kl_median": 0.00957,
+            "kl_p90": 0.033899,
+            "kl_p95": 0.050431,
+            "kl_p99": 0.145398,
+            "kl_p999": 0.378098,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": true,
+            "ppl": 12.3742,
+            "ppl_f16": 12.1246,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.020586,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": -0.0008,
+            "kl_max": 0.012438,
+            "kl_mean": 0.000884,
+            "kl_median": 0.00071,
+            "kl_p90": 0.001736,
+            "kl_p95": 0.002659,
+            "kl_p99": 0.004413,
+            "kl_p999": 0.009733,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": true,
+            "ppl": 12.1238,
+            "ppl_f16": 12.1246,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": -6.6e-05,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.639286041259766,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 29.62460708618164,
+                "pass": false,
+                "ppl_ratio": 1.0718296790285464,
+                "rule_loss_ratio": 0.5820857473581846,
+                "specialist_rule_loss": 0.0501047688609746
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 30.12931251525879,
+                "pass": false,
+                "ppl_ratio": 1.0900901155797558,
+                "rule_loss_ratio": 0.41119862677540747,
+                "specialist_rule_loss": 0.03539514967346204
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 30.777019500732422,
+                "pass": false,
+                "ppl_ratio": 1.113524403444744,
+                "rule_loss_ratio": 0.42880697770937315,
+                "specialist_rule_loss": 0.03691084106012363
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 31.48876953125,
+                "pass": false,
+                "ppl_ratio": 1.1392757933125968,
+                "rule_loss_ratio": 0.4941566416742997,
+                "specialist_rule_loss": 0.042536008525511086
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 32.46199035644531,
+                "pass": false,
+                "ppl_ratio": 1.1744872971026183,
+                "rule_loss_ratio": 0.582710518456605,
+                "specialist_rule_loss": 0.050158547898890314
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 29.481714248657227,
+                "pass": false,
+                "ppl_ratio": 1.066659761205376,
+                "rule_loss_ratio": 1.6289736753578405,
+                "specialist_rule_loss": 0.140218773359164
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 29.86446762084961,
+                "pass": false,
+                "ppl_ratio": 1.0805079254315073,
+                "rule_loss_ratio": 0.83200128383377,
+                "specialist_rule_loss": 0.0716169949319736
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 30.22903060913086,
+                "pass": false,
+                "ppl_ratio": 1.0936979545710819,
+                "rule_loss_ratio": 0.5076899478145909,
+                "specialist_rule_loss": 0.04370092826312982
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 30.703245162963867,
+                "pass": false,
+                "ppl_ratio": 1.110855219528111,
+                "rule_loss_ratio": 0.4235481583647228,
+                "specialist_rule_loss": 0.036458172481754904
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 31.204647064208984,
+                "pass": false,
+                "ppl_ratio": 1.128996133171706,
+                "rule_loss_ratio": 0.42653128700482373,
+                "specialist_rule_loss": 0.036714954187325226
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant"
+    ],
+    "top1": 0.99609375,
+    "unavailable": [],
+    "variant": "g7_rand_rep"
+  },
+  "prep_base_exact": {
+    "equiv": "EQUIVALENT",
+    "fails": [
+      "merge:linear",
+      "merge:ties"
+    ],
+    "flags": [],
+    "kl": 0.0,
+    "max_dlogit": 0.0,
+    "omega0": 0.6666666666666666,
+    "ops": {
+      "adapt": {
+        "pass_contract": null,
+        "results": {
+          "sanity_reference": null,
+          "variant": {
+            "base_frozen": true,
+            "batch_size": 2,
+            "capture": 0.9900216714437025,
+            "capture_ref": 0.9859822708366603,
+            "capture_threshold": 0.7394867031274952,
+            "contract_version": "adapt-v2-true-lora-base-frozen",
+            "device": "cuda",
+            "device_note": "cuda",
+            "grad_accum": 1,
+            "heldout_examples": 128,
+            "lora_alpha": 32,
+            "lora_rank": 16,
+            "lr_grid": [
+              {
+                "lr": 0.0003,
+                "runtime_s": 16.242791828000918,
+                "task_loss_after": 0.02716920770101503
+              },
+              {
+                "lr": 0.003,
+                "runtime_s": 16.439693103078753,
+                "task_loss_after": 3.6035953760147095
+              }
+            ],
+            "pass": true,
+            "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+            "peak_memory_allocated_gb": 2.393921536,
+            "protected_dppl": 1.153249740600586,
+            "protected_dppl_ref": 1.2238330841064453,
+            "protected_ppl_after": 18.145048141479492,
+            "protected_ppl_before": 16.991798400878906,
+            "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+            "runtime_s": 17.294802377931774,
+            "seed": 1729,
+            "selected_lr": 0.0003,
+            "seq_len": 128,
+            "steps": 80,
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "task_loss_after": 0.02716920770101503,
+            "task_loss_before": 2.72282151742415,
+            "train_examples": 512
+          }
+        }
+      },
+      "gguf": {
+        "pass_contract": {
+          "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+          "kl_mean_slack": 0.005,
+          "mode": "reference-relative",
+          "prefix_agree_slack": 0.1,
+          "rel_dppl_slack": 0.01
+        },
+        "results": {
+          "f16": {
+            "backend": "vulkan",
+            "error": "",
+            "ppl": 12.1351,
+            "size_mb": 948.1,
+            "status": "OK",
+            "throughput_Bps": {
+              "cpu": 12745.9,
+              "vulkan": 18023.7
+            }
+          },
+          "q4_k_m": {
+            "dppl": 0.2439,
+            "exact_agree": 0.0,
+            "kl_max": 0.460244,
+            "kl_mean": 0.031624,
+            "kl_median": 0.018255,
+            "kl_p90": 0.070675,
+            "kl_p95": 0.109168,
+            "kl_p99": 0.247728,
+            "kl_p999": 0.436906,
+            "limits": {
+              "kl_mean": 0.036913999999999995,
+              "prefix_agree": -0.1,
+              "rel_dppl": 0.031945
+            },
+            "pass": true,
+            "ppl": 12.379,
+            "ppl_f16": 12.1351,
+            "prefix_agree": 0.0,
+            "prefix_agree_uninformative": true,
+            "prompt_tokens": 32,
+            "prompts": 32,
+            "reference_tag": "base",
+            "rel_dppl": 0.020099,
+            "size_mb": 379.4,
+            "status": "OK"
+          },
+          "q5_k_m": {
+            "dppl": 0.3082,
+            "kl_max": 0.31226,
+            "kl_mean": 0.01672,
+            "kl_median": 0.010497,
+            "kl_p90": 0.035833,
+            "kl_p95": 0.051223,
+            "kl_p99": 0.11349,
+            "kl_p999": 0.310103,
+            "limits": {
+              "kl_mean": 0.021719000000000002,
+              "rel_dppl": 0.035142
+            },
+            "pass": true,
+            "ppl": 12.4433,
+            "ppl_f16": 12.1351,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": 0.025397,
+            "size_mb": 400.6,
+            "status": "OK"
+          },
+          "q8_0": {
+            "dppl": -0.0113,
+            "kl_max": 0.014328,
+            "kl_mean": 0.001017,
+            "kl_median": 0.000754,
+            "kl_p90": 0.002025,
+            "kl_p95": 0.002955,
+            "kl_p99": 0.006095,
+            "kl_p999": 0.0122,
+            "limits": {
+              "kl_mean": 0.00594,
+              "rel_dppl": 0.009011
+            },
+            "pass": true,
+            "ppl": 12.1238,
+            "ppl_f16": 12.1351,
+            "prefix_agree_uninformative": true,
+            "reference_tag": "base",
+            "rel_dppl": -0.000931,
+            "size_mb": 506.5,
+            "status": "OK"
+          }
+        }
+      },
+      "merge": {
+        "pass_contract": null,
+        "results": {
+          "alphas": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "base_eval_ppl": 27.66525650024414,
+          "base_frozen": true,
+          "base_rule_loss": 1.6447990362817457,
+          "candidate_ppl": 27.66525650024414,
+          "contract": {
+            "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+            "ppl_ratio_max": 1.05,
+            "rule_loss_ratio_max": 0.75,
+            "version": "merge-v2-base-calibrated"
+          },
+          "density": 0.2,
+          "device": "cuda",
+          "linear": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 29.955123901367188,
+                "pass": false,
+                "ppl_ratio": 1.08277051040907,
+                "rule_loss_ratio": 0.872080343321544,
+                "specialist_rule_loss": 0.07506691965683455
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 30.54303741455078,
+                "pass": false,
+                "ppl_ratio": 1.1040214795869052,
+                "rule_loss_ratio": 0.46596834756965216,
+                "specialist_rule_loss": 0.040109616937830724
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 31.13034439086914,
+                "pass": false,
+                "ppl_ratio": 1.1252505246280446,
+                "rule_loss_ratio": 0.4319229636797991,
+                "specialist_rule_loss": 0.037179058857124865
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 31.78432273864746,
+                "pass": false,
+                "ppl_ratio": 1.1488895011100646,
+                "rule_loss_ratio": 0.4811650748870199,
+                "specialist_rule_loss": 0.041417720620382195
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 32.57096862792969,
+                "pass": false,
+                "ppl_ratio": 1.1773239343594104,
+                "rule_loss_ratio": 0.5693215560776934,
+                "specialist_rule_loss": 0.04900605298155497
+              }
+            ],
+            "smallest_passing_alpha": null
+          },
+          "lora_alpha": 32,
+          "lora_rank": 32,
+          "lr": 0.0003,
+          "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+          "seed": 2718,
+          "specialist": {
+            "alpha": 32,
+            "base_eval_ppl": 27.66525650024414,
+            "base_frozen": true,
+            "base_rule_loss": 1.6447990362817457,
+            "batch_size": 2,
+            "eval_ppl": 37.443485260009766,
+            "gate_pass": true,
+            "heldout_examples": 128,
+            "heldout_rule_loss": 0.08607798608431275,
+            "live_eval_ppl": 37.40376281738281,
+            "live_rule_loss": 0.08484929473918744,
+            "lr": 0.0003,
+            "max_memory_allocated_gb": 2.347885568,
+            "rank": 32,
+            "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+            "rule_loss": 0.08607798608431275,
+            "runtime_s": 128.50585305783898,
+            "saved_artifact_verified": true,
+            "seed": 2718,
+            "seq_len": 128,
+            "steps": 600,
+            "train_examples": 512
+          },
+          "steps": 600,
+          "ties": {
+            "matrix": [
+              {
+                "alpha": 0.3,
+                "eval_ppl": 29.814645767211914,
+                "pass": false,
+                "ppl_ratio": 1.0776927286739166,
+                "rule_loss_ratio": 2.1291855786139693,
+                "specialist_rule_loss": 0.18327600660685264
+              },
+              {
+                "alpha": 0.4,
+                "eval_ppl": 30.23042106628418,
+                "pass": false,
+                "ppl_ratio": 1.0927215175473757,
+                "rule_loss_ratio": 1.165956533260047,
+                "specialist_rule_loss": 0.10036319024487186
+              },
+              {
+                "alpha": 0.5,
+                "eval_ppl": 30.723888397216797,
+                "pass": false,
+                "ppl_ratio": 1.1105585952888477,
+                "rule_loss_ratio": 0.6254457736643517,
+                "specialist_rule_loss": 0.053837112601972284
+              },
+              {
+                "alpha": 0.6,
+                "eval_ppl": 31.073373794555664,
+                "pass": false,
+                "ppl_ratio": 1.123191241486644,
+                "rule_loss_ratio": 0.43457247535899807,
+                "specialist_rule_loss": 0.03740712348657718
+              },
+              {
+                "alpha": 0.7,
+                "eval_ppl": 31.460193634033203,
+                "pass": false,
+                "ppl_ratio": 1.1371733941362725,
+                "rule_loss_ratio": 0.4213211010275954,
+                "specialist_rule_loss": 0.03626647187128068
+              }
+            ],
+            "smallest_passing_alpha": null
+          }
+        }
+      }
+    },
+    "passes": [
+      "gguf:q4_k_m",
+      "gguf:q5_k_m",
+      "gguf:q8_0",
+      "adapt:variant"
+    ],
+    "top1": 1.0,
+    "unavailable": [],
+    "variant": "prep_base_exact"
+  }
+}

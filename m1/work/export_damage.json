@@ -1,0 +1,32 @@
+{
+  "base": {
+    "census": {
+      "below_f16_normal": 1007881,
+      "frac_below": 0.00282,
+      "min_abs_weight": 2.4883775040507317e-09,
+      "weights": 357868417
+    },
+    "export_damage_ratio": 1.0004,
+    "ppl": {
+      "bf16": 12.1351,
+      "f16": 12.1399,
+      "f32": 12.133
+    },
+    "status": "OK"
+  },
+  "g3_pow2": {
+    "census": {
+      "below_f16_normal": 35312366,
+      "frac_below": 0.09867,
+      "min_abs_weight": 4.860112312599085e-12,
+      "weights": 357868417
+    },
+    "export_damage_ratio": 14.6129,
+    "ppl": {
+      "bf16": 12.1351,
+      "f16": 177.3286,
+      "f32": 177.3922
+    },
+    "status": "OK"
+  }
+}
