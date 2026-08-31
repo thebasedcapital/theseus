@@ -14,11 +14,11 @@ SEED = 1729
 RULE_SEED = 1729
 RANK = 16
 ALPHA = 32
-STEPS = 120  # GPU contention/throughput fallback; measured 200-step attempt exceeded safe memory budget
-BATCH_SIZE = 4
+STEPS = 80
+BATCH_SIZE = 2
 GRAD_ACCUM = 1
-SEQ_LEN = 256
-LR_GRID = (3e-5, 3e-4, 3e-3)
+SEQ_LEN = 128
+LR_GRID = (3e-4, 3e-3)
 TRAIN_N = 512
 HELDOUT_N = 128
 TARGETS = ("q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj")
@@ -151,35 +151,38 @@ def run_variant(model_dir, tok, train_data, held_data, device):
     return {"task_loss_before": before, "task_loss_after": after, "capture": (before-after)/before,
             "protected_ppl_before": ppl_before, "protected_ppl_after": ppl_after,
             "protected_dppl": ppl_after-ppl_before, "selected_lr": best["lr"],
-            "lr_grid": grid, "runtime_s": runtime}
+            "lr_grid": grid, "runtime_s": runtime, "peak_memory_allocated_gb": torch.cuda.max_memory_allocated() / 1e9 if device == "cuda" else 0.0}
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--model-dir", required=True); ap.add_argument("--out", required=True); ap.add_argument("--tags", default=""); ap.add_argument("--ref-capture", type=float)
     args = ap.parse_args(); t0=time.perf_counter(); model_dir=Path(args.model_dir).expanduser().resolve(); out=Path(args.out)
     result = {"script":"adapt_probe.py", "model_dir":str(model_dir), "tag": model_dir.name if common.WORK in model_dir.parents else "base", "git_head": subprocess.check_output(["git","-C","/home/admin/theseus","rev-parse","HEAD"],text=True).strip(), "torch":torch.__version__, "results":{}, "duration_s":None}
     try:
-        set_seed(SEED); device=common.pick_device(2.4)
-        device_note = device if device == "cuda" else "cpu: insufficient free CUDA memory or CUDA unavailable"
-        tok=common.load_tokenizer(model_dir)
-        ids=examples(TRAIN_N+HELDOUT_N,RULE_SEED); train=make_data(tok,ids[:TRAIN_N]); held=make_data(tok,ids[TRAIN_N:])
-        ref_cache=common.WORK/"ref_capture.json"; ref_capture=args.ref_capture
-        if ref_capture is None and ref_cache.exists():
-            try:
-                cached=common.rjson(ref_cache)
-                if cached.get("seed") == SEED and cached.get("steps") == STEPS: ref_capture=float(cached["capture"])
-            except Exception: pass
-        ref_run=None
-        if ref_capture is None:
-            with common.lock("gpu"):
+        set_seed(SEED)
+        with common.lock("gpu"):
+            while True:
+                device=common.pick_device(2.4)
+                if device == "cuda": break
+                common.log("waiting for gpu")
+                time.sleep(30)
+            device_note = device
+            tok=common.load_tokenizer(model_dir)
+            ids=examples(TRAIN_N+HELDOUT_N,RULE_SEED); train=make_data(tok,ids[:TRAIN_N]); held=make_data(tok,ids[TRAIN_N:])
+            ref_cache=common.WORK/"ref_capture.json"; ref_capture=args.ref_capture
+            if ref_capture is None and ref_cache.exists():
+                try:
+                    cached=common.rjson(ref_cache)
+                    if cached.get("seed") == SEED and cached.get("steps") == STEPS: ref_capture=float(cached["capture"])
+                except Exception: pass
+            ref_run=None
+            if ref_capture is None:
                 ref_run=run_variant(common.REF_MODEL,tok,train,held,device)
-            ref_capture=ref_run["capture"]
-            common.wjson(ref_cache,{"seed":SEED,"steps":STEPS,"rank":RANK,"capture":ref_capture})
-        if model_dir == common.REF_MODEL.resolve() and ref_run is not None:
-            run = ref_run
-        else:
-            with common.lock("gpu"):
-                run = run_variant(model_dir,tok,train,held,device)
-        result["results"]={"variant":run,"sanity_reference":ref_run}
+                ref_capture=ref_run["capture"]
+                common.wjson(ref_cache,{"seed":SEED,"steps":STEPS,"rank":RANK,"capture":ref_capture,"protected_dppl":ref_run["protected_dppl"]})
+            protected_dppl_ref = ref_run["protected_dppl"] if ref_run is not None else float(common.rjson(ref_cache)["protected_dppl"])
+            run = ref_run if model_dir == common.REF_MODEL.resolve() and ref_run is not None else run_variant(model_dir,tok,train,held,device)
+            run.update({"seed":SEED,"rule":"reverse 10-digit identifier: rev: ID -> reversed(ID)","train_examples":TRAIN_N,"heldout_examples":HELDOUT_N,"seq_len":SEQ_LEN,"steps":STEPS,"batch_size":BATCH_SIZE,"grad_accum":GRAD_ACCUM,"lora_rank":RANK,"lora_alpha":ALPHA,"targets":list(TARGETS),"capture_ref":ref_capture,"protected_dppl_ref":protected_dppl_ref,"pass_contract":"amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02","capture_threshold":0.75*ref_capture,"pass":run["capture"] >= 0.75*ref_capture and run["protected_dppl"] <= protected_dppl_ref + 0.02,"device":device,"device_note":device_note})
+            result["results"]={"variant":run,"sanity_reference":ref_run}
     except Exception as e:
         result["error"]={"type":type(e).__name__,"message":str(e)}
     result["duration_s"]=time.perf_counter()-t0; common.wjson(out,result); print(json.dumps(result,indent=2,sort_keys=True))

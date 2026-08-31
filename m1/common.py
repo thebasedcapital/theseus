@@ -334,7 +334,14 @@ def rjson(path: Path):
 
 
 def merge_sd(a: dict, b: dict, alpha: float, ties: bool = False, density: float = 0.2) -> dict:
-    """Task-vector merge: a + alpha*(b-a).  ties=True applies TIES elect-sign + trim."""
+    """Task-vector merge of candidate `a` with specialist `b`: a + alpha*(b - a).
+
+    ties=True additionally magnitude-trims the single delta (S - a) to the top `density`
+    fraction per tensor. HONEST LABEL: this is the TIES *trim* stage only. Elect-sign and
+    sign-consensus need two independent task vectors against a shared base; here the merge
+    operand is one delta (specialist minus candidate), so those stages are vacuous by
+    construction. That is itself part of the finding: TIES/DARE assume the parents share a
+    parameter coordinate system, which is exactly what a gauge-transformed checkpoint breaks."""
     if not ties:
         return {k: (1 - alpha) * a[k] + alpha * b[k] for k in a}
     out = {}

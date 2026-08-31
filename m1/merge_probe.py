@@ -15,8 +15,8 @@ SEED = 2718
 RANK = 32
 ALPHA = 32
 STEPS = 600
-BATCH_SIZE = 4
-SEQ_LEN = 256
+BATCH_SIZE = 2
+SEQ_LEN = 128
 TRAIN_N = 512
 HELDOUT_N = 128
 DENSITY = 0.2
@@ -117,15 +117,22 @@ def main():
     result={'script':'merge_probe.py','model_dir':str(model_dir),'tag':model_dir.name if common.WORK in model_dir.parents else 'base','git_head':subprocess.check_output(['git','-C','/home/admin/theseus','rev-parse','HEAD'],text=True).strip(),'torch':torch.__version__,'results':{},'duration_s':None}
     try:
         global HELD_DATA,SPECIALIST_QUALITY
-        set_seed(); device='cpu'; device_note='cpu: explicit fallback after repeated CUDA OOM'
-        tok=common.load_tokenizer(common.REF_MODEL); ex=examples(TRAIN_N+HELDOUT_N); train=make_data(tok,ex[:TRAIN_N]); HELD_DATA=make_data(tok,ex[TRAIN_N:])
+        set_seed()
         with common.lock("gpu"):
+            while True:
+                device=common.pick_device(2.4)
+                if device == "cuda": break
+                common.log("waiting for gpu")
+                time.sleep(30)
+            device_note=device
+            tok=common.load_tokenizer(common.REF_MODEL); ex=examples(TRAIN_N+HELDOUT_N)
+            train=make_data(tok,ex[:TRAIN_N]); HELD_DATA=make_data(tok,ex[TRAIN_N:])
             SPECIALIST_QUALITY=ensure_specialist(tok,train,HELD_DATA,device)
-        cand=common.load_state(model_dir); spec=common.load_state(SPECIALIST_DIR)
-        with common.lock("gpu"):
-            linear_base,linear=evaluate_merge(cand,spec,model_dir,ALPHAS,device,False); ties_base,ties=evaluate_merge(cand,spec,model_dir,ALPHAS,device,True)
-        def smallest(rows): return min((r['alpha'] for r in rows if r['pass']),default=None)
-        result['results']={'seed':SEED,'rule':SPECIALIST_QUALITY['rule'],'steps':STEPS,'lora_rank':RANK,'lora_alpha':ALPHA,'density':DENSITY,'alphas':list(ALPHAS),'specialist':SPECIALIST_QUALITY,'candidate_ppl':linear_base,'linear':{'matrix':linear,'smallest_passing_alpha':smallest(linear)},'ties':{'matrix':ties,'smallest_passing_alpha':smallest(ties)},'device':device,'device_note':device_note}
+            cand=common.load_state(model_dir); spec=common.load_state(SPECIALIST_DIR)
+            linear_base,linear=evaluate_merge(cand,spec,model_dir,ALPHAS,device,False)
+            ties_base,ties=evaluate_merge(cand,spec,model_dir,ALPHAS,device,True)
+            def smallest(rows): return min((r['alpha'] for r in rows if r['pass']),default=None)
+            result['results']={'seed':SEED,'rule':SPECIALIST_QUALITY['rule'],'steps':STEPS,'lora_rank':RANK,'lora_alpha':ALPHA,'density':DENSITY,'alphas':list(ALPHAS),'specialist':SPECIALIST_QUALITY,'candidate_ppl':linear_base,'linear':{'matrix':linear,'smallest_passing_alpha':smallest(linear)},'ties':{'matrix':ties,'smallest_passing_alpha':smallest(ties)},'device':device,'device_note':device_note}
     except Exception as e: result['error']={'type':type(e).__name__,'message':str(e)}
     result['duration_s']=time.perf_counter()-t0; common.wjson(out,result); print(json.dumps(result,indent=2,sort_keys=True))
 if __name__=='__main__': main()

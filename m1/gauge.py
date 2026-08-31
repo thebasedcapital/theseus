@@ -219,6 +219,12 @@ def g3_norm_diag(sd: dict, arch: Arch, mode: str = "random", seed: int = 0,
         if mode == "random":
             u = torch.rand(arch.hidden, generator=g, dtype=F64)
             return torch.exp((2 * u - 1) * decades * lg10)
+        if mode == "pow2":
+            # exact in bf16: multiplying a bf16 value by 2^k is lossless, so the gauge itself
+            # costs no representation noise and any downstream difference is purely the gauge
+            k = torch.randint(int(-2 ** decades), int(2 ** decades) + 1, (arch.hidden,),
+                              generator=g, dtype=torch.float64)
+            return torch.ldexp(torch.ones_like(k), k.to(torch.int))
         if mode == "smooth":                 # block-constant: a super-block scale absorbs it
             u = torch.rand(arch.hidden // 32, generator=g, dtype=F64)
             return torch.exp((2 * u - 1) * decades * lg10).repeat_interleave(32)
