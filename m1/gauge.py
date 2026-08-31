@@ -341,7 +341,7 @@ def g7_up_diag(sd: dict, arch: Arch, mode: str = "random", seed: int = 0,
     survives SwiGLU precisely because GLU factorizes the nonlinearity away from one branch.
     """
     sd = {k: v.clone() for k, v in sd.items()}
-    if mode not in ("random", "few"):
+    if mode not in ("random", "few", "pow2"):
         raise ValueError(f"unknown G7 mode {mode}")
     lg10 = torch.log(torch.tensor(10.0, dtype=F64))
     spans = []
@@ -350,6 +350,10 @@ def g7_up_diag(sd: dict, arch: Arch, mode: str = "random", seed: int = 0,
         d = _req(sd, f"{mlp(l)}.down_proj.weight")
         g = gen(seed * 7919 + l)
         c = torch.exp((2 * torch.rand(arch.intermediate, generator=g, dtype=F64) - 1) * decades * lg10)
+        if mode == "pow2":
+            # exponent-lattice draw: lossless to store in bf16, so the stressed artifact stays
+            # bitwise-equivalent in behaviour and any measured difference is the gauge alone
+            c = torch.pow(torch.tensor(2.0, dtype=F64), torch.round(torch.log2(c)))
         if mode == "few":                      # concentrate the damage on 0.1% of neurons
             keep = torch.zeros(arch.intermediate, dtype=F64) + 1.0
             idx = torch.randperm(arch.intermediate, generator=g)[: max(1, arch.intermediate // 1000)]
