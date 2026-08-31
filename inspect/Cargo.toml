@@ -1,0 +1,16 @@
+[package]
+name = "theseus-inspect"
+version = "0.1.0"
+edition = "2021"
+description = "Static checkpoint-diagnostics: reads a safetensors artifact and reports the conditioning numbers that predict surgery damage"
+license = "MIT"
+
+[[bin]]
+name = "theseus-inspect"
+path = "src/main.rs"
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+panic = "abort"
