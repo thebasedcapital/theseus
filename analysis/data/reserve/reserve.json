@@ -1,7 +1,6 @@
 {
   "conventions": {
     "reserve": "R_o = clip(1 - excess/allowed_slack, 0, 1); 1.0 = at or better than the reference, 0.0 = the operation is lost. Margin in the statistic's own units, not parameter distance (math.md \u00a75 notes Euclidean distance is invalid under gauge freedom).",
-    "bpw": "measured artifact bytes / metered parameter count * 8, not llama.cpp's nominal label",
     "deep_bit": "most aggressive scheme on the recorded ladder whose OWN cells both pass",
     "merge": "largest alpha that passes / largest alpha swept; the specialist fraction the coordinates can absorb",
     "collapse": "no scalar is produced (K-7); each operation is reported separately"
@@ -19,7 +18,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 11.324,
             "R_rel_dppl": 0.7807,
             "excess_rel_dppl": 0.002193,
             "R_kl_mean": 0.9832,
@@ -28,7 +26,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.956,
             "R_rel_dppl": 0.3891,
             "excess_rel_dppl": 0.006109,
             "R_kl_mean": 0.1442,
@@ -37,17 +34,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": false,
-            "bpw": 8.482,
             "R_rel_dppl": 0.0,
             "excess_rel_dppl": 0.010773,
             "R_kl_mean": 1.0,
             "excess_kl_mean": 0.0
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": "q5_k_m"
       },
@@ -98,7 +89,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": null,
-            "bpw": 11.324,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 1.0,
@@ -107,7 +97,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": null,
-            "bpw": 8.956,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 1.0,
@@ -116,17 +105,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": null,
-            "bpw": 8.482,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 1.0,
             "excess_kl_mean": 0.0
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": "q4_k_m"
       },
@@ -177,7 +160,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 11.324,
             "R_rel_dppl": 0.7279,
             "excess_rel_dppl": 0.002721,
             "R_kl_mean": 1.0,
@@ -186,7 +168,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.956,
             "R_rel_dppl": 0.2349,
             "excess_rel_dppl": 0.007651,
             "R_kl_mean": 0.8352,
@@ -195,17 +176,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": false,
-            "bpw": 8.482,
             "R_rel_dppl": 0.0,
             "excess_rel_dppl": 0.017726,
             "R_kl_mean": 0.9826,
             "excess_kl_mean": 8.7e-05
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": "q5_k_m"
       },
@@ -256,7 +231,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 11.324,
             "R_rel_dppl": 0.7791,
             "excess_rel_dppl": 0.002209,
             "R_kl_mean": 1.0,
@@ -265,7 +239,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.956,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 0.8534,
@@ -274,17 +247,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.482,
             "R_rel_dppl": 0.0472,
             "excess_rel_dppl": 0.009528,
             "R_kl_mean": 1.0,
             "excess_kl_mean": 0.0
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": "q4_k_m"
       },
@@ -335,7 +302,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 11.324,
             "R_rel_dppl": 0.8953,
             "excess_rel_dppl": 0.001047,
             "R_kl_mean": 0.985,
@@ -344,7 +310,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.956,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 0.898,
@@ -353,17 +318,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.482,
             "R_rel_dppl": 0.2271,
             "excess_rel_dppl": 0.007729,
             "R_kl_mean": 0.87,
             "excess_kl_mean": 0.00065
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": "q4_k_m"
       },
@@ -414,7 +373,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": false,
-            "bpw": 11.324,
             "R_rel_dppl": 0.0,
             "excess_rel_dppl": 52197.255433,
             "R_kl_mean": 0.0,
@@ -423,7 +381,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": false,
-            "bpw": 8.956,
             "R_rel_dppl": 0.0,
             "excess_rel_dppl": 657042.475703,
             "R_kl_mean": null
@@ -431,16 +388,10 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": false,
-            "bpw": 8.482,
             "R_rel_dppl": 0.0,
             "excess_rel_dppl": 26189.994141,
             "R_kl_mean": null
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": null
       },
@@ -491,7 +442,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 11.324,
             "R_rel_dppl": 0.9761,
             "excess_rel_dppl": 0.000239,
             "R_kl_mean": 0.975,
@@ -500,7 +450,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.956,
             "R_rel_dppl": 0.864,
             "excess_rel_dppl": 0.00136,
             "R_kl_mean": 0.2378,
@@ -509,17 +458,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.482,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 0.3812,
             "excess_kl_mean": 0.003094
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": "q4_k_m"
       },
@@ -570,7 +513,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 11.324,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 0.9988,
@@ -579,7 +521,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.956,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 0.999,
@@ -588,17 +529,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.482,
             "R_rel_dppl": 0.9077,
             "excess_rel_dppl": 0.000923,
             "R_kl_mean": 0.9942,
             "excess_kl_mean": 2.9e-05
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": "q4_k_m"
       },
@@ -649,7 +584,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 14.407,
             "R_rel_dppl": 0.991,
             "excess_rel_dppl": 9e-05,
             "R_kl_mean": 1.0,
@@ -658,7 +592,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 11.134,
             "R_rel_dppl": 0.8276,
             "excess_rel_dppl": 0.001724,
             "R_kl_mean": 0.8334,
@@ -667,17 +600,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 10.477,
             "R_rel_dppl": 0.9382,
             "excess_rel_dppl": 0.000618,
             "R_kl_mean": 0.8782,
             "excess_kl_mean": 0.000609
           }
-        },
-        "bpw": {
-          "q8_0": 14.407,
-          "q5_k_m": 11.134,
-          "q4_k_m": 10.477
         },
         "deepest_passing": "q4_k_m"
       },
@@ -728,7 +655,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 11.324,
             "R_rel_dppl": 0.9077,
             "excess_rel_dppl": 0.000923,
             "R_kl_mean": 1.0,
@@ -737,7 +663,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.956,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 0.9326,
@@ -746,17 +671,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.482,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 1.0,
             "excess_kl_mean": 0.0
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": "q4_k_m"
       },
@@ -807,7 +726,6 @@
           "q8_0": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 11.324,
             "R_rel_dppl": 0.9942,
             "excess_rel_dppl": 5.8e-05,
             "R_kl_mean": 0.9846,
@@ -816,7 +734,6 @@
           "q5_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.956,
             "R_rel_dppl": 0.9745,
             "excess_rel_dppl": 0.000255,
             "R_kl_mean": 0.9998,
@@ -825,17 +742,11 @@
           "q4_k_m": {
             "status": "MEASURED",
             "pass": true,
-            "bpw": 8.482,
             "R_rel_dppl": 1.0,
             "excess_rel_dppl": 0.0,
             "R_kl_mean": 1.0,
             "excess_kl_mean": 0.0
           }
-        },
-        "bpw": {
-          "q8_0": 11.324,
-          "q5_k_m": 8.956,
-          "q4_k_m": 8.482
         },
         "deepest_passing": "q4_k_m"
       },
