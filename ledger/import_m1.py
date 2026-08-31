@@ -346,6 +346,7 @@ def _adapt_cell(art_id, var, cal_id, obligation, fname, torch_v=None):
 
 def build_cells(w, name_to_id, ops, eq, cd_check, export_damage, pred, pred_new, debts, report):
     records = []
+    seed_rep = _load(w, "seed_replicate.json", report) or {}
     corpus_sha = _corpus_sha(w)
 
     # ---- equivalence cells (fp32 compute) ----
@@ -530,6 +531,38 @@ def build_cells(w, name_to_id, ops, eq, cd_check, export_damage, pred, pred_new,
                            torch_v=d.get("torch"))
         records.append(body)
         report.record(fname, "cell")
+    # ---- corrected true-LoRA seed replication ----
+    seed_contract = seed_rep.get("_contract") or {}
+    seed_env = _adapt_env({"seq_len": 128})
+    for tag, entry in sorted(seed_rep.items()):
+        if tag.startswith("_") or not isinstance(entry, dict):
+            continue
+        for seed, row in sorted((entry.get("seeds") or {}).items(), key=lambda x: int(x[0])):
+            records.append(_cell({
+                "op": {"name": "adapt.lora.r16.seed_replication",
+                       "spec": {"rank": 16, "seed": int(seed)},
+                       "contract": seed_contract.get("version"),
+                       "reference_cell": lora_cal_id},
+                "subject": name_to_id.get(tag), "environment": dict(seed_env),
+                "lease": {"wall_s": sum(x.get("runtime_s", 0) for x in row.get("grid", []))},
+                "result": {"status": "measured", "verdict": None,
+                           "metrics": {"capture": row.get("capture"),
+                                       "selected_lr": row.get("selected_lr")}},
+                "invalidates": None, "notes": [],
+                "obligation": f"K-3.replication.{tag}.{seed}",
+                "provenance": _provenance("seed_replicate.json")}))
+            report.record("seed_replicate.json", "cell")
+    summary = seed_rep.get("_summary") or {}
+    if summary:
+        records.append(_cell({
+            "op": {"name": "adapt.lora.r16.seed_summary", "spec": {"rank": 16},
+                   "contract": seed_contract.get("version"), "reference_cell": lora_cal_id},
+            "subject": name_to_id.get("base"), "environment": dict(seed_env),
+            "lease": {"wall_s": None},
+            "result": {"status": "measured", "verdict": None, "metrics": summary},
+            "invalidates": None, "notes": [], "obligation": "K-3.replication.summary",
+            "provenance": _provenance("seed_replicate.json")}))
+        report.record("seed_replicate.json", "cell")
 
     # ---- merge cells: base calibration first, then every variant references it (I4) ----
     merge_cal_id = None

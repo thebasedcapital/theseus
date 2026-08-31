@@ -338,6 +338,16 @@ class TestImportM1(unittest.TestCase):
         self._write(w, "quant_ref.json", {"q8_0": {"tag": "base", "kl_mean": 0.00094}})
         self._write(w, "ref_capture.json", {"capture": 0.973, "seed": 1729, "rank": 16,
                                             "steps": 80})
+        self._write(w, "seed_replicate.json", {
+            "_contract": {"version": "adapt-v2-true-lora-base-frozen",
+                          "base_frozen": True, "gap_threshold_sd": 3},
+            "_summary": {"base_capture": 0.97, "max_within_variant_sd": 0.02,
+                         "threshold_sd": 3, "gaps_beyond_3sd": [["g3_pow2", -0.87]]},
+            "base": {"seeds": {"1729": {"capture": 0.98, "selected_lr": 0.0003,
+                                             "grid": [{"runtime_s": 1.0}]}}},
+            "g3_pow2": {"seeds": {"1729": {"capture": 0.11, "selected_lr": 0.0003,
+                                                "grid": [{"runtime_s": 1.0}]}}},
+        })
         self._write(w, "debts_lattice.json", {
             "base": {"J_base": 0.01123, "J_var": 0.01123, "debt": 0.0,
                      "per_tensor": {"q_proj": 0.0113}},
@@ -398,6 +408,14 @@ class TestImportM1(unittest.TestCase):
 
             # run() is deterministic + no reported failures from verify()
             self.assertEqual(led.verify(), [])
+            # replicated adaptation rows share the corrected base calibration environment/reference
+            seed_rows = [c for c in led.all("cell")
+                         if str(c.get("obligation", "")).startswith("K-3.replication.")]
+            self.assertGreaterEqual(len(seed_rows), 3)
+            lcal = [c for c in led.all("cell") if c.get("obligation") == "K-3.calibration.lora"][0]
+            for c in seed_rows:
+                self.assertEqual(c["op"]["reference_cell"], lcal["id"])
+                self.assertEqual(rules.check_cell(c, ledger=led), [])
 
     def test_import_deterministic_across_roots(self):
         """Two fresh imports of the same work tree produce identical id sets."""

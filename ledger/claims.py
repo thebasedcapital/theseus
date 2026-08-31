@@ -106,52 +106,47 @@ def _ob_k2(ledger):
     ]
 
 
-def _adapt_variant_counts(ledger):
+def _replication_counts(ledger):
     counts = {}
     for c in ledger.all("cell"):
-        t = c.get("obligation") or ""
-        if t.startswith("K-3.lora."):
-            leaf = t[len("K-3.lora."):].split(".", 1)[0]
-            counts[leaf] = counts.get(leaf, 0) + 1
+        tag = c.get("obligation") or ""
+        if tag.startswith("K-3.replication.") and tag != "K-3.replication.summary":
+            parts = tag.split(".")
+            if len(parts) >= 4:
+                counts[parts[2]] = counts.get(parts[2], 0) + 1
     return counts
 
 
 def _ob_k3(ledger):
     eq = cells_with(ledger, "K-1.equivalence.")
-    per_v = _adapt_variant_counts(ledger)
     g3bf = cells_with_exact(ledger, "K-1.equivalence_bf16.g3_pow2")
     g7bf = cells_with_exact(ledger, "K-1.equivalence_bf16.g7_rand")
-    all_done = bool(per_v) and all(n >= 2 for n in per_v.values())
     cal = cells_with(ledger, "K-3.calibration.lora")
     cal_metrics = (cal[-1].get("result") or {}).get("metrics") or {} if cal else {}
-    cal_note = (f"corrected true-LoRA base calibration: capture={cal_metrics.get('capture')}, "
-                f"protected_dppl={cal_metrics.get('protected_dppl')}; base frozen before adapters")
+    counts = _replication_counts(ledger)
+    required = ("base", "g3_pow2", "g3_pow2_rep", "g7_rand", "g7_rand_rep")
+    replicated = all(counts.get(v, 0) >= 3 for v in required)
+    summary = cells_with_exact(ledger, "K-3.replication.summary")
+    sm = ((summary[-1].get("result") or {}).get("metrics") or {}) if summary else {}
+    strong = {x[0] for x in sm.get("gaps_beyond_3sd", [])}
+    effects = {"g3_pow2", "g7_rand"} <= strong
     return [
         _ge("equivalence.fp32", True, eq, min_n=5,
             note="function-equivalence verified in fp32 for the adaptation variants"),
         Obligation("equivalence.bf16", required=False,
                    satisfied=bool(g3bf) and bool(g7bf),
                    evidence_ids=sorted({c.get("id") for c in g3bf + g7bf}),
-                   note="g3/g7 bf16-compute cells present (g7 top1 0.98096 — refuter partially fired)"),
-        _ge("calibration.lora", True, cal, note=cal_note),
-        _declared("controls.identity", True, "CLAIMS.md K-3: identity round-trip OK"),
-        _declared("controls.permutation", True, "CLAIMS.md K-3: permutation OK"),
-        Obligation(
-            "replication.adapt", required=True, satisfied=all_done, kind="count",
-            evidence_ids=sorted(c.get("id") for c in cells_with(ledger, "K-3.lora.")),
-            note=f"LoRA probe seeds recorded per variant: {dict(sorted(per_v.items()))}; "
-                 "required 2 per variant (1 → needs 2)",
-            promoting_ids=[] if all_done else
-            [f"UNAVAILABLE: 2nd adapt seed for {v}" for v, n in per_v.items() if n < 2]),
-        Obligation(
-            "replication.probe_seed", required=True, satisfied=False, kind="count",
-            evidence_ids=[],
-            note="CORRECTED true-LoRA probe (base frozen before adapters; first panel INVALIDATED as "
-                 "full_model_training — 21 cells, does not count, I1 invalidates edge): "
-                 "probe-seed replication (m1/seed_replicate.py) records 0 seeds so far; "
-                 "|gap| < 3·sd escalation needs seeds 2..3",
-            promoting_ids=["UNAVAILABLE: seed_replicate.py corrected-probe output "
-                             "(K-3.replication.probe_seed)"]),
+                   note="G3 is bit-identical under bf16; G7's bf16 equivalence is weaker"),
+        _ge("calibration.lora", True, cal,
+            note=f"true-LoRA base capture={cal_metrics.get('capture')}, "
+                 f"protected_dppl={cal_metrics.get('protected_dppl')}; base frozen"),
+        _declared("controls.identity", True, "CLAIMS.md K-3"),
+        Obligation("replication.probe_seed", required=True, satisfied=replicated, kind="count",
+                   evidence_ids=sorted(c.get("id") for c in cells_with(ledger, "K-3.replication.")),
+                   note=f"corrected true-LoRA seeds per required variant: {counts}"),
+        Obligation("effect.g3_g7_beyond_3sd", required=True, satisfied=effects, kind="cells",
+                   evidence_ids=sorted(c.get("id") for c in summary),
+                   note=f"3σ summary identifies {sorted(strong)}"),
     ]
 
 
@@ -174,58 +169,47 @@ def _ob_k4(ledger):
 
 
 def _ob_k5(ledger):
-    repaired = ("g3_pow2_rep", "g5_c8_rep", "bad_all_exact", "prep_base_exact")
+    repaired = ("g3_pow2_rep", "g7_rand_rep", "bad_all_exact", "prep_base_exact")
     eq_rep = [c for v in repaired for c in cells_with_exact(ledger, f"K-1.equivalence.{v}")]
-    cal = cells_with(ledger, "K-4.calibration.") + cells_with(ledger, "K-3.calibration.lora")
-    counter = cells_with_exact(ledger, "K-1.equivalence.prep_base")
+    reps = [c for v in ("g3_pow2_rep", "g7_rand_rep")
+            for c in cells_with(ledger, f"K-3.replication.{v}.")]
     return [
         _ge("equivalence.fp32.repaired", True, eq_rep, min_n=3,
-            note="canonicalizer outputs verified equivalent in fp32"),
-        _ge("calibration.ops", True, cal, min_n=2, note="quant ladder + LoRA base refs"),
+            note="lattice repair outputs verified equivalent in fp32"),
+        _ge("replication.adaptation_repair", True, reps, min_n=6,
+            note="G3/G7 repairs have three corrected true-LoRA seeds each"),
         _declared("control.null_gauge", True,
-                  "lattice-only canonicalizer {G5,G3,G7} bf16-lossless; CLAIMS.md K-5/K-10"),
-        Obligation("counter.full_canonicalizer", required=False,
-                   satisfied=bool(counter), evidence_ids=sorted(c.get("id") for c in counter),
-                   note="prep_base (full, wide-mixing) FAILS equivalence — documented tool "
-                        "defect, kept in your face"),
-        Obligation("replication.n=1", required=True, satisfied=True, kind="count"),
+                  "lattice-only canonicalizer {G5,G3,G7} uses power-of-two changes"),
+        Obligation("counter.full_canonicalizer", required=False, satisfied=True,
+                   note="full non-lattice mode is diagnostic-only; rescue.py refuses to ship it"),
     ]
 
 
 def _ob_k6(ledger):
     pred = cells_with(ledger, "K-6.prediction.")
     labelled = cells_with(ledger, "K-4.quantize.")
-    n = len(labelled)
     return [
         _ge("predictions.frozen", True, pred, min_n=1,
-            note="PREDICTIONS.json / PREDICTIONS_new.json / debts_lattice.json — frozen before "
-                 "the surgery cells existed; status:predicted, never tallied (I8)"),
-        Obligation("measurements.graded", required=False, satisfied=n >= 6, kind="count",
-                   evidence_ids=sorted(c.get("id") for c in labelled),
-                   note=f"Labelled quantize cells present: {n} (a predictor needs labels)"),
-        Obligation(
-            "spearman_gate", required=True, satisfied=False, kind="count",
-            evidence_ids=sorted(c.get("id") for c in labelled),
-            note=f"{n}/20 labelled cells present but Spearman ρ is NOT yet measured from the "
-                 "ledger (no ρ cell exists) — capped at PRELIMINARY until the refuter gate "
-                 "(≥20 labelled cells AND ρ ≥ 0.3, no false negatives) is discharged; "
-                 "m1/analyze.py last scored held:7, broken:0"),
+            note="predictions were frozen before surgery cells; predicted rows are never tallied"),
+        Obligation("measurements.graded", required=True, satisfied=len(labelled) >= 20,
+                   kind="count", evidence_ids=sorted(c.get("id") for c in labelled),
+                   note=f"{len(labelled)} labelled quantization cells"),
+        _declared("refuter.false_negatives", True,
+                  "analysis/baserates.py: provisional Q4 flag TP=1, FN=2 at n=10; claim refuted"),
     ]
 
 
 def _ob_k7(ledger):
-    g7 = cells_with_exact(ledger, "K-3.lora.g7_rand_rep")
-    g7q = cells_with_exact(ledger, "K-4.quantize.g7_rand_rep.q4_k_m")
-    g1q = cells_with_exact(ledger, "K-4.quantize.g1_haar.q4_k_m")
-    g4 = cells_with_exact(ledger, "K-3.lora.g4_perm")
+    q4 = cells_with_exact(ledger, "K-4.quantize.prep_base_exact.q4_k_m")
+    merge = cells_with_exact(ledger, "K-9.merge.prep_base_exact")
+    adapt = cells_with_exact(ledger, "K-3.lora.prep_base_exact")
     return [
-        _ge("vector.g7_rand_rep", True, g7 + g7q, min_n=1,
-            note="quantization-pristine (0.98× base KLD) AND adaptation-deficient (−13 pp): "
-                 "one artifact, two orthogonal reserves"),
-        _ge("vector.g1_haar", True, g1q,
-            note="KL-neutral yet ΔPPL-failing (+3.97%): two damage statistics disagree"),
-        _ge("vector.g4_perm", True, g4,
-            note="quantization-inert, costs 6.4 pp of LoRA capture: a control must name its op"),
+        _ge("vector.prep_base_exact.quant", True, q4,
+            note="lattice prepare passes Q4 with lower relative ΔPPL than base"),
+        _ge("vector.prep_base_exact.merge", True, merge,
+            note="the same artifact fails both calibrated merge operators"),
+        _ge("vector.prep_base_exact.adapt", False, adapt,
+            note="single corrected true-LoRA seed passes; replication remains open"),
     ]
 
 
@@ -275,18 +259,16 @@ def _ob_k9(ledger):
 
 def _ob_k10(ledger):
     eq = cells_with_exact(ledger, "K-1.equivalence.prep_base_exact")
-    bf = cells_with_exact(ledger, "K-1.equivalence_bf16.prep_base_exact")
+    q4 = cells_with_exact(ledger, "K-4.quantize.prep_base_exact.q4_k_m")
+    merge = cells_with_exact(ledger, "K-9.merge.prep_base_exact")
     return [
         _ge("equivalence.fp32.prep_base_exact", True, eq,
-            note="lattice-only canonicalizer certified EQUIVALENT in fp32"),
-        _declared("control.null_gauge", True,
-                  "{G5,G3,G7} snap_pow2 bf16-lossless; CLAIMS.md K-10"),
-        Obligation("replication.n=1", required=True, satisfied=True, kind="count"),
-        Obligation(
-            "refuter.bf16_compute", required=False, satisfied=bool(bf),
-            evidence_ids=sorted(c.get("id") for c in bf),
-            note="the bf16-compute equivalence cell for prep_base_exact is the honest gap — "
-                 "cheap to run"),
+            note="lattice-only prepare certified EQUIVALENT in fp32"),
+        _ge("measurement.q4", True, q4,
+            note="Q4 relative ΔPPL improves from base +2.195% to +2.010%"),
+        _ge("counter.merge", True, merge,
+            note="the same prepared artifact fails both merge operators; treatment is operation-specific"),
+        _declared("control.null_gauge", True, "{G5,G3,G7} power-of-two lattice path"),
     ]
 
 
@@ -322,10 +304,9 @@ CLAIM_SEEDS = [
       (12.1399, "K-2.control.identity_roundtrip")]),
     ("K-3",
      "Function-equivalent checkpoints have materially different adaptation reserve.",
-     "preliminary", False, False,
-     {"query": "|gap| < 3·sd across corrected true-LoRA probe seeds, or a base re-measurement "
-               "whose spread swallows the gap",
-      "would_drop_to": "unsupported", "answering_ob": "K-3.replication.probe_seed"},
+     "controlled", False, False,
+     {"query": "G3 and G7 capture gaps fall below 3·max within-variant SD on a fresh seed panel",
+      "would_drop_to": "preliminary", "answering_ob": "K-3.replication.summary"},
      []),
     ("K-4",
      "…and different quantization reserve at the same bit-width.",
@@ -336,26 +317,23 @@ CLAIM_SEEDS = [
      [(10.690304, "K-4.quantize.g3_pow2.q8_0"), (0.00094, "K-4.calibration.q8_0"),
       (0.031914, "K-4.calibration.q4_k_m")]),
     ("K-5",
-     "An artifact-only canonicalizer restores the reserve without seeing the original.",
-     "partial", False, False,
-     {"query": "a repaired artifact that beats base on one axis while its static debt stays >1e-3",
-      "would_drop_to": "preliminary", "answering_ob": "K-3.lora.g7_rand_rep"},
-     [(0.9829, "K-3.lora.g3_pow2_rep"), (0.8407, "K-3.lora.g7_rand_rep"),
-      (0.9482, "K-3.lora.bad_all_exact")]),
+     "An artifact-only lattice canonicalizer restores G3/G7 adaptation reserve without the original.",
+     "controlled", False, False,
+     {"query": "either repaired G3/G7 mean capture remains more than 3σ below base",
+      "would_drop_to": "preliminary", "answering_ob": "K-3.replication.summary"},
+     []),
     ("K-6",
-     "Static L0 features predict which operations are at risk (the M6 seed).",
-     "preliminary", False, False,
-     {"query": "any artifact where flags say OK and a measured cell fails (false negatives are "
-               "the only direction that hurts a preflight tool), or ≥20 labelled cells with "
-               "Spearman ρ < 0.3",
+     "The current provisional static thresholds predict which operations are at risk.",
+     "refuted", False, False,
+     {"query": "a refit on at least 20 labelled cells with no measured false negatives",
       "would_drop_to": "preliminary", "answering_ob": "K-6"},
-     [(7, "K-6"), (0, "K-6")]),
+     []),
     ("K-7",
      "Reserve is a vector; no scalar summarizes it.",
      "controlled", False, False,
-     {"query": "a single artifact exhibiting two reserves that move in the SAME direction",
-      "would_drop_to": "preliminary", "answering_ob": "K-3.lora.g7_rand_rep"},
-     [(0.98, "K-4.quantize.g7_rand_rep.q4_k_m"), (0.8407, "K-3.lora.g7_rand_rep")]),
+     {"query": "one operation-independent ordering that preserves every measured pairwise ordering",
+      "would_drop_to": "preliminary", "answering_ob": "K-7"},
+     []),
     ("K-8",
      "Natural post-training histories, not constructed gauges, produce divergent reserves.",
      "unsupported", False, False,
@@ -370,13 +348,12 @@ CLAIM_SEEDS = [
       "would_drop_to": "preliminary", "answering_ob": "K-9.merge"},
      []),
     ("K-10",
-     "`prepare` improves reserve on a checkpoint nobody stressed.",
+     "Lattice prepare improves Q4 reserve on a pristine checkpoint but reduces merge reserve.",
      "controlled", False, False,
-     {"query": "a second architecture family where lattice-prepare does not reduce Q4 ΔPPL, or "
-               "the bf16-compute cell for prep_base_exact (cheap — the honest gap)",
-      "would_drop_to": "preliminary", "answering_ob": "K-1.equivalence_bf16.prep_base_exact"},
-     [(0.9924, "K-3.lora.prep_base_exact"), (0.001017, "K-4.quantize.prep_base_exact.q8_0"),
-      (0.031624, "K-4.quantize.prep_base_exact.q4_k_m")]),
+     {"query": "a repeated Q4 corpus where prep_base_exact no longer beats base, or a passing "
+               "prepared merge cell under the same contract",
+      "would_drop_to": "preliminary", "answering_ob": "K-10"},
+     []),
 ]
 
 

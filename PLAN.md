@@ -34,13 +34,13 @@ write `seed_replicate.py` after the fact. `controls` are the three universal one
 |---|---|---|---|---|---|---|---|
 | **K-1** | Qwen2.5-0.5B admits ≥5 exact gauges that ordinary tooling does not quotient out | fp32+bf16 | n/a | null-gauge | 3 stress seeds | n/a | CONTROLLED (fp32 complete; bf16 measured for G3/G7 only) |
 | **K-2** | A gauged checkpoint can be exported to bf16 GGUF with perplexity identical to base while its f16/f32 export collapses | fp32+bf16 | base export cell | identity-roundtrip ★ | 1 | n/a | CONTROLLED |
-| **K-3** | Function-equivalent checkpoints have materially different **adaptation** reserve | fp32+bf16 ✓ | LoRA base cell ✓ | identity, permutation ✓ | 1 → **needs 2** | \|gap\|<3sd → seed 2,3 | PRELIMINARY (gap 0.8 pp on G1 needs error bars; 82 pp on G3 does not) |
-| **K-4** | …and different **quantization** reserve, at the same bit-width, same corpus | fp32 | quant ladder refs ✓ | identity, permutation ✓ | 1 | ladder-stop armed | CONTROLLED for G3/G7 (Q8 10.69 vs 0.00094 nats); NEUTRAL confirmed for G1/G2/G5 |
-| **K-5** | An artifact-only canonicalizer restores the reserve without seeing the original | fp32+bf16 | both op refs ✓ | null-gauge | 1 → needs 2 | n/a | CONTROLLED for G3 (capture 0.983, Q4 1.10×); **PARTIAL for G7** (capture 0.841) — that partial is a finding, not a failure |
-| **K-6** | Static L0 features predict which operations are at risk (the M6 seed) | n/a | family baseline | n/a | n≥6 cells | n/a | PRELIMINARY (7/7 directional hits, n too small; refuter written) |
-| **K-7** | Reserve is a vector: no scalar summarizes it | n/a | n/a | n/a | n/a | n/a | CONTROLLED (g7_rand_rep: quant pristine, adaptation −13 pp) |
-| **K-8** | Natural post-training histories, not constructed gauges, produce divergent reserves | fp32 | per-op refs | identity | 2 matched pairs | n/a | UNSUPPORTED — **the next milestone** (M3/A5) |
-| **K-9** | Merge compatibility is gauge-dependent | fp32 | merge refs (in flight) | permutation | 1 | n/a | BLOCKED: merge cells running; also needs the L0-side "UNAVAILABLE is honest" behaviour to be safe to publish |
+| **K-3** | Function-equivalent checkpoints have materially different **adaptation** reserve | fp32; G3 bf16 bit-identical | true-LoRA base cell ✓ | identity ✓ | 3 seeds on base/G3/G7 + repairs | 3σ gate | **CONTROLLED**: G3 −87 pp, G7 −78 pp; both repair |
+| **K-4** | …and different **quantization** reserve, at the same bit-width, same corpus | fp32 | quant ladder refs ✓ | identity, permutation ✓ | 1 | ladder-stop armed | **CONTROLLED**: G3 Q8 10.69 vs base 0.00094 |
+| **K-5** | Artifact-only lattice canonicalization restores G3/G7 adaptation reserve | fp32; G3 bf16 | LoRA base ✓ | power-of-two proof | 3 seeds | repaired gap >3σ refuter | **CONTROLLED** |
+| **K-6** | Current provisional static thresholds predict operation risk | n/a | family baseline | n/a | Q4 n=10 | zero false negatives required | **REFUTED**: Q4 TP=1, FN=2 |
+| **K-7** | Reserve is a vector: no scalar summarizes it | fp32 | per-op refs | n/a | n/a | operation-independent ordering | **CONTROLLED**: pristine prepare helps Q4, hurts merge |
+| **K-8** | Natural post-training histories, not constructed gauges, produce divergent reserves | fp32 | per-op refs | identity | 2 matched pairs | ≥200-shuffle null | **UNSUPPORTED**: 617 relations, zero matched measured pairs |
+| **K-9** | Merge compatibility is gauge-dependent | fp32 | base linear/TIES refs ✓ | key/tie normalization ✓ | ≥2 gauge representatives | base rerun / passing gauged pairs | **CONTROLLED**: 11 fail both; G5 passes linear only |
 
 ★ K-2's obligations are uninteresting until the identity round-trip passes; that single control is
 what prevented M1's headline from being an importer artifact (incident #10).
@@ -65,18 +65,12 @@ this session were disk or VRAM arrivals, not bugs.
 
 ## 3. Ordering (derived, then pinned for the current run)
 
-Right now, cheapest-belief-per-minute first, given K-1…K-9 states:
+Next highest-value work, ordered by evidence gain:
 
-1. **Finish K-3/K-9 replication + merge cells** — in flight (`queue_merge`, `queue_gaps`); they are
-   the only blockers on K-9 and on K-3's error bars.
-2. **`seed_replicate.py` for K-3** — 6 variants × 3 seeds; discharges K-3's replication obligation
-   and simultaneously tests K-6's Spearman on adaptation.
-3. **K-2's bf16/f16 census across all artifacts** — static-only, ~2 s each, and it is the claim with
-   the highest practical value to a local user ("don't hand me an f16 export of that").
-4. **Then M3 / K-8.** Nothing else buys as much: a constructed gauge is a symmetry curiosity until
-   someone shows history doing it on purpose. Cheapest informative instance: two matched pairs at
-   0.5B, `sft→merge→q4` vs `merge→sft→q4`, obligations identical to K-3/K-4/K-5 but with
-   `ancestry` edges instead of `gauge` edges — which is precisely what the schema already stores.
+1. **K-8 natural histories** — select and measure matched public lineages from the 390-artifact harvest.
+2. **Refit static thresholds** — reach n≥20 per flag, then run the guarded precision/recall sweep.
+3. **Cross-architecture adapters** — MoE-aware family keying first; current expert statistics fail closed.
+4. **Repeat K-10 Q4 on another corpus/architecture** — the pristine-prepare gain is small and single-corpus.
 
 ## 4. Track B, gated on Track A (unchanged in spirit, sharper in shape)
 

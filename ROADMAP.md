@@ -518,13 +518,12 @@ Optional community sharing should upload only explicit, inspectable telemetry; n
 
 **Exit condition:** function-equivalent real Transformer checkpoints show materially different outcome under at least one real operation, with exact transformation verification and multi-seed replication.
 
-**Status: exit condition met for quantization (2026-08-31); adaptation cells invalidated and re-running under corrected true-LoRA semantics.**
-`g3_pow2` — RMSNorm-diagonal gauge on the bf16 exponent lattice, so its logits are *exactly*
-identical to base in both fp32 and bf16 compute — loses bounded LoRA capture (0.9731 → 0.1559) and
-turns Q8_0 into a 10.7-nat divergence, while an artifact-only canonicalizer returns capture 0.9829
-and Q4_K_M at 1.10x base KL divergence. Stress seeds 2 and 3 replicate the stress; the *probe*
-seed is replicated separately (`m1/seed_replicate.py`) so the smaller gaps carry error bars.
-Merge cells and the natural-history test (A5) are the outstanding items; see `M1_RESULTS.md`.
+**Status: constructed-gauge exit condition met (2026-08-31).** `g3_pow2` is bit-identical to
+base in fp32 and bf16 compute, drops corrected true-LoRA mean capture from 0.9705 to 0.0989 and
+turns Q8 into a 10.69-nat divergence. Artifact-only lattice repair returns capture to 0.9753 and
+Q4 near base. G7 repeats the adaptation result at 0.1931 → 0.9359 under the weaker fp32-only
+equivalence condition. Both gaps clear the three-seed 3σ gate. Merge compatibility is also
+gauge-dependent. Natural-history evidence (A5/K-8) remains the next scientific milestone.
 
 ## M2 — Local preflight alpha
 
