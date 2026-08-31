@@ -1,0 +1,49 @@
+{
+  "_comment": "Single source of truth for voided evidence. `python -m ledger.cli verify` loads this file; prose in CLAIMS.md / M1_RESULTS.md / CURRENT_STATUS.md describes these entries but the machine-readable record lives here. Records are never deleted or edited after voiding (I1): the point of a quarantine manifest is that the bad artefact stays on disk with its reason attached.",
+  "version": 1,
+  "quarantined": [
+    {
+      "path": "m3/results.json",
+      "scope": "history_construction.*.adapt, history_construction.*.stages, present_match_gate",
+      "incident": 18,
+      "status": "voided",
+      "reason": "the committed generator could not execute: train_lora_state called opt.step() with no optimizer ever constructed, CONTRACT.adapt.lr was declared but never consumed, and the stored adapt dicts lack capture / task_loss_before / task_loss_after that function always returns. m3/selfcheck.py reported PASS by replacing the function with a lambda.",
+      "may_be_cited_as": "a failed-attempt record only; never as support or refutation for K-8",
+      "supersedes": "M1_RESULTS.md 5e (withdrawn 2026-08-31)"
+    },
+    {
+      "path": "m1/work/M1_OPS.old-f16.json",
+      "scope": "all quantize cells",
+      "incident": 10,
+      "status": "superseded",
+      "reason": "quantization damage was measured through an f16 GGUF export, which is destructive for wide-dynamic-range artifacts; the numbers conflated export loss with quantizer loss. Measured: same weights, f16 ppl 177.33 vs native bf16 12.1351.",
+      "may_be_cited_as": "evidence for incident #10 and the export-decomposition result (K-2)"
+    },
+    {
+      "path": "m1/work/invalidated/full_model_training",
+      "scope": "subtree",
+      "incident": 6,
+      "status": "invalidated",
+      "reason": "the first adaptation panel left embeddings, norms and the LM head trainable, so it was full-model training run at a LoRA learning rate. 21 cells archived and counted toward nothing.",
+      "may_be_cited_as": "nothing; kept so the mistake is auditable",
+      "replacement_contract": "adapt-v2-true-lora-base-frozen"
+    },
+    {
+      "path": "m1/work/invalidated/unversioned_true_lora_v1",
+      "scope": "subtree",
+      "incident": 11,
+      "status": "invalidated",
+      "reason": "true LoRA cells predating the versioned contract; they carry no contract_version, so their comparability to adapt-v2 cells cannot be established.",
+      "may_be_cited_as": "nothing",
+      "replacement_contract": "adapt-v2-true-lora-base-frozen"
+    },
+    {
+      "path": "m1/work/probes/base_adapt.json",
+      "scope": "results.sanity_reference, results.variant",
+      "incident": 19,
+      "status": "usable-with-caveat",
+      "reason": "no contract_version on the record, yet ledger/import_m1.py uses it as a fallback LoRA base reference. Kept because ref_capture.json is the preferred source; flagged so a v2 verdict is never calibrated against an unversioned cell by accident.",
+      "may_be_cited_as": "a fallback reference only, and the verifier reports it as a standing warning"
+    }
+  ]
+}

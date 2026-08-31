@@ -79,8 +79,12 @@ freeze the base before adapter insertion; their contract is
 - `ledger/verify.py` (`python -m ledger.cli verify`): every cell must name a commit that resolves,
   a script that existed in it, and the fields its writer cannot emit-less. Currently
   `PASS WITH WARNINGS`: the two #18 records are quarantined as expected, and
-  `m1/work/probes/base_adapt.json` carries no `contract_version` yet `ledger/import_m1.py:499,845`
-  uses it as a LoRA base reference. That comparability gap is open.
+  `ledger/quarantine.json` is now the single machine-readable record of voided evidence
+  (5 entries: #18, #10, #6, #11 and the caveated base reference); the verifier reports each with its
+  status and skips hard-voided paths from tallying while still auditing caveated ones. The shipped
+  K-3 base calibration cites `ops/base.adapt.json [adapt-v2-true-lora-base-frozen]`, and an
+  unversioned fallback is now labelled rather than silently adopted — that closes the comparability
+  gap in `m1/work/probes/base_adapt.json`.
 
 ## What this does not demonstrate yet
 
