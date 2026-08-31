@@ -236,6 +236,13 @@ column energy on the exponent lattice — takes it to capture **0.9829** (slight
 language model: same orbit, same function, reserve destroyed and then restored by a
 function-preserving re-expression.
 
+**The equivalence is not a fp32-only artifact of my harness.** `m1/compute_dtype_check.py` re-ran
+the base/`g3_pow2` pair in both compute dtypes on 2,048 tokens: fp32 compute gives
+`max|Δlogit| = 0.00e+00, KL = 0, top-1 = 1.00000, ppl 16.9471 → 16.9471`; bf16 compute — the dtype
+everybody actually runs a 0.5B in — gives the same exact zeros and `16.9889 → 16.9889`. So the
+divergence appears only on the GGUF path, which makes it a statement about runtimes and export
+formats rather than about the function (see §5b and the export table).
+
 Mechanism, stated as a hypothesis the data supports rather than a proof: the gauge spreads a
 14-orders-of-magnitude dynamic range across the input coordinates of q/k/v/gate/up (weights down to
 1.8e-11 against norm weights up to 6.7e3). AdamW's per-coordinate second-moment normalization is
