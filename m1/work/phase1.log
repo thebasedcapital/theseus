@@ -42,3 +42,15 @@ g6_perm          rc=0 dlogit=1.64e-04 kl=-5.21e-09 top1=1.00000 ppl=17.7106 (bas
 bad_all          rc=2 dlogit=1.07e+00 kl=1.49e-04 top1=0.99292 ppl=17.6912 (base 17.7106) dev=cuda NOT_EQUIVALENT
 == verify bad_all_rep
 bad_all_rep      rc=2 dlogit=1.98e+00 kl=3.35e-04 top1=0.99170 ppl=17.6876 (base 17.7102) dev=cpu NOT_EQUIVALENT
+== verify bad_all_s2
+bad_all_s2       rc=0 dlogit=3.47e-01 kl=6.60e-05 top1=0.99609 ppl=17.7086 (base 17.7102) dev=cpu EQUIVALENT
+== verify bad_all_s2_rep
+bad_all_s2_rep   rc=2 dlogit=4.00e-01 kl=1.33e-04 top1=0.99414 ppl=17.7151 (base 17.7102) dev=cpu NOT_EQUIVALENT
+== verify bad_all_s3
+bad_all_s3       rc=0 dlogit=4.25e-01 kl=6.24e-05 top1=0.99512 ppl=17.7151 (base 17.7106) dev=cuda EQUIVALENT
+== verify bad_all_s3_rep
+bad_all_s3_rep   rc=2 dlogit=8.39e-01 kl=1.47e-04 top1=0.99219 ppl=17.7142 (base 17.7102) dev=cpu NOT_EQUIVALENT
+== verify prep_base
+prep_base        rc=2 dlogit=9.60e-01 kl=9.80e-05 top1=0.99487 ppl=17.7070 (base 17.7102) dev=cpu NOT_EQUIVALENT
+./m1/phase1.sh: line 34: syntax error near unexpected token `('
+./m1/phase1.sh: line 34: `f"{v:16s} rc={rc} NO JSON: {e}", open(f"m1/work/equiv/{v}.err").read()[-400:])'
