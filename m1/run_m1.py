@@ -79,6 +79,7 @@ def summarize(variant: str, eq: dict | None, probes: dict) -> dict:
     """Binary optionality vector z(s) from math.md section 3 + measured detail."""
     row: dict = {"variant": variant, "equiv": (eq or {}).get("verdict", "MISSING"),
                  "max_dlogit": (eq or {}).get("metrics", {}).get("max_dlogit"),
+                 "flags": (eq or {}).get("flags", []),
                  "kl": (eq or {}).get("metrics", {}).get("kl_mean_nats"),
                  "top1": (eq or {}).get("metrics", {}).get("top1_agree"),
                  "ppl": (eq or {}).get("metrics", {}).get("ppl_b"),
@@ -129,7 +130,8 @@ def main():
             log(f"skip {v} (already probed)")
             continue
         eq = equivalence(v)
-        if v != "base" and (eq is None or eq.get("verdict") != "EQUIVALENT"):
+        if v != "base" and (eq is None or not eq.get("distributional_pass",
+                                                     eq.get("verdict") == "EQUIVALENT")):
             log(f"SKIP {v}: equivalence gate not passed ({'missing json' if eq is None else eq.get('verdict')})")
             results[v] = {"variant": v, "equiv": "MISSING" if eq is None else eq["verdict"],
                           "ops": {}, "passes": [], "fails": [], "unavailable": ops, "omega0": 0.0}

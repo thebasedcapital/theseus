@@ -99,24 +99,29 @@ def ensure_specialist(tok,train,held,device):
         except Exception: pass
     return train_specialist(tok,train,held,device)
 
-    batches=[b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=128)]; cand_sd={k:v.to("cpu") for k,v in cand_sd.items()}; specialist_sd={k:v.to("cpu") for k,v in specialist_sd.items()}; base=common.state_to_model(cand_sd,model_dir,dtype=torch.bfloat16,device=device); base_ppl=common.perplexity(base,batches); del base
-    common.release(device)
-    out=[]
+def evaluate_merge(cand_sd, specialist_sd, model_dir, alphas, device, ties=False):
+    batches=[b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=128)]
+    cand_sd={k:v.to("cpu") for k,v in cand_sd.items()}; specialist_sd={k:v.to("cpu") for k,v in specialist_sd.items()}
+    base=common.state_to_model(cand_sd,model_dir,dtype=torch.bfloat16,device=device); base_ppl=common.perplexity(base,batches); del base
+    common.release(device); out=[]
     for alpha in alphas:
         merged=common.merge_sd(cand_sd,specialist_sd,alpha,ties=ties,density=DENSITY)
         model=common.state_to_model(merged,model_dir,dtype=torch.bfloat16,device=device)
         ppl=common.perplexity(model,batches); loss=task_loss(model,HELD_DATA,device)
         out.append({'alpha':alpha,'eval_ppl':ppl,'specialist_rule_loss':loss,'pass':ppl<=1.05*base_ppl and loss<=0.7*SPECIALIST_QUALITY['rule_loss']})
-        del model,merged
-        common.release(device)
+        del model,merged; common.release(device)
     return base_ppl,out
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--model-dir',required=True); ap.add_argument('--out',required=True); ap.add_argument('--tags',default='')
+    ap.add_argument('--dry-run',action='store_true')
     args=ap.parse_args(); t0=time.perf_counter(); model_dir=Path(args.model_dir).expanduser().resolve(); out=Path(args.out)
     result={'script':'merge_probe.py','model_dir':str(model_dir),'tag':model_dir.name if common.WORK in model_dir.parents else 'base','git_head':subprocess.check_output(['git','-C','/home/admin/theseus','rev-parse','HEAD'],text=True).strip(),'torch':torch.__version__,'results':{},'duration_s':None}
     try:
         global HELD_DATA,SPECIALIST_QUALITY
+        if args.dry_run:
+            result['results']={'dry_run':True,'merge_shapes':[(2,2),(2,2)],'alphas':list(ALPHAS)}
+            result['duration_s']=time.perf_counter()-t0; common.wjson(out,result); print(json.dumps(result,indent=2,sort_keys=True)); return
         set_seed(); device=common.pick_device(3.2); device_note=device if device == 'cuda' else 'cpu: insufficient free CUDA memory or CUDA unavailable'
         with common.lock("gpu"):
             while True:
