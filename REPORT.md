@@ -227,14 +227,20 @@ It reports per family `q4_block_mse`, `dyn_range_log10`, `row_energy_imbalance` 
 | `bad_all_exact` | 0.01159 | 9.99 | 0.00279 | **0** | adaptation + both merges **still fail** |
 | `prep_base_exact` | 0.01144 | 9.01 | 0.00280 | **0** | Q4 improves; both merges fail |
 
-Flags are specific: `g3_pow2` raises nothing on `o_proj`/`down_proj`, the two families a norm-diagonal
+Every verdict carries its basis in the reason column, so `v3 n=20, fitted in-sample` can be told
+apart from `v2 provisional constant, not fitted`, and the Q4 row reads
+`no contract: fit refused (precision 0.278 < 0.3125)`. Flags are specific: `g3_pow2` raises nothing on `o_proj`/`down_proj`, the two families a norm-diagonal
 gauge does not touch. Two implementations are cross-validated: the Rust `q4_block_mse` and the
 Python/torch fp64 version agree per family to `≤ 4.4e-09`. Getting that agreement took a real bug,
 pooled ratio-of-sums versus mean-of-per-tensor-ratios, which disagreed by up to `5.7 %`; both
 conventions are now emitted under separate names.
 
-**Everyday value.** `theseus-scan preflight`/`theseus-inspect preflight` exit non-zero on an
-at-risk export, flagging the f16 trap in seconds, before somebody downloads ~400 MB of noise.
+**Everyday value.** `theseus-scan preflight` rates each operation from the artifact's bytes in about
+a second and flags the f16 export trap before somebody downloads ~400 MB of noise. The gate is
+opt-in: `--fail-on-risk` exits 1 only for a **judged** `AT_RISK`. `UNAVAILABLE` rows (merge, AWQ-LoRA)
+and `UNKNOWN` rows (Q4, whose fitted cut was refused at precision 0.278) deliberately never trip
+it - the tool refuses to convert "I have no threshold" into either a pass or a failure. That is I8
+enforced in the exit code, not just in the schema.
 
 ---
 

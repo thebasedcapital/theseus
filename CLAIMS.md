@@ -49,10 +49,13 @@ re-layout and no norm absorption on the Qwen2 import path).
 the static census still shows > 5 % subnormal weights — which would mean my mechanism story
 (underflow) is wrong even though the numbers are right.
 
-**Practical consequence for a user:** `theseus-scan preflight` reports the fitted
-`export.gguf.f16` verdict (`contract-3.json`) and exits non-zero on risk, before anyone
-downloads 400 MB of noise. Reproducing the g3_pow2 row needs the artifact, which is
-gitignored: rebuild it with `python m1/make_variants.py` after `m1/prep_data.py`.
+**Practical consequence for a user:** `theseus-scan preflight` rates each operation from the
+artifact's own bytes in about a second. Reporting is the default and exits 0; the gate is opt-in
+via `--fail-on-risk`, which exits 1 only when a **judged** row says AT_RISK - a row that is
+`UNAVAILABLE` (merge, awlora) or `UNKNOWN` (Q4, whose fit was refused) never trips it, because
+declining to claim is not the same as claiming badly. `theseus-inspect --fail-above FRAC` is a
+separate, numeric gate on one statistic. Reproducing the g3_pow2 row needs the artifact, which is
+gitignored: rebuild it with `python m1/make_variants.py --only g3_pow2` after `m1/prep_data.py`.
 
 ---
 

@@ -785,7 +785,7 @@ fn main() {
         );
         exit(if risky > 0 { 1 } else { 0 });
     }
-    println!("verdicts (Q8 v3 n=20; Q4/export/adaptation v2 provisional):");
+    println!("verdicts (Q8 v3 n=20 fitted; Q5/export/adaptation v2 provisional; Q4 UNKNOWN - fit refused):");
     let mut flags: Vec<String> = Vec::new();
     for (fam, acc) in &per_family {
         let r = acc.report();
@@ -1032,13 +1032,27 @@ mod tests {
             ops.iter().find(|x| x.0 == "quantize.gguf.q8_0").unwrap().1,
             "AT_RISK"
         );
-        assert_eq!(
-            ops.iter()
-                .find(|x| x.0 == "quantize.gguf.q4_k_m")
-                .unwrap()
-                .1,
-            "OK"
+        // Mirrors the same-named test in scan/src/tests.rs: Q4 must be UNKNOWN, and must say why.
+        let q4 = ops.iter().find(|x| x.0 == "quantize.gguf.q4_k_m").unwrap();
+        assert_eq!(q4.1, "UNKNOWN");
+        assert!(
+            q4.2.contains("refused") && q4.2.contains("0.278"),
+            "UNKNOWN must state why, not just that: {}",
+            q4.2
         );
+        let q5 = ops.iter().find(|x| x.0 == "quantize.gguf.q5_k_m").unwrap();
+        assert!(
+            q5.2.contains("provisional"),
+            "provisional thresholds must be labelled: {}",
+            q5.2
+        );
+        for name in ["merge.linear", "merge.ties"] {
+            assert_eq!(
+                ops.iter().find(|x| x.0 == name).unwrap().1,
+                "UNAVAILABLE",
+                "{name} must not report a verdict it cannot support"
+            );
+        }
     }
 
     #[test]
@@ -1096,29 +1110,54 @@ fn ops_matrix(
             "OK"
         },
         format!(
-            "{:.2}% of {} weights below the f16 normal range (limit {:.1}%)",
+            "{:.2}% of {} weights below the f16 normal range (limit {:.1}%, v2 provisional constant, not fitted)",
             100.0 * worst_export.1,
             worst_export.0,
             100.0 * T_EXPORT_FRAC
         ),
     ));
-    for (op, limit, contract) in [
-        ("quantize.gguf.q8_0", T_Q8_ABS, "v3 n=20"),
-        ("quantize.gguf.q5_k_m", T_Q5_Q4_ABS, "v2 provisional"),
-        ("quantize.gguf.q4_k_m", T_Q5_Q4_ABS, "v2 provisional"),
+    // Kept identical to scan/src/main.rs: the two binaries must not disagree about what is known.
+    // judge=false => UNKNOWN. Q4's fitted cut was REFUSED (recall-preserving precision 0.278 <
+    // 0.3125), so emitting OK/AT_RISK here would assert the verdict the calibration declined.
+    for (op, limit, contract, judge) in [
+        (
+            "quantize.gguf.q8_0",
+            T_Q8_ABS,
+            "v3 n=20, fitted in-sample",
+            true,
+        ),
+        (
+            "quantize.gguf.q5_k_m",
+            T_Q5_Q4_ABS,
+            "v2 provisional constant, not fitted",
+            true,
+        ),
+        (
+            "quantize.gguf.q4_k_m",
+            T_Q5_Q4_ABS,
+            "no contract: fit refused (precision 0.278 < 0.3125)",
+            false,
+        ),
     ] {
-        out.push((
-            op.into(),
-            if worst_q.1 > limit || total["q4_block_mse"] > T_QUANT_TOTAL_ABS {
-                "AT_RISK"
-            } else {
-                "OK"
-            },
+        let status = if !judge {
+            "UNKNOWN"
+        } else if worst_q.1 > limit || total["q4_block_mse"] > T_QUANT_TOTAL_ABS {
+            "AT_RISK"
+        } else {
+            "OK"
+        };
+        let reason = if judge {
             format!(
                 "worst family {} 4-bit block proxy {:.5} (limit {:.5}, {}); total {:.5}",
                 worst_q.0, worst_q.1, limit, contract, total["q4_block_mse"]
-            ),
-        ));
+            )
+        } else {
+            format!(
+                "static proxy {:.5} measured for reference only; {} - run the Q4 probe to get a verdict",
+                worst_q.1, contract
+            )
+        };
+        out.push((op.into(), status, reason));
     }
     out.push(("adapt.lora.r16".into(), if has_experts { "UNAVAILABLE" } else if worst_adapt.1 > T_ADAPT_DYN { "AT_RISK" } else { "OK" },
               if has_experts { "MoE expert adaptation requires operation-specific calibration".into() } else { format!("worst family {} dynamic range 1e{:.2} (limit 1e{:.1}); row-energy imbalance {:.3e}", worst_adapt.0, worst_adapt.1, T_ADAPT_DYN, per_family.values().map(|a| a.report()["row_energy_imbalance"]).fold(0.0, f64::max)) }));

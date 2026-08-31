@@ -42,7 +42,12 @@ fn usage() -> ! {
     eprintln!("  reads a safetensors / GGUF / PEFT-LoRA artifact and prints per-family static");
     eprintln!("  conditioning (q4_block_mse, dyn_range_log10, row_energy_imbalance,");
     eprintln!("  frac_below_f16_normal, amax_over_rms) plus quantization provenance.");
-    eprintln!("  preflight: operation x risk matrix (thresholds provisional, as inspect/).");
+    eprintln!("  preflight: operation x risk matrix (Q8 v3 fitted; Q5/export/adaptation v2");
+    eprintln!("             provisional constants; Q4 UNKNOWN - its fit was refused).");
+    eprintln!(
+        "  --fail-on-risk  exit 1 if any judged operation is AT_RISK (UNKNOWN never trips it)."
+    );
+    eprintln!("                  Without it the tool reports only and exits 0.");
     exit(2)
 }
 
@@ -127,23 +132,50 @@ fn ops_matrix(
             100.0 * T_EXPORT_FRAC
         ),
     ));
-    for (op, limit, contract) in [
-        ("quantize.gguf.q8_0", T_Q8_ABS, "v3 n=20"),
-        ("quantize.gguf.q5_k_m", T_Q5_Q4_ABS, "v2 provisional"),
-        ("quantize.gguf.q4_k_m", T_Q5_Q4_ABS, "v2 provisional"),
+    // One row per quantization rung. `judge=false` means there is no admissible threshold, so the
+    // row reports UNKNOWN rather than OK/AT_RISK: Q4's fitted cut was REFUSED (recall-preserving
+    // precision 0.278 < the required 0.3125, analysis/data/evidence contracts), and emitting a
+    // verdict anyway would assert exactly what the calibration declined to. Provisional constants
+    // still judge, but must say they are provisional, because a bare "OK" reads as a clearance.
+    for (op, limit, contract, judge) in [
+        (
+            "quantize.gguf.q8_0",
+            T_Q8_ABS,
+            "v3 n=20, fitted in-sample",
+            true,
+        ),
+        (
+            "quantize.gguf.q5_k_m",
+            T_Q5_Q4_ABS,
+            "v2 provisional constant, not fitted",
+            true,
+        ),
+        (
+            "quantize.gguf.q4_k_m",
+            T_Q5_Q4_ABS,
+            "no contract: fit refused (precision 0.278 < 0.3125)",
+            false,
+        ),
     ] {
-        out.push((
-            op.into(),
-            if worst_q.1 > limit || total["q4_block_mse"] > T_QUANT_TOTAL_ABS {
-                "AT_RISK"
-            } else {
-                "OK"
-            },
+        let status = if !judge {
+            "UNKNOWN"
+        } else if worst_q.1 > limit || total["q4_block_mse"] > T_QUANT_TOTAL_ABS {
+            "AT_RISK"
+        } else {
+            "OK"
+        };
+        let reason = if judge {
             format!(
                 "worst family {} 4-bit block proxy {:.5} (limit {:.5}, {}); total {:.5}",
                 worst_q.0, worst_q.1, limit, contract, total["q4_block_mse"]
-            ),
-        ));
+            )
+        } else {
+            format!(
+                "static proxy {:.5} measured for reference only; {} - run the Q4 probe to get a verdict",
+                worst_q.1, contract
+            )
+        };
+        out.push((op.into(), status, reason));
     }
     out.push((
         "adapt.lora.r16".into(),
@@ -442,6 +474,7 @@ fn main() {
     let mut mode = Mode::Inspect;
     let mut path: Option<String> = None;
     let mut json_out: Option<String> = None;
+    let mut fail_on_risk = false;
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
@@ -450,6 +483,13 @@ fn main() {
                     json_out = Some(v.clone());
                 }
                 i += 2;
+            }
+            // Opt-in gate: without it the tool only reports and exits 0, so existing callers are
+            // unaffected. Rows whose status is UNKNOWN never trip it - refusing to claim a verdict
+            // is not the same as claiming a bad one (I8).
+            "--fail-on-risk" => {
+                fail_on_risk = true;
+                i += 1;
             }
             "-h" | "--help" => usage(),
             "inspect" | "preflight" => {
@@ -568,7 +608,7 @@ fn main() {
             let preflight = if mode == Mode::Preflight {
                 let ops = ops_matrix(&out.per_family, &tr);
                 println!(
-                    "PREFLIGHT  operation x risk (Q8 v3 n=20; other thresholds v2 provisional)"
+                    "PREFLIGHT  operation x risk (Q8 v3 n=20 fitted; Q5/export/adaptation v2 provisional; Q4 UNKNOWN)"
                 );
                 println!("{:<20} {:<12} {}", "operation", "verdict", "reason");
                 for (op, ver, reason) in &ops {
@@ -578,6 +618,25 @@ fn main() {
             } else {
                 None
             };
+            if let Some(ops) = preflight.as_ref() {
+                if fail_on_risk {
+                    let risky: Vec<&str> = ops
+                        .iter()
+                        .filter(|(_, v, _)| *v == "AT_RISK")
+                        .map(|(o, _, _)| o.as_str())
+                        .collect();
+                    if !risky.is_empty() {
+                        eprintln!(
+                            "preflight: AT_RISK for {} operation(s): {}",
+                            risky.len(),
+                            risky.join(", ")
+                        );
+                        eprint!("scan wall time: {:.2} s\n", t0.elapsed().as_secs_f64());
+                        exit(1);
+                    }
+                    eprintln!("preflight: no operation rated AT_RISK by a judged threshold");
+                }
+            }
             let json = build_census_json(
                 &path,
                 &out.per_family,
@@ -589,7 +648,7 @@ fn main() {
             );
             write_out(&json, json_out.as_deref());
             let vds = verdicts(&out.per_family, &tr);
-            println!("verdicts (Q8 v3 n=20; Q4/export/adaptation v2 provisional):");
+            println!("verdicts (Q8 v3 n=20 fitted; Q5/export/adaptation v2 provisional; Q4 UNKNOWN - fit refused):");
             if vds.is_empty() {
                 println!("  none: no family exceeds the active operation thresholds");
             } else {

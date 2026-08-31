@@ -31,7 +31,7 @@ intended future surface; do not read that as a shell command that exists.
 | `render` | `python -m ledger.cli render` | regenerate `views/` from the ledger | implemented |
 | `import-m1 --work <dir>` | `python -m ledger.cli import-m1` | map `m1/work` cell JSON onto the ledger | implemented |
 | `verify [--work <dir>]` | `python -m ledger.cli verify` | does every persisted cell name a commit that resolves and a script that existed in it, and does each operation kind carry the fields its own writer cannot omit (incidents #18/#19) | implemented, read-only, exits non-zero on violation |
-| — | `theseus-scan inspect\|preflight <file> [--json]` | 32-block conditioning, dynamic range, f16-export risk; preflight exits non-zero on risk | implemented (Rust) |
+| — | `theseus-scan inspect\|preflight <file> [--json F] [--fail-on-risk]` | 32-block conditioning, dynamic range, f16-export risk. Default reports only and exits 0; `--fail-on-risk` exits 1 on a judged AT_RISK, never on UNAVAILABLE/UNKNOWN | implemented (Rust) |
 | — | `theseus-inspect inspect\|preflight <file> [--json]` | per-family features incl. boundary-keyed MoE expert families | implemented (Rust) |
 | `run <cell-id…>` | *none* | execute a cell in a frozen code snapshot under a lease | **not implemented**; execution is `m1/drive.sh` + per-probe scripts |
 | `calibrate --family <arch>` | *none* | refit thresholds, bump contract version, mark dependent verdicts stale | **not implemented**; fitting is `python analysis/thresholds.py --root analysis/data/evidence` |
