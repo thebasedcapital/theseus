@@ -88,6 +88,8 @@ bf16 reference; base calibration cell present).
 | `base` | 0.00094 | 0.03191 (1.00×) | +2.20 % | reference |
 | `g3_pow2` | **10.690** | undefined (no overlap) | +2.62e6 % | fail |
 | `g3_pow2_rep` | 0.00106 | 0.03501 (1.10×) | +1.84 % | pass |
+| `bad_all` (4 families) | pending | pending | pending | capture 0.0906 |
+| `bad_all_exact` | 0.00102 | 0.03095 (0.97×) | +3.27 % | pass, capture 0.9482 |
 | `g7_rand_rep` | 0.00088 | 0.03137 (0.98×) | +2.14 % | pass |
 | `g1_haar` | 0.00091 | 0.03200 (1.00×) | **+3.97 %** | **fail on ΔPPL, neutral on KL** |
 | `g4_perm` | 0.00095 | 0.03194 (1.00×) | +2.29 % | pass |
@@ -139,6 +141,33 @@ direction that hurts a preflight tool), or ≥ 20 labelled cells with Spearman �
 (−13 pp). `g1_haar` is KL-neutral and ΔPPL-failing. `g4_perm` is quantization-inert and costs
 6.4 pp of capture — which also forced the wording fix that "control" must always name its
 operation. The schema has no scalar field for health, and `render` rejects one.
+
+## K-10 — `prepare` improves reserve on a checkpoint nobody stressed  ← strongest practical claim
+
+**State: CONTROLLED** (equivalence verified in fp32; replication 1; controls: null-gauge, flags).
+
+Running the lattice-only canonicalizer (`{G5, G3, G7}` with `snap_pow2`, bf16-lossless) on the
+**pristine** Qwen2.5-0.5B, compared against the pristine checkpoint measured through the identical
+bf16 export path:
+
+| | equivalence vs base | LoRA capture | Q8_0 KLD | Q4_K_M KLD | Q4 rel ΔPPL | flags |
+|---|---|---:|---:|---:|---:|---:|
+| `base` | reference | 0.9731 | 0.000940 | 0.031914 | +2.195 % | 0 |
+| `prep_base` (full canonicalizer) | **top-1 0.99487 → NOT equivalent** | — | — | — | — | 0 |
+| **`prep_base_exact`** (lattice-only) | **EQUIVALENT** | **0.9924** | 0.001017 | 0.031624 | **+2.010 %** | 0 |
+
+Same dtype, same corpus, same tools, verified-equivalent model: **+1.9 pp adaptation capture** and
+**8 % less 4-bit perplexity damage**, bought by changing nothing but the coordinates. That is the
+product — not a diagnosis, a treatment — and it comes from the family of transforms that is
+representable in the format people actually ship.
+
+The combined-stress contrast keeps it honest: `bad_all` (4 families) certifies equivalent with
+capture **0.0906**; `bad_all_exact` recovers to **0.9482** with Q4 KLD 0.97× base and ΔPPL +3.27 % —
+recovered, with a 2.5 pp residue. Repair quality is a continuum and the register says where each
+artifact sits on it.
+
+**Refuter:** a second architecture family where lattice-prepare does not reduce Q4 ΔPPL; or the
+bf16-compute equivalence cell for `prep_base_exact` (not yet run — cheap, and it is the honest gap).
 
 ## K-8 — Natural histories, not constructed gauges, produce divergent reserves
 

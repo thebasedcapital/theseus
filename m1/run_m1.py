@@ -149,6 +149,16 @@ def main():
             continue
         ops_for_v = pending_ops
         eq = equivalence(v)
+        # A missing equivalence record is a prerequisite the driver can satisfy itself, not a
+        # reason to skip: verify_equiv costs ~2 min of CPU and every downstream verdict depends
+        # on it existing (I5's obligation, discharged automatically).
+        d0 = common.REF_MODEL if v == "base" else common.WORK / v
+        if eq is None and v != "base" and (d0 / "model.safetensors").exists():
+            log(f"  [{v}] no equivalence record -> verifying before probing")
+            subprocess.run([PY, str(common.M1 / "verify_equiv.py"), "--b", str(d0),
+                            "--ntokens", os.environ.get("TSX_EQ_TOKENS", "4096"),
+                            "--out", str(EQ_DIR / f"{v}.json")], cwd=str(common.REPO), check=False)
+            eq = equivalence(v)
         if v != "base" and (eq is None or not eq.get("distributional_pass",
                                                      eq.get("verdict") == "EQUIVALENT")):
             log(f"SKIP {v}: equivalence gate not passed "

@@ -3,6 +3,15 @@
 Written to be read once and relied on under time pressure. The design rationale is
 `SYSTEM.md`; the record shapes are `SCHEMA.md`; what is owed is `PLAN.md`.
 
+## 0. Standing
+
+Theseus is its own project: own GitLab repo, own history, no import of any sibling checkout's code,
+history, or data. Choose the interpreter once per machine with `THESEUS_PY` (needs torch ≥2.13,
+transformers ≥5.16, safetensors; see `requirements.txt`); the scripts default to a suitable
+environment that already exists on this workstation rather than duplicating a 6 GB CUDA venv.
+`m1/drive.sh` is the only scheduler — never reintroduce parallel driver scripts (incident #13: two
+drivers waiting on each other deadlocked the GPU for six hours).
+
 ## 1. Verbs
 
 | command | what it answers | cost |
