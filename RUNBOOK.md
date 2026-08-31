@@ -16,18 +16,32 @@ drivers waiting on each other deadlocked the GPU for six hours).
 
 ## 1. Verbs
 
-| command | what it answers | cost |
-|---|---|---|
-| `theseus status [--budget N]` | what is proven, what is pending, what is stale, what is free. Bounded output, cell ids as pointers | 0 |
-| `theseus admit <hf-or-path>` | meter a new artifact (L0 features, ancestry, risk flags) and tell me which claims it makes eligible | 4 s, CPU |
-| `theseus plan [--claim K] [--budget 60gpu-min]` | ranked next cells with cost and expected belief movement, plus what is **refused** and why | 0 |
-| `theseus run <cell-id…>` | execute in a frozen code snapshot under a lease | declared |
-| `theseus explain <claim-id>` | obligation table, evidence cells with their conditions, the refuter and the cell that answers it | 0 |
-| `theseus render` | regenerate every `views/` document (tables, passports, figures, this triage table) | 0 |
-| `theseus calibrate --family <arch>` | refit thresholds from the baseline store; bumps contract version and marks dependent verdicts stale | 0 |
+Two entry points exist today: `python -m ledger.cli <verb>` for the evidence layer, and the Rust
+binaries `theseus-scan` / `theseus-inspect` for static analysis. **There is no unified `theseus`
+executable yet** (ROADMAP M5). The ledger CLI prints `usage: theseus …` because `prog` is set to the
+intended future surface; do not read that as a shell command that exists.
 
-Read-only commands are always safe to call; that is deliberate — the answer to "what is the
-situation?" must never be a memory task for the agent driving it.
+| verb | entry point | what it answers | status |
+|---|---|---|---|
+| `status [--budget N]` | `python -m ledger.cli status` | what is proven, pending, stale, free | implemented |
+| `admit` | `python -m ledger.cli admit` | admit an artifact record (write-once) | implemented |
+| `cell` | `python -m ledger.cli cell` | admit a cell record, I3/I4 enforced at the door | implemented |
+| `plan [--claim K]` | `python -m ledger.cli plan` | ranked next cells with cost, plus what is **refused** and why | implemented |
+| `explain <claim-id>` | `python -m ledger.cli explain` | obligation table, evidence cells, the refuter, the cell answering it | implemented |
+| `render` | `python -m ledger.cli render` | regenerate `views/` from the ledger | implemented |
+| `import-m1 --work <dir>` | `python -m ledger.cli import-m1` | map `m1/work` cell JSON onto the ledger | implemented |
+| — | `theseus-scan inspect\|preflight <file> [--json]` | 32-block conditioning, dynamic range, f16-export risk; preflight exits non-zero on risk | implemented (Rust) |
+| — | `theseus-inspect inspect\|preflight <file> [--json]` | per-family features incl. boundary-keyed MoE expert families | implemented (Rust) |
+| `run <cell-id…>` | *none* | execute a cell in a frozen code snapshot under a lease | **not implemented**; execution is `m1/drive.sh` + per-probe scripts |
+| `calibrate --family <arch>` | *none* | refit thresholds, bump contract version, mark dependent verdicts stale | **not implemented**; fitting is `python analysis/thresholds.py --root analysis/data/evidence` |
+| `prepare` / `verify` / `history` | *none* | canonicalize an artifact, certify equivalence, read lineage | **not implemented**; see `m1/rescue.py`, `m1/verify_equiv.py`, `m1/passport.py` |
+
+The ledger root defaults to `$THESEUS_LEDGER_ROOT` or `.theseus`; sessions run every command with an
+explicit `--root` under `/tmp` so nothing is written into the live repo layout.
+
+Read-only commands (`status`, `plan`, `explain`, `render`, both scanners) are always safe to call;
+that is deliberate — the answer to "what is the situation?" must never be a memory task for the
+agent driving it.
 
 ## 2. Session procedure
 
@@ -36,8 +50,9 @@ situation?" must never be a memory task for the agent driving it.
    whose `environment` differs (I3); if a number looks wrong, that is the first hypothesis.
 3. `plan` for the ordering; obey the refusals, they carry reasons (missing calibration, missing
    control, mixed digests, budget).
-4. `run` at most one GPU cell concurrently. VRAM is 8 GB with ~4 GB held by the desktop: two
-   concurrent torch jobs plus a Vulkan context is how M1 lost cells to OOM.
+4. Execute at most one GPU cell concurrently. `m1/drive.sh` is the only scheduler and
+   `m1/gguf_probe.py` holds the `m1/work/gpu.lock` lease. VRAM is 8 GB with ~4 GB held by the
+   desktop: two concurrent torch jobs plus a Vulkan context is how M1 lost cells to OOM.
 5. `explain` the claim you are about to write about, and copy the verdict state verbatim. Do not
    upgrade "CONTROLLED" to "CONFIRMED" in prose.
 6. `render` at the end. Never edit a `views/` file; the banner is enforced.
@@ -46,7 +61,7 @@ situation?" must never be a memory task for the agent driving it.
 
 | symptom | real cause | fix |
 |---|---|---|
-| a cell disappeared and no JSON exists | script edited while the driver was about to exec it | `run` executes a snapshot (I2); never patch a live driver — write the new file and let the next run pick it up |
+| a cell disappeared and no JSON exists | script edited while the driver was about to exec it | each cell stamps `code_snapshot` into its environment digest (`ledger/env.py`, I2/I3), so a cell records the code that produced it and mixed snapshots refuse to join; never patch a live driver — write the new file and let the next run pick it up |
 | probe died mid tag-list with `TypeError`/`KeyError` | a reference/calibration file mutated under a running probe | calibration files are write-once per contract version (I1/I4) |
 | GPU lock held forever | holder crashed; old policy waited out a 30-min staleness | leases carry pid; dead holder is stolen immediately (I6) |
 | everything fails including pristine base | contract thresholds absolute | I4: op cannot schedule until its base calibration cell exists and passes |
