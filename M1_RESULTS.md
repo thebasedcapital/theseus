@@ -264,6 +264,48 @@ number. The probe therefore re-exports at the artifact's native dtype (`TSX_OUTT
 are being regenerated under that definition; the `f16`-source numbers are kept only as evidence for
 this subsection.
 
+## 5c. Quantization: same result, same repair, measured through a native-dtype export
+
+All rows below: artifact → bf16 GGUF (its native dtype; the bf16 reference ppl is shown, base
+12.1351) → real `llama-quantize` → `llama-perplexity --kl-divergence` against that same artifact's
+bf16 model. Debt is the pre-registered static number from §3 (`+0.01831` for `g3_pow2` was computed
+from the artifact bytes at 00:00, before its first surgery result existed at 00:18+).
+
+| checkpoint | static debt | bf16 ppl | Q8_0 KLD | Q5_K_M KLD | Q4_K_M KLD | Q4 rel ΔPPL | Q4 pass |
+|---|---:|---:|---:|---:|---:|---:|---|
+| `base` | 0 | 12.1351 | 0.00094 | 0.01672 | 0.03191 | +2.20 % | reference |
+| `g1_haar` | −0.00009 | 12.1246 | 0.00091 | 0.01754 | 0.03200 (1.00×) | **+3.97 %** | **FAIL (ΔPPL)** |
+| `g1_haar_rep` | −0.00010 | 12.1277 | 0.00093 | 0.01745 | 0.03041 (0.95×) | +3.15 % | pass |
+| `g2_rand` | +0.00001 | 12.1318 | 0.00102 | 0.01723 | 0.03256 (1.02×) | +2.97 % | pass |
+| **`g3_pow2`** | **+0.01831** | **12.1351** | **10.69030** | — | — (KL undefined) | **+2,619,002 %** | **FAIL** |
+| **`g3_pow2_rep`** | +0.00025 | 12.1351 | 0.00106 | 0.02053 | 0.03501 (1.10×) | **+1.84 %** | pass |
+
+Readings that matter:
+
+* `g3_pow2` — bit-identical logits, bit-identical bf16 export perplexity (12.1351 = base to four
+  decimals) — is destroyed by **8-bit** quantization (KLD 10.7 nats) and by 4-bit (+2.6 M % ΔPPL,
+  KL undefined because the distributions no longer overlap). Its repair, which only equalizes
+  consumer column energy on the exponent lattice, gives 1.10× base KLD and the *best* ΔPPL in the
+  table. Same function, destroyed reserve, restored reserve.
+* `g1_haar` is the honest complication: its **distributional** damage is indistinguishable from
+  base (KLD 1.00×, q8/q5 identical to three digits) while its relative ΔPPL is 1.8 pp worse and
+  crosses the contract limit. Two damage statistics disagree, so the reserve vector must stay a
+  vector — collapsing it to one score is exactly the mistake `ROADMAP.md` warns against ("a single
+  mysterious health score").
+* The static debt predicted the direction for 4 of 5 gauged rows, and missed none of the
+  catastrophic ones. Coverage is small (n=5), so this is evidence for the M6 predictor, not a
+  claim of prediction.
+
+### Pre-registered prediction ledger (final for this pass)
+
+| checkpoint | predicted (debt) | measured Q4 | verdict |
+|---|---|---|---|
+| `base` | neutral (0) | reference | held |
+| `g2_rand` | neutral (+1e-5) | 1.02× KLD | held |
+| `g1_haar` | neutral (−9e-5) | 1.00× KLD but ΔPPL over limit | **partly held** — neutral on distribution, not on perplexity |
+| `g3_pow2` | damage (+0.0183) | KLD 335× base, ΔPPL 2.6e4× | held |
+| `g3_pow2_rep` | neutral (+0.00025) | 1.10× KLD, ΔPPL better than base | held |
+
 ## 6. What is already established, independent of the panel
 
 1. A real 0.5 B decoder-only Transformer has at least five *exactly* function-preserving
