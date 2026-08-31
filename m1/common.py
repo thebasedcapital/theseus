@@ -370,12 +370,24 @@ def rjson(path: Path):
 def merge_sd(a: dict, b: dict, alpha: float, ties: bool = False, density: float = 0.2) -> dict:
     """Task-vector merge of candidate `a` with specialist `b`: a + alpha*(b - a).
 
+    Tied HF artifacts omit ``lm_head.weight``; untied gauge representatives store it. Expand
+    the tied representation from ``embed_tokens`` on either side before comparing keys. Any
+    other key mismatch is an incompatible architecture/layout and fails closed.
+
     ties=True additionally magnitude-trims the single delta (S - a) to the top `density`
     fraction per tensor. HONEST LABEL: this is the TIES *trim* stage only. Elect-sign and
     sign-consensus need two independent task vectors against a shared base; here the merge
     operand is one delta (specialist minus candidate), so those stages are vacuous by
     construction. That is itself part of the finding: TIES/DARE assume the parents share a
-    parameter coordinate system, which is exactly what a gauge-transformed checkpoint breaks."""
+    parameter coordinate system, which is exactly what a gauge-transformed checkpoint breaks.
+    """
+    a, b = dict(a), dict(b)
+    for sd in (a, b):
+        if "lm_head.weight" not in sd and "model.embed_tokens.weight" in sd:
+            sd["lm_head.weight"] = sd["model.embed_tokens.weight"]
+    if set(a) != set(b):
+        raise ValueError(f"merge state key mismatch: only_a={sorted(set(a)-set(b))} "
+                         f"only_b={sorted(set(b)-set(a))}")
     if not ties:
         return {k: (1 - alpha) * a[k] + alpha * b[k] for k in a}
     out = {}
