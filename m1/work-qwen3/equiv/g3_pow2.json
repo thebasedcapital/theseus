@@ -1,0 +1,54 @@
+{
+  "a": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B-Base/snapshots/da87bfb608c14b7cf20ba1ce41287e8de496c0cd",
+  "b": "/home/admin/theseus/m1/work-qwen3/g3_pow2",
+  "checks": {
+    "dlogit": true,
+    "kl": true,
+    "ppl": true,
+    "top1": true
+  },
+  "cond_a": {
+    "down_proj": 0.010680906970711274,
+    "gate_proj": 0.010012568869710385,
+    "k_proj": 0.010272843959179349,
+    "o_proj": 0.009971624407065565,
+    "q_proj": 0.010123810910626349,
+    "up_proj": 0.010080419759620726,
+    "v_proj": 0.01028266255146042
+  },
+  "cond_b": {
+    "down_proj": 0.010680906970711274,
+    "gate_proj": 0.03598930782499989,
+    "k_proj": 0.036462040269445044,
+    "o_proj": 0.009971624407065565,
+    "q_proj": 0.03638874032268693,
+    "up_proj": 0.036040478759676656,
+    "v_proj": 0.03649733248446839
+  },
+  "device": "cuda",
+  "distributional_pass": true,
+  "duration_s": 13.6,
+  "flags": [],
+  "gate": {
+    "kl_mean_nats_max": 0.002,
+    "max_dlogit_max": 0.5,
+    "rel_ppl_max": 0.002,
+    "top1_agree_min": 0.995
+  },
+  "git_head": "df86992ddb10e5d8f01a8df8fbf3781f6d919bfd",
+  "metrics": {
+    "device": "cuda",
+    "kl_mean_nats": 0.0,
+    "max_dlogit": 0.0,
+    "n_positions": 2048,
+    "ntokens": 2048,
+    "ppl_a": 16.769994735717773,
+    "ppl_b": 16.769994735717773,
+    "seqlen": 512,
+    "top1_agree": 1.0
+  },
+  "rel_ppl": 0.0,
+  "script": "verify_equiv.py",
+  "torch": "2.13.0+cu130",
+  "verdict": "EQUIVALENT"
+}

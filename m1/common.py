@@ -31,12 +31,20 @@ import torch
 
 M1 = Path(__file__).resolve().parent
 REPO = M1.parent
-WORK = M1 / "work"  # scratch: variants, gguf, specialists (gitignored)
+# THESEUS_WORK exists so a second architecture cannot write cells into the first one's evidence
+# directory. Incident #20 showed means computed across different code are meaningless; a shared
+# m1/work would produce the same failure across different MODELS, silently, with colliding variant
+# names. Default is unchanged, so every recorded Qwen2 cell keeps resolving.
+WORK = Path(os.environ.get("THESEUS_WORK") or (M1 / "work"))  # scratch (gitignored)
 DATA = M1 / "data"
 
-REF_MODEL = Path(os.path.expanduser(
+# THESSUS_REF_MODEL is the knob weakness #2 was missing: REF_MODEL was a hardcoded literal, so the
+# whole pipeline could only ever measure one checkpoint and the cross-architecture work stayed a
+# paper audit. Default is the same Qwen2.5-0.5B snapshot, unchanged, so existing cells stay valid.
+REF_MODEL = Path(os.path.expanduser(os.environ.get(
+    "THESEUS_REF_MODEL",
     "~/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987"
-))
+)))
 EVAL_TEXT = DATA / "eval_wikitext.txt"
 
 # --- state-dict tensor names that carry meaning for the Qwen2 gauge families -------------

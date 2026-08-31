@@ -43,3 +43,19 @@ m1/data/eval_wikitext.txt
 graphify-out/cache/
 graphify-out/20*/
 graphify-out/.graphify_*
+
+# Secondary model workspaces (THESEUS_WORK for a second architecture) follow the same policy as
+# m1/work: JSON cells are evidence and get committed, weights/GGUFs are regenerable and do not.
+m1/work-*/**
+!m1/work-*/**/
+!m1/work-*/**/*.json
+m1/work-*/**/tokenizer.json
+m1/work-*/**/tokenizer_config.json
+m1/work-*/**/vocab.json
+m1/work-*/**/special_tokens_map.json
+m1/work-*/**/config.json
+m1/work-*/**/generation_config.json
+m1/work-*/**/*.safetensors
+m1/work-*/**/*.gguf
+m1/work-*/**/*.bin
+m1/work-*/**/*.txt

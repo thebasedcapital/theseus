@@ -17,10 +17,11 @@ if the obligations table says `needs 2`, the state says CONTROLLED, not CONFIRME
 | equivalence, bf16 compute | `m1/work/compute_dtype_check.json` — `g3_pow2` exactly 0.00e+00; `g7_rand` top-1 0.98096 (**see refuter**) |
 | controls | null-gauge and permutation: `m1/test_gauge_math.py` (13 properties, exit 0), `g4_perm` dlogit 1.26e-04 |
 | replication | 3 stress seeds (`bad_all`, `_s2`, `_s3`) |
+| second architecture | Qwen3-0.6B-Base, 4 measured equivalence cells in `m1/work-qwen3/equiv/`: g3_pow2 **bit-identical** (max\|Δlogit\| 0.0, KL 0.0, top-1 1.00000), g1_haar KL 6.3e-06, g5_c8 KL 1.1e-07, g7_rand EQUIVALENT but tripwire-flagged at 0.669 (vs 0.315 on Qwen2); G2 **refused** on 56 QK-norm tensors |
 | algebra | `M1_NOTES.md` §2; `inspect/` unit tests 1-2 pin the dtype arithmetic |
 
 **Refuter:** any gauge family whose equivalence cell shows KL > 2e-3 or top-1 < 0.995 in *both*
-compute dtypes. Partially fired for `g7_rand` under bf16 compute → the claim is stated as
+compute dtypes. Partially fired for `g7_rand` under bf16, and again on Qwen3 where its max\|Δlogit\| is 0.669 against the 0.5 tripwire compute → the claim is stated as
 "exact in fp32 arithmetic, gauge-dependent under bf16", which is weaker and true.
 
 ---
