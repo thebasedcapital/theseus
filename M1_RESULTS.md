@@ -74,6 +74,20 @@ at `ε = 1e-6`, **exactly 0.0** at `ε = 1e-12`, and **exactly 0.0** at `ε = 1e
 moved `ε → c²ε` — an artifact-level metadata edit carrying a weight symmetry, which is the
 `state = (θ, a)` of `math.md §1` made concrete.
 
+### The canonicalizer has a precision cost of its own — reported against myself
+
+`prep_base` is the artifact-only canonicalizer run on the **pristine** checkpoint (the `theseus
+prepare` code path). It is **not** equivalent to base under the frozen gate: `max|Δlogit| 0.96`,
+teacher-forced top-1 agreement `0.99487` (below the 0.995 bar), mean KL `9.8e-05`, PPL 17.7070.
+Cause: the value-subspace Hadamard (`canon_g1`) rewrites every v/o entry, and the continuous
+`canon_g3`/`canon_g7` multipliers are not representable in bf16 — so "repair" costs about as much
+precision as re-exporting the checkpoint at its native dtype.
+
+Consequence for the tool design, and it is a real requirement rather than a footnote: `prepare`
+must either emit higher-precision artifacts, restrict itself to lattice-exact families (the
+`pow2` modes), or refuse when the induced drift exceeds the user's declared tolerance. Theseus
+judging checkpoints must be judged the same way.
+
 ## 3. Pre-registered prediction (written before any surgery number existed)
 
 `m1/predict.py` snapshots a purely static quantity — block-max-abs 4-bit conditioning `J`
