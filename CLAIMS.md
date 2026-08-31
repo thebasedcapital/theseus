@@ -176,6 +176,11 @@ never ledger-admitted) and it closes the obvious route: sweeping merge alpha ove
 mean KL at 0.029-0.048, i.e. **15-24× outside** the `2e-3` gate, and non-monotone in alpha. Weakening
 the operations does not make the two orders agree, because they adapt from different coordinates.
 
+Qualification that has to stay attached to those figures: that sweep executed `m3`'s then-private
+copy of the training loop, which used AdamW's default `weight_decay=1e-2` instead of the contract's
+`0.0`. The duplicate has since been deleted in favour of delegating to `m1/adapt_probe.train_once`.
+The plateau is unlikely to be a weight-decay artefact, but the numbers are superseded until re-run.
+
 Equally important, a flattering detail from the withdrawn record does **not** survive re-running: the
 claim that a pair sat inside the perplexity tolerance while failing the distributional one was
 specific to the void numbers. At every screened alpha, **both** statistics fail (`rel ΔPPL` 0.0069 to
