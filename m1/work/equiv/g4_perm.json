@@ -1,0 +1,52 @@
+{
+  "a": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+  "b": "/home/admin/theseus/m1/work/g4_perm",
+  "checks": {
+    "dlogit": true,
+    "kl": true,
+    "ppl": true,
+    "top1": true
+  },
+  "cond_a": {
+    "down_proj": 0.01109909434973709,
+    "gate_proj": 0.01076465418188096,
+    "k_proj": 0.011762683209520876,
+    "o_proj": 0.010180088853539904,
+    "q_proj": 0.011322723421138166,
+    "up_proj": 0.010686590232690784,
+    "v_proj": 0.012823479021489526
+  },
+  "cond_b": {
+    "down_proj": 0.01109909434973709,
+    "gate_proj": 0.01076465418188096,
+    "k_proj": 0.011762683209520876,
+    "o_proj": 0.010180088853539904,
+    "q_proj": 0.011322723421138168,
+    "up_proj": 0.010686590232690784,
+    "v_proj": 0.012823479021489526
+  },
+  "device": "cuda",
+  "duration_s": 45.6,
+  "gate": {
+    "kl_mean_nats_max": 0.002,
+    "max_dlogit_max": 0.5,
+    "rel_ppl_max": 0.002,
+    "top1_agree_min": 0.995
+  },
+  "git_head": "9684e7e0c7a1031a7e821fff0690e391503d7db3",
+  "metrics": {
+    "device": "cpu",
+    "kl_mean_nats": 1.0880634171428483e-09,
+    "max_dlogit": 0.000125885009765625,
+    "n_positions": 4096,
+    "ntokens": 4096,
+    "ppl_a": 17.71019172668457,
+    "ppl_b": 17.710195541381836,
+    "seqlen": 512,
+    "top1_agree": 1.0
+  },
+  "rel_ppl": 2.15395594027612e-07,
+  "script": "verify_equiv.py",
+  "torch": "2.13.0+cu130",
+  "verdict": "EQUIVALENT"
+}

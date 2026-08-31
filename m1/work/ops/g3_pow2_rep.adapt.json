@@ -1,0 +1,62 @@
+{
+  "duration_s": 83.67939814599231,
+  "git_head": "11ed3a629f0ba1f0b53c049d37f222e583880b26",
+  "model_dir": "/home/admin/theseus/m1/work/g3_pow2_rep",
+  "results": {
+    "sanity_reference": null,
+    "variant": {
+      "base_frozen": true,
+      "batch_size": 2,
+      "capture": 0.9638640033152751,
+      "capture_ref": 0.9859822708366603,
+      "capture_threshold": 0.7394867031274952,
+      "contract_version": "adapt-v2-true-lora-base-frozen",
+      "device": "cuda",
+      "device_note": "cuda",
+      "grad_accum": 1,
+      "heldout_examples": 128,
+      "lora_alpha": 32,
+      "lora_rank": 16,
+      "lr_grid": [
+        {
+          "lr": 0.0003,
+          "runtime_s": 16.27573188696988,
+          "task_loss_after": 0.09839186932673659
+        },
+        {
+          "lr": 0.003,
+          "runtime_s": 16.35346389678307,
+          "task_loss_after": 2.25244480100545
+        }
+      ],
+      "pass": true,
+      "pass_contract": "adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen",
+      "peak_memory_allocated_gb": 2.393921536,
+      "protected_dppl": 0.7854499816894531,
+      "protected_dppl_ref": 1.2238330841064453,
+      "protected_ppl_after": 17.77724838256836,
+      "protected_ppl_before": 16.991798400878906,
+      "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+      "runtime_s": 16.896148124011233,
+      "seed": 1729,
+      "selected_lr": 0.0003,
+      "seq_len": 128,
+      "steps": 80,
+      "targets": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "task_loss_after": 0.09839186932673659,
+      "task_loss_before": 2.72282151742415,
+      "train_examples": 512
+    }
+  },
+  "script": "adapt_probe.py",
+  "tag": "g3_pow2_rep",
+  "torch": "2.13.0+cu130"
+}

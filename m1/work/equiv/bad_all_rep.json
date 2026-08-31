@@ -1,0 +1,56 @@
+{
+  "a": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+  "b": "/home/admin/theseus/m1/work/bad_all_rep",
+  "checks": {
+    "dlogit": false,
+    "kl": true,
+    "ppl": true,
+    "top1": false
+  },
+  "cond_a": {
+    "down_proj": 0.01109909434973709,
+    "gate_proj": 0.01076465418188096,
+    "k_proj": 0.011762683209520876,
+    "o_proj": 0.010180088853539904,
+    "q_proj": 0.011322723421138166,
+    "up_proj": 0.010686590232690784,
+    "v_proj": 0.012823479021489526
+  },
+  "cond_b": {
+    "down_proj": 0.011113780560730188,
+    "gate_proj": 0.011993801044320239,
+    "k_proj": 0.013273381112143642,
+    "o_proj": 0.009663560792413652,
+    "q_proj": 0.012021668091858896,
+    "up_proj": 0.011967503854583542,
+    "v_proj": 0.01506363395043059
+  },
+  "device": "cuda",
+  "distributional_pass": false,
+  "duration_s": 41.0,
+  "flags": [
+    "max_dlogit 1.13 > 0.5 (bf16 re-rounding; algebra-only error measured 9.4e-05, see m1/control_precision_floor.py)"
+  ],
+  "gate": {
+    "kl_mean_nats_max": 0.002,
+    "max_dlogit_max": 0.5,
+    "rel_ppl_max": 0.002,
+    "top1_agree_min": 0.995
+  },
+  "git_head": "786172a7490fd559b3537bac58d8c82d3ee23a78",
+  "metrics": {
+    "device": "cpu",
+    "kl_mean_nats": 0.00020563114958349615,
+    "max_dlogit": 1.1278762817382812,
+    "n_positions": 4096,
+    "ntokens": 4096,
+    "ppl_a": 17.71019172668457,
+    "ppl_b": 17.703153610229492,
+    "seqlen": 512,
+    "top1_agree": 0.9931640625
+  },
+  "rel_ppl": 0.0003974048708051958,
+  "script": "verify_equiv.py",
+  "torch": "2.13.0+cu130",
+  "verdict": "NOT_EQUIVALENT"
+}

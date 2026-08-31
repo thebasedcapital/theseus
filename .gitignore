@@ -4,7 +4,24 @@ __pycache__/
 venv/
 .DS_Store
 .pytest_cache/
-m1/work/
+# Evidence cells: the JSON records are small (~1.4 MB) and are what `ledger verify` audits, so they
+# are committed - otherwise every claim in REPORT.md can only be checked on one machine, which
+# contradicts "a session that loses its working tree loses nothing". The multi-GB weights and GGUFs
+# they describe are regenerable via make_variants/gguf_probe and stay out, as does the third-party
+# WikiText text (see m1/prep_data.py).
+m1/work/**
+!m1/work/**/
+!m1/work/**/*.json
+m1/work/**/tokenizer.json
+m1/work/**/tokenizer_config.json
+m1/work/**/vocab.json
+m1/work/**/special_tokens_map.json
+m1/work/**/config.json
+m1/work/**/generation_config.json
+m1/work/**/*.safetensors
+m1/work/**/*.gguf
+m1/work/**/*.bin
+m1/work/**/*.txt
 *.gguf
 *Logits
 *.bin

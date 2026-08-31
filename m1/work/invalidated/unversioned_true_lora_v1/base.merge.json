@@ -1,0 +1,93 @@
+{
+  "duration_s": 325.17982697300613,
+  "git_head": "535ddb19a61a0aefe0ab963949ad5da1893c94a0",
+  "model_dir": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+  "results": {
+    "alphas": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "base_eval_ppl": 27.66525650024414,
+    "base_rule_loss": 1.6447990362817457,
+    "candidate_ppl": 27.66525650024414,
+    "density": 0.2,
+    "device": "cuda",
+    "device_note": "cuda",
+    "linear": {
+      "matrix": [
+        {
+          "alpha": 0.3,
+          "eval_ppl": 28.384510040283203,
+          "pass": false,
+          "specialist_rule_loss": 0.05989630018554422
+        },
+        {
+          "alpha": 0.5,
+          "eval_ppl": 29.929025650024414,
+          "pass": false,
+          "specialist_rule_loss": 0.0395665821469672
+        },
+        {
+          "alpha": 0.7,
+          "eval_ppl": 32.44363784790039,
+          "pass": false,
+          "specialist_rule_loss": 0.04424692714966246
+        }
+      ],
+      "smallest_passing_alpha": null
+    },
+    "lora_alpha": 32,
+    "lora_rank": 32,
+    "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+    "seed": 2718,
+    "specialist": {
+      "alpha": 32,
+      "base_eval_ppl": 27.66525650024414,
+      "base_frozen": true,
+      "base_rule_loss": 1.6447990362817457,
+      "batch_size": 2,
+      "eval_ppl": 39.119022369384766,
+      "gate_pass": true,
+      "heldout_examples": 128,
+      "heldout_rule_loss": 0.06824227479432339,
+      "lr": 0.0003,
+      "max_memory_allocated_gb": 2.347885568,
+      "rank": 32,
+      "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+      "rule_loss": 0.06824227479432339,
+      "runtime_s": 134.73114219401032,
+      "seed": 2718,
+      "seq_len": 128,
+      "steps": 600,
+      "train_examples": 512
+    },
+    "steps": 600,
+    "ties": {
+      "matrix": [
+        {
+          "alpha": 0.3,
+          "eval_ppl": 28.07294273376465,
+          "pass": false,
+          "specialist_rule_loss": 0.12178692987289741
+        },
+        {
+          "alpha": 0.5,
+          "eval_ppl": 28.991024017333984,
+          "pass": false,
+          "specialist_rule_loss": 0.048595312002859437
+        },
+        {
+          "alpha": 0.7,
+          "eval_ppl": 30.396360397338867,
+          "pass": false,
+          "specialist_rule_loss": 0.03995027935309688
+        }
+      ],
+      "smallest_passing_alpha": null
+    }
+  },
+  "script": "merge_probe.py",
+  "tag": "base",
+  "torch": "2.13.0+cu130"
+}

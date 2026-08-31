@@ -1,0 +1,105 @@
+{
+  "coverage": {
+    "measured_ops": [],
+    "optionality_fraction": null,
+    "unavailable_ops": []
+  },
+  "current_behavior": {
+    "status": "MEASURED",
+    "vs_base": {
+      "flags": [
+        "max_dlogit 0.54 > 0.5 (bf16 re-rounding; algebra-only error measured 9.4e-05, see m1/control_precision_floor.py)"
+      ],
+      "gate": {
+        "kl_mean_nats_max": 0.002,
+        "max_dlogit_max": 0.5,
+        "rel_ppl_max": 0.002,
+        "top1_agree_min": 0.995
+      },
+      "kl_mean_nats": 5.2868053899146616e-05,
+      "max_abs_dlogit": 0.5402326583862305,
+      "ppl_base": 17.71019172668457,
+      "ppl_this": 17.715913772583008,
+      "top1_agree": 0.9970703125,
+      "verdict": "EQUIVALENT_FLAGGED"
+    }
+  },
+  "environment": {
+    "git_head": "a0cc8f8",
+    "llama_cpp": null,
+    "torch": null
+  },
+  "identity": {
+    "built_from": "Qwen/Qwen2.5-0.5B (bf16, tied)",
+    "bytes": 988097824,
+    "dir": "/home/admin/theseus/m1/work/g3_pow2_rep_raw",
+    "name": "g3_pow2_rep_raw",
+    "sha256_16": "7e8a3e09100336cc",
+    "untied": false
+  },
+  "not_claimed": [
+    "no natural post-training history was run for this artifact (ROADMAP A5/M3)",
+    "one model, one scale, base (non-instruct) weights",
+    "reserve thresholds are reference-relative and calibrated on this checkpoint family only",
+    "static risk flags in the inspector are provisional (n=2 measured contrast per rule)"
+  ],
+  "provenance": {
+    "canonicalize": "g3",
+    "config_patch": null,
+    "note": "same stress + continuous (non-lattice) repair: costs bf16 re-rounding",
+    "repairs": [
+      {
+        "applied_span_median": 1432050.75,
+        "canon": "G3",
+        "target": "equal consumer column energy"
+      }
+    ],
+    "spec": "G3:pow2:1",
+    "transforms": [
+      {
+        "decades": 3.0,
+        "family": "G3",
+        "max_d_span": 1048576.0,
+        "mode": "pow2",
+        "seed": 1
+      }
+    ]
+  },
+  "reserve": {},
+  "schema": "theseus.passport/0.1",
+  "static_features": {
+    "J_reference": 0.011234,
+    "J_total": 0.011445,
+    "gauge_debt": 0.000211,
+    "inspector": {
+      "per_family_q4": {
+        "down_proj": 0.01109909,
+        "gate_proj": 0.01081395,
+        "k_proj": 0.01218967,
+        "o_proj": 0.01018009,
+        "q_proj": 0.01078529,
+        "up_proj": 0.0107694,
+        "v_proj": 0.01428069
+      },
+      "tot_amax_over_rms": 51.60721926,
+      "tot_dyn_range_log10": 8.6442065,
+      "tot_frac_below_f16_normal": 0.00285851,
+      "tot_q4_block_mse": 0.01144545,
+      "tot_row_energy_imbalance": 28127.77619839,
+      "worst_below_f16": 0.00375148,
+      "worst_dyn_range": 8.6442065
+    },
+    "inspector_status": "MEASURED",
+    "per_family_J": {
+      "down_proj": 0.011099,
+      "gate_proj": 0.010814,
+      "k_proj": 0.01219,
+      "o_proj": 0.01018,
+      "q_proj": 0.010785,
+      "up_proj": 0.010769,
+      "v_proj": 0.014281
+    },
+    "status": "PREDICTED"
+  },
+  "written_utc": "2026-08-31T13:58:20+00:00"
+}

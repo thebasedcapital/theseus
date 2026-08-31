@@ -1,0 +1,60 @@
+{
+  "duration_s": 97.96355811599642,
+  "git_head": "965a06e7e2d0608d7dce3cb34f77f49ea55bdf7d",
+  "model_dir": "/home/admin/theseus/m1/work/prep_base_exact",
+  "results": {
+    "sanity_reference": null,
+    "variant": {
+      "batch_size": 2,
+      "capture": 0.9923795520628239,
+      "capture_ref": 0.9730670161829046,
+      "capture_threshold": 0.7298002621371784,
+      "device": "cuda",
+      "device_note": "cuda",
+      "grad_accum": 1,
+      "heldout_examples": 128,
+      "lora_alpha": 32,
+      "lora_rank": 16,
+      "lr_grid": [
+        {
+          "lr": 0.0003,
+          "runtime_s": 20.015139000024647,
+          "task_loss_after": 0.020749119615753774
+        },
+        {
+          "lr": 0.003,
+          "runtime_s": 20.906725598033518,
+          "task_loss_after": 7.265661673112349
+        }
+      ],
+      "pass": true,
+      "pass_contract": "amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02",
+      "peak_memory_allocated_gb": 2.962516992,
+      "protected_dppl": 2.4248199462890625,
+      "protected_dppl_ref": 2.9598045349121094,
+      "protected_ppl_after": 19.41661834716797,
+      "protected_ppl_before": 16.991798400878906,
+      "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+      "runtime_s": 21.55904088402167,
+      "seed": 1729,
+      "selected_lr": 0.0003,
+      "seq_len": 128,
+      "steps": 80,
+      "targets": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "task_loss_after": 0.020749119615753774,
+      "task_loss_before": 2.72282151742415,
+      "train_examples": 512
+    }
+  },
+  "script": "adapt_probe.py",
+  "tag": "prep_base_exact",
+  "torch": "2.13.0+cu130"
+}

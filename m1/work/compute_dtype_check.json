@@ -1,0 +1,64 @@
+{
+  "g3_pow2": {
+    "device": "cpu",
+    "pair": [
+      "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+      "/tmp/tsx2/g3_pow2"
+    ],
+    "runs": {
+      "bf16_compute": {
+        "kl_mean_nats": 0.0,
+        "logit_scale": 31.625,
+        "max_dlogit": 0.0,
+        "max_dlogit_over_scale": 0.0,
+        "n_positions": 2048,
+        "ppl_a": 16.988922119140625,
+        "ppl_b": 16.988922119140625,
+        "top1_agree": 1.0
+      },
+      "fp32_compute": {
+        "kl_mean_nats": 0.0,
+        "logit_scale": 31.638378143310547,
+        "max_dlogit": 0.0,
+        "max_dlogit_over_scale": 0.0,
+        "n_positions": 2048,
+        "ppl_a": 16.947139739990234,
+        "ppl_b": 16.947139739990234,
+        "top1_agree": 1.0
+      }
+    },
+    "seqlen": 512,
+    "tokens": 2048
+  },
+  "g7_rand": {
+    "device": "cpu",
+    "pair": [
+      "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+      "/tmp/tsx2/g7_rand"
+    ],
+    "runs": {
+      "bf16_compute": {
+        "kl_mean_nats": 0.0010885953670367599,
+        "logit_scale": 31.625,
+        "max_dlogit": 2.6875,
+        "max_dlogit_over_scale": 0.08498023715415019,
+        "n_positions": 2048,
+        "ppl_a": 16.988922119140625,
+        "ppl_b": 16.986127853393555,
+        "top1_agree": 0.98095703125
+      },
+      "fp32_compute": {
+        "kl_mean_nats": 2.044948996626772e-05,
+        "logit_scale": 31.638378143310547,
+        "max_dlogit": 0.3147159814834595,
+        "max_dlogit_over_scale": 0.00994728554219526,
+        "n_positions": 2048,
+        "ppl_a": 16.947139739990234,
+        "ppl_b": 16.937870025634766,
+        "top1_agree": 0.998046875
+      }
+    },
+    "seqlen": 512,
+    "tokens": 2048
+  }
+}

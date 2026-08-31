@@ -1,0 +1,112 @@
+{
+  "LoRA capture": {
+    "amax_over_rms": [
+      -0.434,
+      12
+    ],
+    "dyn_range_log10": [
+      -0.58,
+      12
+    ],
+    "frac_below_f16_normal": [
+      -0.937,
+      12
+    ],
+    "q4_block_mse": [
+      -0.522,
+      12
+    ],
+    "row_energy_imbalance": [
+      -0.841,
+      12
+    ]
+  },
+  "LoRA collateral dPPL": {
+    "amax_over_rms": [
+      0.657,
+      12
+    ],
+    "dyn_range_log10": [
+      0.797,
+      12
+    ],
+    "frac_below_f16_normal": [
+      0.615,
+      12
+    ],
+    "q4_block_mse": [
+      0.69,
+      12
+    ],
+    "row_energy_imbalance": [
+      0.558,
+      12
+    ]
+  },
+  "Q4_K_M KLD / base": {
+    "amax_over_rms": [
+      -0.6,
+      9
+    ],
+    "dyn_range_log10": [
+      -0.217,
+      9
+    ],
+    "frac_below_f16_normal": [
+      0.1,
+      9
+    ],
+    "q4_block_mse": [
+      0.184,
+      9
+    ],
+    "row_energy_imbalance": [
+      0.073,
+      9
+    ]
+  },
+  "Q4_K_M rel dPPL": {
+    "amax_over_rms": [
+      0.309,
+      10
+    ],
+    "dyn_range_log10": [
+      0.83,
+      10
+    ],
+    "frac_below_f16_normal": [
+      0.358,
+      10
+    ],
+    "q4_block_mse": [
+      -0.012,
+      10
+    ],
+    "row_energy_imbalance": [
+      0.498,
+      10
+    ]
+  },
+  "Q8_0 KLD / base": {
+    "amax_over_rms": [
+      0.127,
+      10
+    ],
+    "dyn_range_log10": [
+      0.164,
+      10
+    ],
+    "frac_below_f16_normal": [
+      0.091,
+      10
+    ],
+    "q4_block_mse": [
+      0.802,
+      10
+    ],
+    "row_energy_imbalance": [
+      -0.213,
+      10
+    ]
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "duration_s": 288.40670020808466,
+  "git_head": "6410276178e6701f2629b7e0ffdc8be706803f8d",
+  "model_dir": "/home/admin/theseus/m1/work/g7_rand",
+  "results": {
+    "alphas": [
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7
+    ],
+    "base_eval_ppl": 27.66525650024414,
+    "base_frozen": true,
+    "base_rule_loss": 1.6447990362817457,
+    "candidate_ppl": 27.61579132080078,
+    "contract": {
+      "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+      "ppl_ratio_max": 1.05,
+      "rule_loss_ratio_max": 0.75,
+      "version": "merge-v2-base-calibrated"
+    },
+    "density": 0.2,
+    "device": "cuda",
+    "linear": {
+      "matrix": [
+        {
+          "alpha": 0.3,
+          "eval_ppl": 12691674.0,
+          "pass": false,
+          "ppl_ratio": 459580.31231357006,
+          "rule_loss_ratio": 193.80606194630545,
+          "specialist_rule_loss": 16.682435503269534
+        },
+        {
+          "alpha": 0.4,
+          "eval_ppl": 12903125.0,
+          "pass": false,
+          "ppl_ratio": 467237.1995468079,
+          "rule_loss_ratio": 193.65625987403834,
+          "specialist_rule_loss": 16.669540842577526
+        },
+        {
+          "alpha": 0.5,
+          "eval_ppl": 13304287.0,
+          "pass": false,
+          "ppl_ratio": 481763.7432673869,
+          "rule_loss_ratio": 193.85318721631552,
+          "specialist_rule_loss": 16.68649195160568
+        },
+        {
+          "alpha": 0.6,
+          "eval_ppl": 13685280.0,
+          "pass": false,
+          "ppl_ratio": 495559.9439836427,
+          "rule_loss_ratio": 193.54803735344464,
+          "specialist_rule_loss": 16.66022526595585
+        },
+        {
+          "alpha": 0.7,
+          "eval_ppl": 13582433.0,
+          "pass": false,
+          "ppl_ratio": 491835.734207965,
+          "rule_loss_ratio": 193.3464569783933,
+          "specialist_rule_loss": 16.64287363323731
+        }
+      ],
+      "smallest_passing_alpha": null
+    },
+    "lora_alpha": 32,
+    "lora_rank": 32,
+    "lr": 0.0003,
+    "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+    "seed": 2718,
+    "specialist": {
+      "alpha": 32,
+      "base_eval_ppl": 27.66525650024414,
+      "base_frozen": true,
+      "base_rule_loss": 1.6447990362817457,
+      "batch_size": 2,
+      "eval_ppl": 37.443485260009766,
+      "gate_pass": true,
+      "heldout_examples": 128,
+      "heldout_rule_loss": 0.08607798608431275,
+      "live_eval_ppl": 37.40376281738281,
+      "live_rule_loss": 0.08484929473918744,
+      "lr": 0.0003,
+      "max_memory_allocated_gb": 2.347885568,
+      "rank": 32,
+      "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+      "rule_loss": 0.08607798608431275,
+      "runtime_s": 128.50585305783898,
+      "saved_artifact_verified": true,
+      "seed": 2718,
+      "seq_len": 128,
+      "steps": 600,
+      "train_examples": 512
+    },
+    "steps": 600,
+    "ties": {
+      "matrix": [
+        {
+          "alpha": 0.3,
+          "eval_ppl": 117.49788665771484,
+          "pass": false,
+          "ppl_ratio": 4.254735462503768,
+          "rule_loss_ratio": 33.4896908238055,
+          "specialist_rule_loss": 2.8827251406994665
+        },
+        {
+          "alpha": 0.4,
+          "eval_ppl": 266.80657958984375,
+          "pass": false,
+          "ppl_ratio": 9.661377307297348,
+          "rule_loss_ratio": 46.84944899567891,
+          "specialist_rule_loss": 4.032706218707769
+        },
+        {
+          "alpha": 0.5,
+          "eval_ppl": 626.4447631835938,
+          "pass": false,
+          "ppl_ratio": 22.684295224658026,
+          "rule_loss_ratio": 63.20422615226133,
+          "specialist_rule_loss": 5.440492499204106
+        },
+        {
+          "alpha": 0.6,
+          "eval_ppl": 1989.7763671875,
+          "pass": false,
+          "ppl_ratio": 72.05212206570954,
+          "rule_loss_ratio": 76.79471179000086,
+          "specialist_rule_loss": 6.610334132808502
+        },
+        {
+          "alpha": 0.7,
+          "eval_ppl": 5993.70703125,
+          "pass": false,
+          "ppl_ratio": 217.0391194524785,
+          "rule_loss_ratio": 74.1163461100679,
+          "specialist_rule_loss": 6.379785809082531
+        }
+      ],
+      "smallest_passing_alpha": null
+    }
+  },
+  "script": "merge_probe.py",
+  "tag": "g7_rand",
+  "torch": "2.13.0+cu130"
+}

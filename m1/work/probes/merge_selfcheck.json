@@ -1,0 +1,26 @@
+{
+  "duration_s": 0.001976076979190111,
+  "git_head": "f4efd735d2b40b0c66b8bb4cdde3c668bdb53371",
+  "model_dir": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+  "results": {
+    "alphas": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "dry_run": true,
+    "merge_shapes": [
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        2
+      ]
+    ]
+  },
+  "script": "merge_probe.py",
+  "tag": "base",
+  "torch": "2.13.0+cu130"
+}
