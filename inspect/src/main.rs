@@ -721,6 +721,94 @@ fn main() {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bf16_decodes_the_ieee_truncation() {
+        assert_eq!(bf16_to_f32(0x3f80), 1.0);
+        assert_eq!(bf16_to_f32(0x3f00), 0.5);
+        assert_eq!(bf16_to_f32(0xbf80), -1.0);
+        assert_eq!(bf16_to_f32(0x0000), 0.0);
+        // bf16 carries f32's 8-bit exponent, so 2^-14 (the smallest f16 NORMAL) is an ordinary
+        // value here: bits 0x3880, not 0x0080 (that is 2^-126, bf16's own floor). This asymmetry
+        // is exactly why f16 and bf16 exports disagree on gauged checkpoints.
+        assert_eq!(bf16_to_f32(0x3880), 6.103515625e-5);
+        assert_eq!(bf16_to_f32(0x0080), 1.1754943508222875e-38);
+    }
+
+    #[test]
+    fn f16_decodes_normals_subnormals_and_extremes() {
+        assert_eq!(f16_to_f32(0x3c00), 1.0);
+        assert_eq!(f16_to_f32(0xbc00), -1.0);
+        assert_eq!(f16_to_f32(0x0001), 5.960464477539063e-8); // 2^-24, subnormal
+        assert_eq!(f16_to_f32(0x0400), 6.103515625e-5); // smallest normal
+        assert_eq!(f16_to_f32(0x7bff), 65504.0); // largest finite
+        assert!(f16_to_f32(0x7c01).is_nan());
+        assert!(f16_to_f32(0x7c00).is_infinite());
+    }
+
+    #[test]
+    fn block_statistic_matches_hand_computation() {
+        // 64 ones = two full 32-blocks with amax 1:
+        //   pooled = 2 * (1^2 * 32) / (12 * 49 * 64) = 1/588
+        let mut a = Acc::new();
+        a.feed_row(&vec![1.0f32; 64]);
+        a.close_tensor();
+        let r = a.report();
+        assert!((r["q4_block_mse_pooled"] - 1.0 / 588.0).abs() < 1e-12);
+        assert!((r["q4_block_mse"] - 1.0 / 588.0).abs() < 1e-12);
+        assert_eq!(r["weights"], 64.0);
+        assert!((r["dyn_range_log10"] - 0.0).abs() < 1e-12);
+        assert!((r["row_energy_imbalance"] - 1.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn short_tail_block_is_not_counted_as_a_full_block() {
+        // 48 values: one full block of 32 plus a 16-element tail. The tail is NOT a unit the
+        // k-quants round, so it must not enter the numerator but must enter the denominator.
+        let mut v: Vec<f32> = vec![1.0; 32];
+        v.extend_from_slice(&[0.5; 16]);
+        let mut a = Acc::new();
+        a.feed_row(&v);
+        a.close_tensor();
+        let r = a.report();
+        let sum_sq = 32.0 + 16.0 * 0.25;
+        let expect = (1.0f64 * 32.0) / (12.0 * 49.0 * sum_sq);
+        assert!((r["q4_block_mse_pooled"] - expect).abs() < 1e-12);
+        assert_eq!(r["weights"], 48.0);
+    }
+
+    #[test]
+    fn f16_range_detection_counts_what_the_f16_export_cannot_hold() {
+        let mut a = Acc::new();
+        a.feed_row(&[1.0, 0.0, 6.0e-5, 1.0e-6, -1.0e-9]); // last three below 2^-14, zero excluded
+        let r = a.report();
+        assert_eq!(r["below_f16_normal"], 3.0);
+        assert!((r["frac_below_f16_normal"] - 0.6).abs() < 1e-12);
+        assert!((r["dyn_range_log10"] - 9.0).abs() < 0.01); // 1.0 / 1e-9
+    }
+
+    #[test]
+    fn row_energy_imbalance_ignores_all_zero_rows() {
+        let mut a = Acc::new();
+        a.feed_row(&[1.0; 32]); // energy 32
+        a.feed_row(&[0.0; 32]); // skipped
+        a.feed_row(&[0.1; 32]); // energy 0.32
+        a.close_tensor();
+        let r = a.report();
+        // inputs arrive as f32 (0.1f32 is not 0.1), so the ratio carries ~3e-8 relative error;
+        // the risk thresholds are orders of magnitude away, which is what makes that fine.
+        assert!(
+            ((r["row_energy_imbalance"] / 100.0) - 1.0).abs() < 1e-6,
+            "got {}",
+            r["row_energy_imbalance"]
+        );
+        assert_eq!(r["weights"], 96.0);
+    }
+}
+
 fn fatal(msg: &str) -> ! {
     eprintln!("error: header parse: {}", msg);
     exit(1)
