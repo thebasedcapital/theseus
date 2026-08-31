@@ -1,0 +1,312 @@
+{
+  "kind": "EXPLORATORY_screen_not_evidence",
+  "axis": "operation order",
+  "screen_steps": 40,
+  "gate": {
+    "relative_ppl_max": 0.005,
+    "mean_kl_max": 0.002,
+    "top1_min": 0.995,
+    "static_tolerances": [
+      0.05,
+      0.1,
+      0.2,
+      0.4,
+      0.8
+    ]
+  },
+  "device": "cuda",
+  "note": "fp32 present comparison in torch; reserve = fresh third-skill adaptation capture",
+  "results": [
+    {
+      "kind": "task_order_all_targets",
+      "steps": [
+        [
+          "reverse",
+          [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj"
+          ]
+        ],
+        [
+          "sorted",
+          [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj"
+          ]
+        ]
+      ],
+      "present": {
+        "mean_kl": 0.10619770804030088,
+        "top1": 0.8590998043052838,
+        "rel_ppl": 0.06866160475595873,
+        "ppl_a": 2.833118063440547,
+        "ppl_b": 3.0419856820121507,
+        "n_positions": 1022,
+        "pass": false
+      },
+      "reserve_capture": {
+        "A": 0.49247409879116755,
+        "B": 0.9067826561089549,
+        "abs_gap": 0.4143085573177874
+      },
+      "gate_pass": false,
+      "history": {
+        "A": [
+          {
+            "rule": "reverse",
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "capture": 0.9205889489635004,
+            "loss_after": 0.2163353619081053,
+            "trainer": "m1/adapt_probe.train_once"
+          },
+          {
+            "rule": "sorted",
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "capture": 0.9238402890812151,
+            "loss_after": 0.31558694622733374,
+            "trainer": "m1/adapt_probe.train_once"
+          }
+        ],
+        "B": [
+          {
+            "rule": "sorted",
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "capture": 0.9284706879067608,
+            "loss_after": 0.18926673890514809,
+            "trainer": "m1/adapt_probe.train_once"
+          },
+          {
+            "rule": "reverse",
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj",
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "capture": 0.8796772794984283,
+            "loss_after": 0.43391036919572135,
+            "trainer": "m1/adapt_probe.train_once"
+          }
+        ]
+      },
+      "wall_s": 139.7
+    },
+    {
+      "kind": "subspace_order_same_task",
+      "steps": [
+        [
+          "reverse",
+          [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj"
+          ]
+        ],
+        [
+          "reverse",
+          [
+            "gate_proj",
+            "up_proj",
+            "down_proj"
+          ]
+        ]
+      ],
+      "present": {
+        "mean_kl": 0.042772815652089576,
+        "top1": 0.9021526418786693,
+        "rel_ppl": 0.03839232865015614,
+        "ppl_a": 2.8124465152948956,
+        "ppl_b": 2.924733858816831,
+        "n_positions": 1022,
+        "pass": false
+      },
+      "reserve_capture": {
+        "A": 0.9714211529150164,
+        "B": 0.9618242719044955,
+        "abs_gap": 0.009596881010520919
+      },
+      "gate_pass": false,
+      "history": {
+        "A": [
+          {
+            "rule": "reverse",
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj"
+            ],
+            "capture": 0.9682531879380555,
+            "loss_after": 0.08648617525151084,
+            "trainer": "m1/adapt_probe.train_once"
+          },
+          {
+            "rule": "reverse",
+            "targets": [
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "capture": -0.6093349600162409,
+            "loss_after": 0.1378553792371597,
+            "trainer": "m1/adapt_probe.train_once"
+          }
+        ],
+        "B": [
+          {
+            "rule": "reverse",
+            "targets": [
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "capture": 0.9742213385065719,
+            "loss_after": 0.07022745563616892,
+            "trainer": "m1/adapt_probe.train_once"
+          },
+          {
+            "rule": "reverse",
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj"
+            ],
+            "capture": 0.7097563365878518,
+            "loss_after": 0.020649342677477926,
+            "trainer": "m1/adapt_probe.train_once"
+          }
+        ]
+      },
+      "wall_s": 136.5
+    },
+    {
+      "kind": "task_and_subspace_swap",
+      "steps": [
+        [
+          "reverse",
+          [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj"
+          ]
+        ],
+        [
+          "sorted",
+          [
+            "gate_proj",
+            "up_proj",
+            "down_proj"
+          ]
+        ]
+      ],
+      "present": {
+        "mean_kl": 0.09083981150050452,
+        "top1": 0.8747553816046967,
+        "rel_ppl": 0.09252445319867901,
+        "ppl_a": 2.7374303179311705,
+        "ppl_b": 3.0165334234956442,
+        "n_positions": 1022,
+        "pass": false
+      },
+      "reserve_capture": {
+        "A": -0.05472822034263368,
+        "B": 0.9540208613841822,
+        "abs_gap": 1.0087490817268159
+      },
+      "gate_pass": false,
+      "history": {
+        "A": [
+          {
+            "rule": "reverse",
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj"
+            ],
+            "capture": 0.9682531879380555,
+            "loss_after": 0.08648617525151084,
+            "trainer": "m1/adapt_probe.train_once"
+          },
+          {
+            "rule": "sorted",
+            "targets": [
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "capture": 0.9733612581763786,
+            "loss_after": 0.20397264925255018,
+            "trainer": "m1/adapt_probe.train_once"
+          }
+        ],
+        "B": [
+          {
+            "rule": "sorted",
+            "targets": [
+              "gate_proj",
+              "up_proj",
+              "down_proj"
+            ],
+            "capture": 0.9100111090288846,
+            "loss_after": 0.23811083083803003,
+            "trainer": "m1/adapt_probe.train_once"
+          },
+          {
+            "rule": "reverse",
+            "targets": [
+              "q_proj",
+              "k_proj",
+              "v_proj",
+              "o_proj"
+            ],
+            "capture": 0.6360597432847733,
+            "loss_after": 1.0420385748147964,
+            "trainer": "m1/adapt_probe.train_once"
+          }
+        ]
+      },
+      "wall_s": 133.6
+    }
+  ]
+}

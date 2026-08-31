@@ -73,3 +73,34 @@ The duplicate is now gone: `m3.train_lora_state` delegates to `adapt_probe.train
 the single implementation. Directionally the plateau is unlikely to be a weight-decay artefact
 (KL barely moves across a 15x range of alpha), but the specific values are superseded and the sweep
 should be re-run under the consolidated trainer before it is quoted anywhere.
+
+## 2026-08-31 — order screen (`order_screen.json`), consolidated trainer
+
+Same gate, but through the single `adapt_probe` implementation (`weight_decay=0.0`), and varying
+the axis ordinary post-training actually moves along: the ORDER of real sequential adaptations, with
+the same multiset of steps in each arm. 40 steps/arm, screen budget, cuda, ~135 s per kind.
+
+| kind | mean KL | top-1 | rel ΔPPL | gate | reserve A | reserve B | gap |
+|---|---:|---:|---:|---|---:|---:|---:|
+| `task_order_all_targets` | 0.106198 | 0.85910 | 0.0687 | fail | 0.4925 | 0.9068 | 0.4143 |
+| `subspace_order_same_task` | 0.042773 | 0.90215 | 0.0384 | fail | 0.9714 | 0.9618 | 0.0096 |
+| `task_and_subspace_swap` | 0.090840 | 0.87476 | 0.0925 | fail | **-0.0547** | 0.9540 | 1.0087 |
+
+Findings:
+
+1. **Order is not invisible.** Every arm misses the frozen gate by 21-53x on KL. So unlike a
+   constructed gauge, swapping the order of real adaptations genuinely changes what the model does
+   today. K-8's specific claim - hidden state that *ordinary evaluation cannot see* - does not hold
+   along this axis at 0.5B with these budgets. Two independent construction routes are now measured
+   closed: weakening merge strength, and swapping operation order.
+2. **Order does change reserve, dramatically.** `task_and_subspace_swap` leaves the A endpoint with
+   negative capture (-0.0547: the third skill's loss got *worse* than before adaptation) while B
+   keeps 0.9540 - a 1.01 gap. That is catastrophic forgetting caused purely by history order, with
+   the same operations and the same budget.
+3. That is the honest reframing: at this scale the phenomenon is **stronger than K-8 asked for but
+   weaker than K-8 wanted**. History determines future trainability emphatically; it is simply not
+   hidden from evaluation. Any remaining claim must find an axis where the present agrees to
+   `2e-3` KL and the future still diverges, and neither of the natural axes screened does.
+4. Reserve here is a fresh-skill adaptation capture in torch, not a GGUF surgery cell, so these are
+   not ledger cells and cannot support or refute K-8 on their own. They are enough to stop
+   spending on this construction route.
