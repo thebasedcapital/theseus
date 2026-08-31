@@ -42,7 +42,7 @@ Families (derivations in ../M1_NOTES.md):
                   column j of down_proj divided by c_j, any nonzero c_j. V0's ReLU-style
                   scaling gauge DOES survive a GLU — the gated branch cannot scale
                   (silu(c g) != c silu(g)) but its multiplicative partner can. The exact MLP
-                  group is therefore permutation × (R\{0})^intermediate, not permutation alone.
+                  group is therefore permutation x (R minus {0})^intermediate, not permutation alone.
 """
 from __future__ import annotations
 
@@ -220,11 +220,13 @@ def g3_norm_diag(sd: dict, arch: Arch, mode: str = "random", seed: int = 0,
             u = torch.rand(arch.hidden, generator=g, dtype=F64)
             return torch.exp((2 * u - 1) * decades * lg10)
         if mode == "pow2":
-            # exact in bf16: multiplying a bf16 value by 2^k is lossless, so the gauge itself
-            # costs no representation noise and any downstream difference is purely the gauge
-            k = torch.randint(int(-2 ** decades), int(2 ** decades) + 1, (arch.hidden,),
-                              generator=g, dtype=torch.float64)
-            return torch.ldexp(torch.ones_like(k), k.to(torch.int))
+            # exact in bf16: multiplying a bf16 value by 2^k is lossless (k stays well inside
+            # the exponent range), so the gauge itself costs no representation noise and any
+            # downstream difference is purely the change of coordinates. +-decades of MAGNITUDE
+            # maps to k = +-(decades * log2 10) rounded, so this spans the same range as "random".
+            kmax = int(round(decades * 3.321928094887362))
+            k = torch.randint(-kmax, kmax + 1, (arch.hidden,), generator=g, dtype=torch.int32)
+            return torch.pow(torch.tensor(2.0, dtype=F64), k.to(F64))
         if mode == "smooth":                 # block-constant: a super-block scale absorbs it
             u = torch.rand(arch.hidden // 32, generator=g, dtype=F64)
             return torch.exp((2 * u - 1) * decades * lg10).repeat_interleave(32)
