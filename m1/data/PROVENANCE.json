@@ -1,0 +1,8 @@
+{
+  "source": "Salesforce/wikitext wikitext-2-raw-v1 split=test (HF datasets)",
+  "license": "CC BY-SA 4.0",
+  "selection": "first paragraphs with >=80 chars, section stubs dropped, until 400k chars",
+  "chars": 401943,
+  "paragraphs": 589,
+  "qwen_tokens": 94099
+}
