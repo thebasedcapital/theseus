@@ -1,0 +1,32 @@
+Theseus V0 smoke test
+=====================
+
+base
+  current accuracy      : 0.9822
+  max logit diff vs base: 0.000e+00
+  gauge imbalance max   : 1.380
+  Q4 accuracy/pass      : 0.9756 / True
+  prune40 accuracy/pass : 0.9822 / True
+  adapt capture         : True steps=55 lr=0.003
+  merge capture         : True alpha=0.8500000000000001
+  optionality           : 4/4
+
+same-function / bad-gauge
+  current accuracy      : 0.9822
+  max logit diff vs base: 5.722e-06
+  gauge imbalance max   : 10.590
+  Q4 accuracy/pass      : 0.0956 / False
+  prune40 accuracy/pass : 0.7867 / False
+  adapt capture         : False steps=None lr=None
+  merge capture         : False alpha=None
+  optionality           : 0/4
+
+gauge-fixed
+  current accuracy      : 0.9822
+  max logit diff vs base: 5.722e-06
+  gauge imbalance max   : 0.000
+  Q4 accuracy/pass      : 0.9800 / True
+  prune40 accuracy/pass : 0.9822 / True
+  adapt capture         : True steps=85 lr=0.001
+  merge capture         : True alpha=0.8500000000000001
+  optionality           : 4/4
