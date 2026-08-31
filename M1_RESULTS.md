@@ -351,3 +351,25 @@ quantization statistic does not: `dyn_range_log10` (how much exponent the family
 export killer) and `row_energy_imbalance` (how unequal the optimizer's per-coordinate geometry is
 — the AdamW-capture killer), plus `frac_below_f16_normal` which is exactly the
 `--fail-above` preflight gate for the export path.
+
+### Inspector verdicts: the static scan against the measured outcomes
+
+`theseus-inspect` run on each artifact (2-11 s, no model load, no GPU). Thresholds are the
+provisional ones in `inspect/src/main.rs`, calibrated on the base/gauged contrast and labelled as
+provisional in the binary's own output:
+
+| artifact | total J | dyn range | frac below f16 normal | flags raised | measured surgery outcome |
+|---|---:|---:|---:|---:|---|
+| `base` | 0.01123 | 8.83 | 0.00282 | 0 | capture 0.973, Q4 KLD 0.0319 |
+| `g3_pow2` | 0.02955 | 14.6 | 0.0987 | 15 (quant+export+adapt on q,k,v,gate,up) | capture **0.156**, Q8_0 KLD **10.69**, f16 export 177 ppl |
+| `g3_pow2_rep` | 0.01148 | 8.76 | 0.00281 | **0** | capture 0.983, Q4 KLD 0.0350 |
+| `bad_all` (4 families) | 0.03315 | **18.81** | **0.15486** | 20 (adds down_proj from the SwiGLU diagonal) | pending |
+| `bad_all_exact` (lattice repair) | 0.01159 | 9.99 | 0.00279 | **0** | pending |
+| `prep_base_exact` (repair on pristine) | 0.01144 | 9.01 | 0.00280 | **0** | pending |
+
+Two things to take from this. The flags are **specific**: `g3_pow2` raises nothing on
+`o_proj`/`down_proj`, which are exactly the two families the norm-diagonal gauge does not touch,
+and `bad_all` adds a `down_proj` quant flag, which is where the SwiGLU up-branch diagonal lands.
+And the repaired artifacts raise **no flags at all**, at total J within 2 % of the pristine
+checkpoint — which is the `prepare` claim stated in the tool's own vocabulary, produced by code
+that never saw the original.
