@@ -66,10 +66,10 @@ adapter · `n/a` not applicable. "import" = weight transform applied by `convert
 | **gemma** (GemmaForCausalLM) | full / SwiGLU | E | E | E | E* | E | `norm.weight += 1`; lm_head skipped | **1+w offset** | norm probe must add 1 |
 | **gemma-2** (Gemma2ForCausalLM) | full / SwiGLU | E | E | E | E* | E | `norm.weight += 1`; lm_head skipped | **1+w offset** | norm probe must add 1 |
 | **qwen2** (Qwen2ForCausalLM) | full / SwiGLU | E | E | E | E* | E | **NONE (identity)** — the M1 reference | scale | – (the baseline) |
-| **qwen3** (Qwen3ForCausalLM) | full / SwiGLU | E | E | E | E* | E | **NONE** | scale | – (qk-norm present, gauge-neutral) |
+| **qwen3** (Qwen3ForCausalLM) | full / SwiGLU | E | **U** | E | E* | E | **NONE** | scale | **qk-norm breaks G2** (measured err 1.23·‖x‖⁻¹; probe fails closed) |
 | **phi-3** (Phi3ForCausalLM) | full / SwiGLU | E | **P** | E | E | E | none (rope_dim = rot_pct of head dim; longrope factor tensors) | scale | G2 band caveat |
 | **deepseek v2/v3** (DeepseekV2/3ForCausalLM) | MLA / MoE | **U** (MLA) | E† | E | E | E‡ | kv_b split+transposed; experts merged to 3D | scale | 2-D experts separated; fused stacks unavailable |
-| **qwen2moe / qwen3moe** | full / MoE | E | E | E | E | E‡ | experts merged to 3D | scale | 2-D experts separated; fused stacks unavailable |
+| **qwen2moe / qwen3moe** | full / MoE | E | **E / U** | E | E | E‡ | experts merged to 3D | scale | qwen3moe has per-head q/k norm (T qwen3_moe/modeling_qwen3_moe.py:147-148, :162-163) → G2 UNAVAILABLE, same as qwen3 |
 | **mixtral** (MixtralForCausalLM) | full / MoE(w1w2w3) | E | E | E | E | **U‡** | experts w1/w2/w3 merged to 3D; q/k permuted | scale | w1/w2/w3 separated; merged stacks unavailable |
 | **mamba / mamba2** | SSM / SSM | U | U | E(n/t) | E | U | A_log→A, conv1d squeeze, dt_bias rename | scale | no families at all |
 | **qwen3next / jamba** (Qwen3NextForCausalLM, JambaForCausalLM) | hybrid / hybrid | U‡ | E† | E | E* | E‡ | in_proj_qkvz re-split, A_log→A, norm+1 (lognorm) | scale (+1+w lognorm) | **census wrong until layer-type map** |
@@ -122,8 +122,15 @@ claim, distinct per-pair frequencies.
   and any G2 canonicity claim must be restricted to the rotated band. Individual pair rotations
   in the unrotated band remain exact (any equal q/k orthogonal transform commutes).
 - **qwen3 has per-head-dim QK-NORM** `q_norm/k_norm` after projection, before RoPE
-  (T qwen3/modeling_qwen3.py:237-238, applied :252-253). Rotation-invariant per token, so G2 stays exact,
-  but a pipeline pinning G2 rows to the projection output must use the pre-norm frame.
+  (T qwen3/modeling_qwen3.py:237-238, applied :252-253). **G2 is NOT exact** — an earlier revision
+  of this audit claimed "rotation-invariant per token, so G2 stays exact", which considered only the
+  `rms(x)` denominator and ignored the learned per-dimension gain. `Qwen3RMSNorm(x) = g * (x/rms(x))`,
+  and a projection-output 2-plane rotation on `(j, j+hd/2)` commutes with `diag(g)` only if
+  `g_j == g_{j+hd/2}` for every pair. Measured on Qwen3-0.6B-Base: `max|g_j - g_{j+64}| = 95.3`
+  (k_norm, layer 0), and sampling 512 fp64 vectors through the real weights gives
+  `max‖qnorm(xR) - qnorm(x)R‖ / ‖x‖ = 1.229`. `archcheck/test_qknorm_g2.py` reproduces this;
+  `archcheck/probe.py` reports G2 UNAVAILABLE and `m1/gauge.g2_rope_pairs` refuses to run.
+  G1/G3/G5/G7 are unaffected (no norm on v/o; G3 and G7 act on input columns and the MLP).
 - **mRoPE** (Qwen2/3-VL, multimodal) sections frequencies (`mrope_section`); raw G2 pair indices
   `(j, j+d/2)` are wrong there → `A` adapter required, never silently applied.
 - import question: llama-family archs REPERMUTE q/k rows on import (see §3); the pair relations
