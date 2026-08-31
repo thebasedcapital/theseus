@@ -186,6 +186,15 @@ claim that a pair sat inside the perplexity tolerance while failing the distribu
 specific to the void numbers. At every screened alpha, **both** statistics fail (`rel ΔPPL` 0.0069 to
 0.0343 against a 0.005 limit). That observation is therefore void too and is not carried forward.
 
+A second construction axis has since been screened through the consolidated trainer
+(`m3/order_screen.json`): the **order** of real sequential adaptations, same multiset of steps per
+arm. Every arm fails the gate by 21-53x on KL, so order is not invisible to current evaluation at
+this scale - while it moves reserve hard, one arm ending at capture **-0.0547** against the other's
+`0.9540`. Two natural routes to a present-matched pair are therefore measured closed: weakening
+merge strength, and swapping operation order. "Hidden from ordinary evaluation" is now the specific
+part of this claim with no support, and the honest reading is that history changes the future
+emphatically at 0.5B but changes the present too.
+
 **Refuter:** two present-matched history pairs surviving the registered shuffled null would support
 it; a present-matched pair whose reserves are equal would refute it. Neither has been earned.
 
