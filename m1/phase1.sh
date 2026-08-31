@@ -2,7 +2,7 @@
 # M1 phase 1: exactness gate on the real Qwen2.5-0.5B.
 # build -> verify vs base -> record J -> free the disk (variants are rebuildable in ~30 s).
 set -uo pipefail
-cd /home/admin/theseus
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # repo root, no hardcoded path
 PY="${THESEUS_PY:-/home/admin/counterpoint/.venv/bin/python}"
 export TSX_THREADS="${TSX_THREADS:-4}" OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}" MKL_NUM_THREADS="${MKL_NUM_THREADS:-4}"
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True

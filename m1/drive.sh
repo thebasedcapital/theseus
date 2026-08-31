@@ -7,7 +7,7 @@
 # m1/PIPELINE_FAILURES.md, and SYSTEM.md I6's answer is structural: one scheduler, no predicates,
 # admission derived from on-disk cell state.
 set -u
-cd /home/admin/theseus
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # repo root, no hardcoded path
 PY="${THESEUS_PY:-/home/admin/counterpoint/.venv/bin/python}"
 export TSX_THREADS=4 OMP_NUM_THREADS=4 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 CORE="base,g1_haar,g1_haar_rep,g2_rand,g3_pow2,g3_pow2_rep,g7_rand,g7_rand_rep,g4_perm,g5_c8,bad_all,bad_all_rep,bad_all_exact,prep_base_exact"

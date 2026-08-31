@@ -176,9 +176,11 @@ The reframe does not just tidy plumbing; it makes two of M1's hardest problems r
   outcomes", i.e. a *negative result at one layer and a positive at another*. The passport (§L1
   `ancestry`) is the record; the ledger makes it queryable.
 * **Thresholds become learned, with provenance.** The inspector's risk lines are honest only as
-  long as they cite their n. As the family baseline grows, `theseus calibrate` refits them and
+  long as they cite their n. `analysis/thresholds.py` refits them as the family baseline grows and
   emits a *new contract version*, invalidating (not editing) the verdicts that used the old one —
-  I3 and I1 doing real scientific work.
+  this has already run once: v2 → v3 at n=20 invalidated eight Q8 verdicts through ledger edges.
+  I3 and I1 doing real scientific work. A `theseus calibrate` verb wrapping that script is
+  ROADMAP M5 surface, not a current command.
 * **The reserve vector is the object.** M1 already showed a single score is wrong (a repaired
   artifact quantization-pristine and adaptation-deficient). So `Ω` is a typed map, views render
   the vector, and any scalarization must name its weights (`p_o` from math.md §4) in the same
