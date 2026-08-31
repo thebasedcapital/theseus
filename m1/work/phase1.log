@@ -1,1 +1,3 @@
 == control: base vs itself (harness floor)
+base rc=0
+== verify g1_haar

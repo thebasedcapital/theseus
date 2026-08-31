@@ -180,6 +180,9 @@ def save_state(sd: dict, out_dir: Path, ref_dir: Path = REF_MODEL,
     tensors = dict(sd)
     if tie:
         tensors.pop("lm_head.weight", None)
+    save_file({k: v.contiguous() for k, v in tensors.items()},
+              str(out_dir / "model.safetensors"), metadata={"format": "pt"})
+    cfg.save_pretrained(str(out_dir))
     for name in ("tokenizer.json", "tokenizer_config.json", "vocab.json", "merges.txt",
                  "special_tokens_map.json", "chat_template.jinja", "generation_config.json",
                  "added_tokens.json"):

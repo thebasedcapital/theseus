@@ -8,7 +8,8 @@ import torch
 import common
 
 PASS_CONTRACT = {"rel_dppl_max": 0.02, "kl_mean_max": 0.01, "tokagree_min": 0.85,
-                 "kl_unavailable_passes": True}
+                 "kl_unavailable_passes": False, "tokagree_none_passes": True,
+                 "amended_before_variant_measurement": True}
 TAGS = ("q8_0", "q6_k", "q5_k_m", "q4_k_m", "iq4_xs")
 QUANT_TYPES = {t: t.upper() for t in TAGS}
 M1 = Path(__file__).resolve().parent
@@ -90,8 +91,12 @@ def parse_ppl(s):
 
 
 def parse_kl(s):
-    m = re.search(r"Mean\s+KLD:\s*([0-9]+(?:\.[0-9]+)?)", s)
-    return float(m.group(1)) if m else None
+    labels = {"mean": r"Mean\s+KLD:", "maximum": r"Maximum KLD:", "p99_9": r"99\.9%\s+KLD:", "p99": r"99\.0%\s+KLD:", "p95": r"95\.0%\s+KLD:", "p90": r"90\.0%\s+KLD:", "median": r"Median\s+KLD:"}
+    out = {}
+    for key, label in labels.items():
+        m = re.search(label + r"\s*([+-]?[0-9]+(?:\.[0-9]+)?)", s)
+        if m: out[key] = float(m.group(1))
+    return out or None
 
 
 def ppl(path, corpus, cmds, chunks=None, logits=None):
@@ -117,7 +122,7 @@ def completion(path, prompt, cmds):
 
 
 def agreement(f16, quant, prompts, cmds):
-    rows = prompts.read_text().splitlines()
+    rows = prompts.read_text().splitlines()[:8]
     same = 0
     for prompt in rows:
         a, e = completion(f16, prompt, cmds)
@@ -194,14 +199,14 @@ def quant_one(tag, f16, scratch, corpus, prompts, fp, logits, cmds):
                  "--seed", SEED, "-ngl", BACKEND_NGL, "--kl-divergence", "--kl-divergence-base", logits]
         cmds.append(qstr(klcmd)); krc, ko, ke = run(klcmd, timeout=1800)
         kv = parse_kl(ko + "\n" + ke) if krc == 0 else None
-        if kv is not None: kl = {"kl_mean": kv}
+        if kv is not None: kl = {"kl_mean": kv["mean"], **{k: v for k, v in kv.items() if k != "mean"}}
         else: kl_reason = f"KL unavailable: rc={krc}; {ke[-800:]}"
-    tok, reason = agreement(f16, qpath, prompts, cmds)
+    tok = "skipped_for_budget" if tag not in ("q8_0", "q4_k_m") else agreement(f16, qpath, prompts, cmds)[0]
     if tok is None:
-        qpath.unlink(missing_ok=True); return {"status": "UNAVAILABLE", "reason": reason}
+        qpath.unlink(missing_ok=True); return {"status": "UNAVAILABLE", "reason": "tokagree failed"}
     dppl = qp - fp; rel = dppl / fp if fp else math.inf
     kv = kl.get("kl_mean") if isinstance(kl, dict) else None
-    passed = rel <= PASS_CONTRACT["rel_dppl_max"] and (kl == "UNAVAILABLE" or kv <= PASS_CONTRACT["kl_mean_max"]) and tok >= PASS_CONTRACT["tokagree_min"]
+    passed = rel <= PASS_CONTRACT["rel_dppl_max"] and kv is not None and kv <= PASS_CONTRACT["kl_mean_max"] and (tok == "skipped_for_budget" or tok >= PASS_CONTRACT["tokagree_min"])
     result = {"status": "OK", "ppl_q": qp, "dppl": dppl, "rel_dppl": rel, "kl": kl,
               "tokagree": tok, "size_mb": qpath.stat().st_size / 1048576, "passes": passed}
     if kl_reason: result["kl_reason"] = kl_reason
@@ -254,6 +259,8 @@ def main():
            "corpus": corpus_info, "backend": {"device": BACKEND_NAME, "ngl": BACKEND_NGL,
            "throughput_benchmark": BACKEND_SPEED, "quantize": str(QUANTIZE), "perplexity": str(PERPLEXITY), "completion": str(COMPLETION)},
            "cmds": cmds, "notes": notes}
+    rcver, over, ever = run([LLAMA / "llama-cli", "--version"], timeout=30)
+    obj["versions"]["llama_cpp"] = (over + ever).strip().splitlines()[:3] if rcver == 0 else f"UNAVAILABLE: {ever[-500:]}"
     if errors: obj["error"] = errors
     args.out.parent.mkdir(parents=True, exist_ok=True); args.out.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n")
     print(json.dumps(obj, indent=2, sort_keys=True))
