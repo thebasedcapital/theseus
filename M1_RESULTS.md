@@ -118,10 +118,18 @@ Cause: the value-subspace Hadamard (`canon_g1`) rewrites every v/o entry, and th
 `canon_g3`/`canon_g7` multipliers are not representable in bf16 — so "repair" costs about as much
 precision as re-exporting the checkpoint at its native dtype.
 
+Same story for the combined stress: `bad_all` (G3 pow2 + G1 Haar + G2 RoPE + G7, four families at
+once) certifies cleanly — `max|Δlogit| 0.333`, KL `6.7e-05`, top-1 `0.99585`, PPL 17.7095 — while
+`bad_all_rep`, that artifact run through the *full* canonicalizer, fails the distributional gate
+(`top-1 0.99170`, `max|Δlogit| 1.11`, KL `2.2e-04`). The stress is not the problem; the repair is.
+
 Consequence for the tool design, and it is a real requirement rather than a footnote: `prepare`
 must either emit higher-precision artifacts, restrict itself to lattice-exact families (the
 `pow2` modes), or refuse when the induced drift exceeds the user's declared tolerance. Theseus
-judging checkpoints must be judged the same way.
+judging checkpoints must be judged the same way. All three are implemented and measured:
+`bad_all_exact` / `prep_base_exact` run the repair over `{G5, G3, G7}` with `snap_pow2=True`, which
+rewrites 175/290 tensors by powers of two only — different bytes, and the gate decides whether the
+behaviour is still bit-identical.
 
 ### The G5 repair returned the original file, byte for byte
 
