@@ -28,6 +28,34 @@ CONTRACT = {"version": "adapt-v2-true-lora-base-frozen", "base_frozen": True,
             "gap_threshold_sd": 3}
 
 
+def _head() -> str:
+    """Commit the seed actually ran under. Seed records were previously anonymous, which let a
+    panel average measurements taken under different code: the base-reference drift logged as
+    incident #20 moves capture by points, far past the 2e-3 equivalence slack, so a mean across
+    commits is not an estimate of anything. Stamping it makes the mixture detectable."""
+    import subprocess
+    return subprocess.check_output(["git", "-C", str(common.REPO), "rev-parse", "--short", "HEAD"],
+                                   text=True).strip()
+
+
+def mixed_provenance(out: dict, variants) -> list:
+    """Variants whose seeds were recorded under more than one commit.
+
+    Extracted from main() so it can be tested: the first version of this guard lived inline in the
+    summary loop, which meant the only way to exercise it was a real multi-hour GPU run, and an
+    untested guard is decoration. An unstamped seed is its own provenance class rather than a
+    wildcard - it predates the field, so treating None as compatible with everything would let
+    exactly the mixture this exists to catch pass silently.
+    """
+    mixed = []
+    for v in variants:
+        seeds = (out.get(v) or {}).get("seeds") or {}
+        heads = {(s.get("git_head") or "unstamped") for s in seeds.values() if isinstance(s, dict)}
+        if len(heads) > 1:
+            mixed.append({"variant": v, "commits": sorted(heads), "n_seeds": len(seeds)})
+    return mixed
+
+
 def main():
     ap_ = argparse.ArgumentParser()
     ap_.add_argument("--variants", default="base,g1_haar,g1_haar_rep,g2_rand,g4_perm")
@@ -71,7 +99,7 @@ def main():
                                  "capture": (before - after) / before, "runtime_s": round(el, 1)})
                 best = min(rows, key=lambda r: r["task_loss_after"])
                 entry["seeds"][str(sd)] = {"grid": rows, "capture": best["capture"],
-                                           "selected_lr": best["lr"]}
+                                           "selected_lr": best["lr"], "git_head": _head()}
                 log(f"{v:14s} seed {sd:5d} capture {best['capture']:.4f} (lr {best['lr']})")
             AP.SEED = seeds[0]
             caps = [entry["seeds"][s]["capture"] for s in entry["seeds"]]
@@ -93,8 +121,19 @@ def main():
         suffix = f" gap vs base={gap:+.4f}" if gap is not None else ""
         print(f"  {v:14s} {e['capture_mean']:.4f} {e['capture_spread']} "
               f"sd={e['capture_stdev']}{suffix}")
+    # I3 at seed granularity: a variant whose seeds were recorded under different commits cannot
+    # contribute a comparable mean. Flag it, and keep it out of the cross-variant spread that
+    # defines the 3-sigma bar, rather than silently averaging it.
+    mixed = mixed_provenance(out, measured)
+    if mixed:
+        print("\nMIXED-PROVENANCE VARIANTS (seeds span multiple commits; means are not comparable):")
+        for m in mixed:
+            print(f"  {m['variant']:14} commits {m['commits']} over {m['n_seeds']} seeds")
+        out["_summary_mixed_warning"] = mixed
+    clean = {m["variant"] for m in mixed}
+    measured_homog = [v for v in measured if v not in clean]
     gaps = [(v, out[v]["capture_mean"] - base, out[v]["capture_stdev"])
-            for v in measured if base is not None]
+            for v in measured_homog if base is not None]
     spread = max([s for _, _, s in gaps if s] or [0.0])
     real = [(v, g) for v, g, _ in gaps if abs(g) > 3 * max(spread, 1e-4)]
     print(f"\nlargest within-variant sd = {spread:.4f}; "
