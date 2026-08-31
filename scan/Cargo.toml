@@ -1,0 +1,16 @@
+[package]
+name = "theseus-scan"
+version = "0.1.0"
+edition = "2021"
+description = "Static artifact scanner for safetensors / GGUF / PEFT-LoRA: Inspector-schema-v1-compatible census on every format local users hold"
+license = "MIT"
+
+[[bin]]
+name = "theseus-scan"
+path = "src/main.rs"
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+panic = "abort"
