@@ -1,0 +1,101 @@
+"""`ledger/render.py` — L3 view generation (views/*), marked `generated` (I9).
+
+`render` regenerates the disposable views from `.theseus/ledger/` only. Joining cells across
+different environment digests is REFUSED (I3) unless `--allow-mixed-env` stamps the output.
+Every number in a view carries its cell id (I10); a scalar health score is rejected (K-7).
+"""
+
+from __future__ import annotations
+
+from . import claims
+from .env import env_digest
+from .rules import tally_cells
+from .store import LedgerError
+
+GENERATED = "GENERATED: hand edits are rejected by CI-check (SYSTEM.md I9)."
+
+
+def _number_citation(c, key=None):
+    return f"{c.get('id')}"
+
+
+def render(ledger, outdir, *, allow_mixed_env: bool = False) -> list:
+    """Write views/* under root. Returns the list of generated paths (relative)."""
+    root = ledger.root
+    views = root / "views"
+    views.mkdir(parents=True, exist_ok=True)
+    generated = []
+
+    # --- table.md: the cell join (refuses mixed environments, I3) ---
+    cells = ledger.all("cell")
+    digest_groups = {}
+    for c in cells:
+        d = env_digest(c.get("environment") or {})
+        digest_groups.setdefault(("UNKNOWN" if d is None else d), []).append(c)
+    mixed = len(digest_groups) > 1
+    if mixed and not allow_mixed_env:
+        offenders = [ids for grp in digest_groups.values() for ids in [c.get("id") for c in grp]]
+        raise LedgerError(
+            f"I3 mixed-environment refusal on render table: cells span "
+            f"{sorted(digest_groups)} distinct digests; not comparable. Cell ids: "
+            f"{sorted(offenders)}. Re-run with --allow-mixed-env to stamp the output.")
+    rows = "\n".join(
+        f"| {c.get('id')} | {(c.get('op') or {}).get('name', '?')} | "
+        f"{c.get('obligation', '')} | {(c.get('result') or {}).get('status', '?')} | "
+        f"{(c.get('result') or {}).get('verdict', '')} | "
+        f"{min(len(str((c.get('result') or {}).get('metrics') or {})), 90)} |"
+        for c in cells)
+    tally = tally_cells(cells)
+    stamp = "\nstamp: mixed-env (--allow-mixed-env)" if (mixed and allow_mixed_env) else ""
+    (views / "table.md").write_text(
+        f"<!-- {GENERATED} -->\n# cell table ({len(cells)} cells)\n"
+        f"measured pass/fail tally (measured denominators only, I8): "
+        f"{tally['pass_measured']}/{tally['fail_measured']} over {tally['measured']} measured"
+        f" (predicted {tally['predicted']}, unavailable {tally['unavailable']}) ignored.\n"
+        f"env digests: {sorted(digest_groups)}\n{stamp}\n\n"
+        "| id | op | obligation | status | verdict | metrics-bytes |\n"
+        "|---|---|---|---|---|---|\n" + rows + "\n")
+    generated.append("views/table.md")
+
+    # --- CLAIMS.md: claim register ---
+    lc = [f"## {key} — {text}\n\nState: {claims.explain(ledger, key, allow_mixed_env=allow_mixed_env)['state'].upper()}\n"
+          for key, text, *_ in claims.CLAIM_SEEDS]
+    (views / "CLAIMS.md").write_text(
+        f"<!-- {GENERATED} -->\n# Claim register\n\n" + "\n".join(lc) + "\n")
+    # --- per-claim pages ---
+    for key in claims.all_keys():
+        r = claims.explain(ledger, key, allow_mixed_env=allow_mixed_env)
+        ob_parts = []
+        for o in r["obligations"]:
+            status = "OK" if o["satisfied"] else "MISSING"
+            ev = (" (" + ", ".join(o["evidence"]) + ")") if o["evidence"] else ""
+            note = (" — " + o["note"]) if o["note"] else ""
+            ob_parts.append("- [%s] %s%s%s" % (status, o["name"], ev, note))
+        ob_lines = "\n".join(ob_parts)
+        nums = "; ".join("%s (cell %s)" % (n["value"], n["cite"]) for n in r["numbers"])
+        hdr = "<!-- %s -->\n" % GENERATED
+        (views / (key + ".md")).write_text(
+            hdr + "# " + key + "\n\n" + key + " — " + r["text"] + "\n\n"
+            "**State: %s** (declared %s)\n\n" % (r["state"].upper(), r["declared"])
+            + "Missing obligations: "
+            + (", ".join(r["missing"]) if r["missing"] else "—")
+            + "\n\nPromoting cells: "
+            + (", ".join(r["promoting_cells"]) if r["promoting_cells"] else "—")
+            + "\n\nNumbers (I10, each cites a cell): " + (nums if nums else "—")
+            + "\n\nObligations:\n" + ob_lines + "\n\nRefuter: " + r["refuter"]["query"]
+            + "\nwould_drop_to: " + r["refuter"]["would_drop_to"]
+            + "\nanswering cells: " + ", ".join(r["refuter"]["answering_cells"]) + "\n")
+        generated.append("views/" + key + ".md")
+
+    # --- incidents triage (RUNBOOK source) ---
+    incidents = ledger.all("incident")
+    if incidents:
+        inc_rows = "\n".join(
+            f"| {i.get('key')} | {i.get('severity')} | {i.get('what', '')[:60]} | "
+            f"{i.get('rule_now', '')[:60]} |" for i in incidents)
+        (views / "incidents.md").write_text(
+            f"<!-- {GENERATED} -->\n# Incident triage\n\n"
+            "| id | severity | what | rule now |\n|---|---|---|---|\n" + inc_rows + "\n")
+        generated.append("views/incidents.md")
+
+    return generated
