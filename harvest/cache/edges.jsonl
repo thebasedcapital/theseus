@@ -1,0 +1,352 @@
+{"child":"4529e5a0ae3b","parent":"b7d5d9ede801","relation":"quant_of","declared_in":"card"}
+{"child":"c0884b145bd9","parent":"68f34de734c3","relation":"quant_of","declared_in":"card"}
+{"child":"5dca9972d4c0","parent":"7d6f1306ba56","relation":"quant_of","declared_in":"card"}
+{"child":"9a7e851bd3ee","parent":"89e8789bb4be","relation":"finetune_of","declared_in":"card"}
+{"child":"8a2a6cf8875e","parent":"73f9bca97326","relation":"merge_of","declared_in":"card"}
+{"child":"8a2a6cf8875e","parent":"bbd45b7f6125","relation":"merge_of","declared_in":"card"}
+{"child":"3206a6f56df1","parent":"c9250b578c0d","relation":"adapter_on","declared_in":"card"}
+{"child":"ba88f638180a","parent":"004aef3bf0ee","relation":"quant_of","declared_in":"card"}
+{"child":"f208a24de0f8","parent":"68f34de734c3","relation":"finetune_of","declared_in":"card"}
+{"child":"ab74ca75f297","parent":"004aef3bf0ee","relation":"merge_of","declared_in":"card"}
+{"child":"ab74ca75f297","parent":"6e8b484e6b09","relation":"merge_of","declared_in":"card"}
+{"child":"ab74ca75f297","parent":"513b290ff9ff","relation":"merge_of","declared_in":"card"}
+{"child":"ab74ca75f297","parent":"4cb6ef5c57fe","relation":"merge_of","declared_in":"card"}
+{"child":"ab74ca75f297","parent":"dafb9a4eec52","relation":"merge_of","declared_in":"card"}
+{"child":"6d776d8f2274","parent":"ea0bedb116c1","relation":"merge_of","declared_in":"card"}
+{"child":"29f44177c840","parent":"6d776d8f2274","relation":"merge_of","declared_in":"card"}
+{"child":"29f44177c840","parent":"ea0bedb116c1","relation":"merge_of","declared_in":"card"}
+{"child":"9f941a25ba81","parent":"81cf6ff8f2aa","relation":"finetune_of","declared_in":"card"}
+{"child":"4ca73e29dc63","parent":"9bc99cc89734","relation":"quant_of","declared_in":"card"}
+{"child":"2c372beac90e","parent":"98d1d2bc2b0e","relation":"finetune_of","declared_in":"card"}
+{"child":"ffa1ecd3699f","parent":"1e2fccf58a1f","relation":"finetune_of","declared_in":"card"}
+{"child":"56044092b89f","parent":"8760a565bea9","relation":"finetune_of","declared_in":"card"}
+{"child":"60648e18962c","parent":"8760a565bea9","relation":"finetune_of","declared_in":"card"}
+{"child":"cb605bc8c958","parent":"1a46a11dde0f","relation":"quant_of","declared_in":"card"}
+{"child":"590f251a8f7d","parent":"8cf8611cabb4","relation":"quant_of","declared_in":"card"}
+{"child":"868001d2f014","parent":"787cfaf21758","relation":"quant_of","declared_in":"card"}
+{"child":"b509d40add66","parent":"12361ef3b2b6","relation":"finetune_of","declared_in":"card"}
+{"child":"c08f8be63d3e","parent":"b7d5d9ede801","relation":"finetune_of","declared_in":"card"}
+{"child":"08ae2a9f40ca","parent":"08ae2a9f40ca","relation":"adapter_on","declared_in":"card"}
+{"child":"72a92d8cdc4a","parent":"08ae2a9f40ca","relation":"adapter_on","declared_in":"card"}
+{"child":"36f5b7cca5ac","parent":"f666796e0337","relation":"adapter_on","declared_in":"card"}
+{"child":"4c70c0a2c2d0","parent":"e325f7eb6b5f","relation":"merge_of","declared_in":"card"}
+{"child":"4c70c0a2c2d0","parent":"86dcb4fab6ea","relation":"merge_of","declared_in":"card"}
+{"child":"c4af447d6453","parent":"ed38df3ebbd8","relation":"merge_of","declared_in":"card"}
+{"child":"c4af447d6453","parent":"210d387f6296","relation":"merge_of","declared_in":"card"}
+{"child":"c4af447d6453","parent":"e35a77947158","relation":"merge_of","declared_in":"card"}
+{"child":"2555af65189d","parent":"ed38df3ebbd8","relation":"merge_of","declared_in":"card"}
+{"child":"2555af65189d","parent":"86dcb4fab6ea","relation":"merge_of","declared_in":"card"}
+{"child":"db11f7141256","parent":"d7e17e624907","relation":"merge_of","declared_in":"card"}
+{"child":"db11f7141256","parent":"86dcb4fab6ea","relation":"merge_of","declared_in":"card"}
+{"child":"8eaff7fb7373","parent":"ed38df3ebbd8","relation":"merge_of","declared_in":"card"}
+{"child":"8eaff7fb7373","parent":"e325f7eb6b5f","relation":"merge_of","declared_in":"card"}
+{"child":"97e5f73f7f99","parent":"08ae2a9f40ca","relation":"merge_of","declared_in":"card"}
+{"child":"ed38df3ebbd8","parent":"d7e17e624907","relation":"finetune_of","declared_in":"card"}
+{"child":"07ed001d61a8","parent":"305969547383","relation":"finetune_of","declared_in":"card"}
+{"child":"28c3e76a104c","parent":"3e3c89e69d16","relation":"adapter_on","declared_in":"card"}
+{"child":"bf8476bb6323","parent":"2b0bbe44bf90","relation":"adapter_on","declared_in":"config"}
+{"child":"e423276797bf","parent":"10411b16b011","relation":"adapter_on","declared_in":"config"}
+{"child":"75c5670b5149","parent":"9bc99cc89734","relation":"quant_of","declared_in":"card"}
+{"child":"63c72454e92f","parent":"8760a565bea9","relation":"quant_of","declared_in":"card"}
+{"child":"ea3856f2d4cc","parent":"5fee257bd82b","relation":"finetune_of","declared_in":"card"}
+{"child":"93b8cd66d1ed","parent":"12d8e16bb7a4","relation":"finetune_of","declared_in":"card"}
+{"child":"1a7e4d2c8874","parent":"12d8e16bb7a4","relation":"quant_of","declared_in":"card"}
+{"child":"5777cade8c54","parent":"12d8e16bb7a4","relation":"finetune_of","declared_in":"card"}
+{"child":"27abca1bdf70","parent":"12361ef3b2b6","relation":"finetune_of","declared_in":"card"}
+{"child":"229f9ac645d6","parent":"004aef3bf0ee","relation":"merge_of","declared_in":"card"}
+{"child":"229f9ac645d6","parent":"6e8b484e6b09","relation":"merge_of","declared_in":"card"}
+{"child":"229f9ac645d6","parent":"513b290ff9ff","relation":"merge_of","declared_in":"card"}
+{"child":"229f9ac645d6","parent":"4cb6ef5c57fe","relation":"merge_of","declared_in":"card"}
+{"child":"229f9ac645d6","parent":"dafb9a4eec52","relation":"merge_of","declared_in":"card"}
+{"child":"5d189f46a576","parent":"f413bb506d84","relation":"quant_of","declared_in":"card"}
+{"child":"0b16d18bab94","parent":"f413bb506d84","relation":"quant_of","declared_in":"card"}
+{"child":"8cbbfc622a03","parent":"4d1e89d892e0","relation":"finetune_of","declared_in":"card"}
+{"child":"81282222bf92","parent":"36fd28edc0f8","relation":"finetune_of","declared_in":"card"}
+{"child":"211cc0a487d2","parent":"315a087a82f7","relation":"finetune_of","declared_in":"card"}
+{"child":"773ca29bc51e","parent":"38916cb805a6","relation":"finetune_of","declared_in":"card"}
+{"child":"06b4cf356d51","parent":"07ba9a77f38e","relation":"quant_of","declared_in":"card"}
+{"child":"c2a4ff2633ca","parent":"07ba9a77f38e","relation":"quant_of","declared_in":"card"}
+{"child":"d56ecab6181e","parent":"7346c8777517","relation":"quant_of","declared_in":"card"}
+{"child":"1a96422374b8","parent":"1c0ca6b594ef","relation":"finetune_of","declared_in":"card"}
+{"child":"78322b697806","parent":"7cf9f2f636c2","relation":"finetune_of","declared_in":"card"}
+{"child":"f1fa168f4744","parent":"7cf9f2f636c2","relation":"finetune_of","declared_in":"card"}
+{"child":"5bfedb1f72bc","parent":"78322b697806","relation":"quant_of","declared_in":"card"}
+{"child":"cdddf663c3ad","parent":"315a087a82f7","relation":"finetune_of","declared_in":"card"}
+{"child":"002f075666ed","parent":"38916cb805a6","relation":"finetune_of","declared_in":"card"}
+{"child":"5484ac80d7a2","parent":"65df5e031f27","relation":"quant_of","declared_in":"card"}
+{"child":"7901d736771e","parent":"ff60120fec7c","relation":"quant_of","declared_in":"card"}
+{"child":"8b097769bcad","parent":"1c0ca6b594ef","relation":"finetune_of","declared_in":"card"}
+{"child":"81cf6ff8f2aa","parent":"7cf9f2f636c2","relation":"finetune_of","declared_in":"card"}
+{"child":"f6817f67259a","parent":"81cf6ff8f2aa","relation":"finetune_of","declared_in":"card"}
+{"child":"093a555e8a04","parent":"f6817f67259a","relation":"quant_of","declared_in":"card"}
+{"child":"bf2abab3d55e","parent":"38916cb805a6","relation":"finetune_of","declared_in":"card"}
+{"child":"07b94fdaf281","parent":"7cf9f2f636c2","relation":"finetune_of","declared_in":"card"}
+{"child":"e21bcd281c8a","parent":"72e44a26a00a","relation":"finetune_of","declared_in":"card"}
+{"child":"b1cf40ca0cf0","parent":"e21bcd281c8a","relation":"quant_of","declared_in":"card"}
+{"child":"709c12182117","parent":"d1434233cca8","relation":"finetune_of","declared_in":"card"}
+{"child":"dc6bcd77df7f","parent":"709c12182117","relation":"quant_of","declared_in":"card"}
+{"child":"c73b83529471","parent":"9bd6fa69c346","relation":"quant_of","declared_in":"card"}
+{"child":"7dbef82b0e84","parent":"2c5a6fad3895","relation":"quant_of","declared_in":"card"}
+{"child":"7d6f1306ba56","parent":"9fbe5518feaf","relation":"finetune_of","declared_in":"card"}
+{"child":"668bdea7f882","parent":"7d6f1306ba56","relation":"quant_of","declared_in":"card"}
+{"child":"89e8789bb4be","parent":"0dcdb0672737","relation":"finetune_of","declared_in":"card"}
+{"child":"7e842c295de2","parent":"89e8789bb4be","relation":"quant_of","declared_in":"card"}
+{"child":"24660204ae13","parent":"89e8789bb4be","relation":"quant_of","declared_in":"card"}
+{"child":"3d90f4103975","parent":"89e8789bb4be","relation":"quant_of","declared_in":"card"}
+{"child":"2299e564527b","parent":"e21bcd281c8a","relation":"finetune_of","declared_in":"card"}
+{"child":"942a73d1e9f1","parent":"7d6f1306ba56","relation":"finetune_of","declared_in":"card"}
+{"child":"b469982c7897","parent":"12361ef3b2b6","relation":"quant_of","declared_in":"card"}
+{"child":"e88bce2b9615","parent":"5fee257bd82b","relation":"quant_of","declared_in":"card"}
+{"child":"7b5606836d99","parent":"38916cb805a6","relation":"quant_of","declared_in":"card"}
+{"child":"c2d9e41d2621","parent":"237b611802f5","relation":"quant_of","declared_in":"card"}
+{"child":"aef9d1febf24","parent":"2ff0f81a8330","relation":"quant_of","declared_in":"card"}
+{"child":"9dcf36659389","parent":"7a4df834d1cd","relation":"quant_of","declared_in":"card"}
+{"child":"20ac86f5a010","parent":"7a4df834d1cd","relation":"quant_of","declared_in":"card"}
+{"child":"1c2ec78bd32f","parent":"12d8e16bb7a4","relation":"quant_of","declared_in":"card"}
+{"child":"32212270d6a8","parent":"91e863b25553","relation":"quant_of","declared_in":"card"}
+{"child":"5092c296bbe9","parent":"7cf64c8b531c","relation":"quant_of","declared_in":"card"}
+{"child":"85bfc54cc315","parent":"237b611802f5","relation":"quant_of","declared_in":"card"}
+{"child":"34416b843fb7","parent":"a0d4284e6e89","relation":"finetune_of","declared_in":"card"}
+{"child":"7a97661a7a90","parent":"10411b16b011","relation":"finetune_of","declared_in":"card"}
+{"child":"0fb72096d113","parent":"e7c3725f04d2","relation":"finetune_of","declared_in":"card"}
+{"child":"a47b289aa01e","parent":"36fd28edc0f8","relation":"finetune_of","declared_in":"card"}
+{"child":"628e54303ae6","parent":"7a4df834d1cd","relation":"finetune_of","declared_in":"card"}
+{"child":"17e2294f788d","parent":"a862c196af7c","relation":"merge_of","declared_in":"card"}
+{"child":"17e2294f788d","parent":"176bbd490994","relation":"merge_of","declared_in":"card"}
+{"child":"a6c650a7b9bf","parent":"759703738477","relation":"quant_of","declared_in":"card"}
+{"child":"e1a7652a1007","parent":"e98bd35d1239","relation":"finetune_of","declared_in":"card"}
+{"child":"61b110260ca0","parent":"5bba95789f02","relation":"quant_of","declared_in":"card"}
+{"child":"b7210a43bf70","parent":"658d6f739def","relation":"quant_of","declared_in":"card"}
+{"child":"f35c6c7149d1","parent":"ea3856f2d4cc","relation":"quant_of","declared_in":"card"}
+{"child":"21c1e358f083","parent":"56bc6bb437b9","relation":"quant_of","declared_in":"card"}
+{"child":"f81276d92344","parent":"5a2bc33021a0","relation":"quant_of","declared_in":"card"}
+{"child":"a63080fc7b52","parent":"701d4796e508","relation":"quant_of","declared_in":"card"}
+{"child":"514fc4b7073c","parent":"1c0ca6b594ef","relation":"quant_of","declared_in":"card"}
+{"child":"8316ff1acad0","parent":"36fd28edc0f8","relation":"quant_of","declared_in":"card"}
+{"child":"1f39d803715d","parent":"e98bd35d1239","relation":"quant_of","declared_in":"card"}
+{"child":"894eb5fbab8b","parent":"af6cc9b926e1","relation":"quant_of","declared_in":"card"}
+{"child":"7981341bdacf","parent":"e21bcd281c8a","relation":"adapter_on","declared_in":"card"}
+{"child":"16878d4f1b60","parent":"5fee257bd82b","relation":"finetune_of","declared_in":"card"}
+{"child":"c6256d1eaf31","parent":"5fee257bd82b","relation":"quant_of","declared_in":"card"}
+{"child":"d136fb3aae90","parent":"36fd28edc0f8","relation":"finetune_of","declared_in":"card"}
+{"child":"4d0f70e6f481","parent":"004aef3bf0ee","relation":"quant_of","declared_in":"card"}
+{"child":"cece3382ba3b","parent":"36fd28edc0f8","relation":"quant_of","declared_in":"card"}
+{"child":"6ca1318c90ae","parent":"81cf6ff8f2aa","relation":"quant_of","declared_in":"card"}
+{"child":"63aa88934d83","parent":"98d1d2bc2b0e","relation":"finetune_of","declared_in":"card"}
+{"child":"0e35a431b46d","parent":"1e2fccf58a1f","relation":"finetune_of","declared_in":"card"}
+{"child":"b03bdf77e703","parent":"a0d4284e6e89","relation":"finetune_of","declared_in":"card"}
+{"child":"4ac177bd0c9a","parent":"e09cdc6b309d","relation":"quant_of","declared_in":"card"}
+{"child":"e17ade4b01a6","parent":"1e2fccf58a1f","relation":"finetune_of","declared_in":"card"}
+{"child":"62a4f327803a","parent":"9bc99cc89734","relation":"finetune_of","declared_in":"card"}
+{"child":"285494ffdc23","parent":"aa320ce8c1af","relation":"adapter_on","declared_in":"card"}
+{"child":"eb07ce845f93","parent":"9c730429d780","relation":"finetune_of","declared_in":"card"}
+{"child":"2705c612bb6e","parent":"81cf6ff8f2aa","relation":"quant_of","declared_in":"card"}
+{"child":"7f99e0d5aac6","parent":"7cf9f2f636c2","relation":"finetune_of","declared_in":"card"}
+{"child":"b993cdbf3b50","parent":"68f34de734c3","relation":"finetune_of","declared_in":"card"}
+{"child":"02bf02f8bad4","parent":"60648e18962c","relation":"adapter_on","declared_in":"card"}
+{"child":"3118cc449a86","parent":"f208a24de0f8","relation":"adapter_on","declared_in":"card"}
+{"child":"5097dfcf1a9d","parent":"4d1e89d892e0","relation":"quant_of","declared_in":"card"}
+{"child":"87a428ab2d1c","parent":"36fd28edc0f8","relation":"quant_of","declared_in":"card"}
+{"child":"3ef7979255c3","parent":"1e2fccf58a1f","relation":"quant_of","declared_in":"card"}
+{"child":"f4b75dabffae","parent":"b7d5d9ede801","relation":"adapter_on","declared_in":"card"}
+{"child":"5a8618659806","parent":"006304804500","relation":"adapter_on","declared_in":"card"}
+{"child":"d7d158d2eb40","parent":"a26dbdce447e","relation":"adapter_on","declared_in":"card"}
+{"child":"ec1a54d3b48e","parent":"8cf8611cabb4","relation":"quant_of","declared_in":"card"}
+{"child":"25740cb118b9","parent":"5121294585a2","relation":"adapter_on","declared_in":"card"}
+{"child":"59107a7ac5f7","parent":"5bba95789f02","relation":"quant_of","declared_in":"card"}
+{"child":"25118346c42b","parent":"658d6f739def","relation":"quant_of","declared_in":"card"}
+{"child":"44d1cdfbb2ef","parent":"0ccb89739f53","relation":"adapter_on","declared_in":"card"}
+{"child":"727dabfed48f","parent":"5fee257bd82b","relation":"finetune_of","declared_in":"card"}
+{"child":"4d436d41e8cf","parent":"5fee257bd82b","relation":"finetune_of","declared_in":"card"}
+{"child":"511f9e0e308c","parent":"2ff0f81a8330","relation":"finetune_of","declared_in":"card"}
+{"child":"68368d13cb9d","parent":"8760a565bea9","relation":"finetune_of","declared_in":"card"}
+{"child":"ea0bedb116c1","parent":"e98bd35d1239","relation":"finetune_of","declared_in":"card"}
+{"child":"9643bb94732f","parent":"12d8e16bb7a4","relation":"finetune_of","declared_in":"card"}
+{"child":"1cdca0befc23","parent":"5353956e306f","relation":"finetune_of","declared_in":"card"}
+{"child":"c26f82636e32","parent":"315a087a82f7","relation":"finetune_of","declared_in":"card"}
+{"child":"a8b73aebb3f6","parent":"38916cb805a6","relation":"finetune_of","declared_in":"card"}
+{"child":"b42a07eae91d","parent":"1c0ca6b594ef","relation":"finetune_of","declared_in":"card"}
+{"child":"51391224c6df","parent":"7cf9f2f636c2","relation":"finetune_of","declared_in":"card"}
+{"child":"5653d0f25b54","parent":"81cf6ff8f2aa","relation":"finetune_of","declared_in":"card"}
+{"child":"3543aedfba88","parent":"e710da9a4469","relation":"finetune_of","declared_in":"card"}
+{"child":"95251c5b5973","parent":"1a46a11dde0f","relation":"finetune_of","declared_in":"card"}
+{"child":"d7b134efb585","parent":"5a2bc33021a0","relation":"finetune_of","declared_in":"card"}
+{"child":"5bea13e9b17a","parent":"6f5006129358","relation":"adapter_on","declared_in":"card"}
+{"child":"de7a186f6045","parent":"0fabf95f45b2","relation":"quant_of","declared_in":"card"}
+{"child":"53d6d13d2e32","parent":"8041533fb90e","relation":"quant_of","declared_in":"card"}
+{"child":"f5a60d8a6b35","parent":"6abe0326a4d6","relation":"quant_of","declared_in":"card"}
+{"child":"84f85a6ebe4e","parent":"e98bd35d1239","relation":"quant_of","declared_in":"card"}
+{"child":"c6e35643a490","parent":"4d1e89d892e0","relation":"quant_of","declared_in":"card"}
+{"child":"0962d496d2aa","parent":"4d1e89d892e0","relation":"quant_of","declared_in":"card"}
+{"child":"26aa1e227b8b","parent":"0497a7800c85","relation":"quant_of","declared_in":"card"}
+{"child":"08f1940d7ecf","parent":"c9250b578c0d","relation":"quant_of","declared_in":"card"}
+{"child":"c0d89f3a2d08","parent":"c9250b578c0d","relation":"quant_of","declared_in":"card"}
+{"child":"39f21021d004","parent":"98d1d2bc2b0e","relation":"quant_of","declared_in":"card"}
+{"child":"aee140938c6d","parent":"98d1d2bc2b0e","relation":"quant_of","declared_in":"card"}
+{"child":"9bd831345112","parent":"a0d4284e6e89","relation":"quant_of","declared_in":"card"}
+{"child":"3c0d2ab821ea","parent":"f413bb506d84","relation":"quant_of","declared_in":"card"}
+{"child":"f0f732fc3879","parent":"05a77e3fc88e","relation":"quant_of","declared_in":"card"}
+{"child":"4cb6ef5c57fe","parent":"727dabfed48f","relation":"finetune_of","declared_in":"card"}
+{"child":"80c9fb957552","parent":"fe1a1ba6230b","relation":"adapter_on","declared_in":"card"}
+{"child":"361a0da6eb1b","parent":"89e8789bb4be","relation":"quant_of","declared_in":"card"}
+{"child":"6e62d93b49cf","parent":"8760a565bea9","relation":"finetune_of","declared_in":"card"}
+{"child":"e503324a4352","parent":"12361ef3b2b6","relation":"finetune_of","declared_in":"card"}
+{"child":"da21108c91d6","parent":"b7d5d9ede801","relation":"adapter_on","declared_in":"card"}
+{"child":"1cbf3ebde4e2","parent":"1ef9d5d5b3f4","relation":"adapter_on","declared_in":"card"}
+{"child":"5aff5472d1c2","parent":"9825f654a1a5","relation":"adapter_on","declared_in":"card"}
+{"child":"5c7f735eb3a3","parent":"718566ef3c32","relation":"adapter_on","declared_in":"card"}
+{"child":"2920096c5c6a","parent":"e6ae8b426c2a","relation":"adapter_on","declared_in":"config"}
+{"child":"ee6adbb36e5e","parent":"e6ae8b426c2a","relation":"adapter_on","declared_in":"card"}
+{"child":"68375a4285e3","parent":"e6ae8b426c2a","relation":"adapter_on","declared_in":"config"}
+{"child":"a71c4ee17ea8","parent":"e6ae8b426c2a","relation":"adapter_on","declared_in":"config"}
+{"child":"6b6d3855590c","parent":"5b7f7e1b1f83","relation":"adapter_on","declared_in":"config"}
+{"child":"39e3498cbd76","parent":"d0bc52e1448b","relation":"adapter_on","declared_in":"card"}
+{"child":"7a9886bee84b","parent":"e98bd35d1239","relation":"adapter_on","declared_in":"card"}
+{"child":"94e8bc44a47b","parent":"9facd1bc1134","relation":"quant_of","declared_in":"card"}
+{"child":"4351db5f2391","parent":"68f34de734c3","relation":"adapter_on","declared_in":"card"}
+{"child":"0fd6e92e37c6","parent":"787cfaf21758","relation":"finetune_of","declared_in":"card"}
+{"child":"053d2c06462d","parent":"7a4df834d1cd","relation":"finetune_of","declared_in":"card"}
+{"child":"14766b8bb228","parent":"91e863b25553","relation":"quant_of","declared_in":"card"}
+{"child":"9677a59db0d0","parent":"5a2bc33021a0","relation":"quant_of","declared_in":"card"}
+{"child":"a0948e3d0ff7","parent":"4d1e89d892e0","relation":"quant_of","declared_in":"card"}
+{"child":"f1675e99d9c7","parent":"e13e4c1494d9","relation":"merge_of","declared_in":"card"}
+{"child":"f1675e99d9c7","parent":"1a0bd968e21d","relation":"merge_of","declared_in":"card"}
+{"child":"e13e4c1494d9","parent":"1a0bd968e21d","relation":"merge_of","declared_in":"card"}
+{"child":"65bf70ba1a6b","parent":"1a46a11dde0f","relation":"finetune_of","declared_in":"card"}
+{"child":"6a87e80e450d","parent":"ea3856f2d4cc","relation":"quant_of","declared_in":"card"}
+{"child":"06286c80e82a","parent":"dce20de62e72","relation":"merge_of","declared_in":"card"}
+{"child":"06286c80e82a","parent":"7ccaec0c0ef9","relation":"merge_of","declared_in":"card"}
+{"child":"a373c906aacd","parent":"c798cebdc526","relation":"finetune_of","declared_in":"card"}
+{"child":"55921bd7ee15","parent":"c798cebdc526","relation":"finetune_of","declared_in":"card"}
+{"child":"8f930f0ef9ee","parent":"c798cebdc526","relation":"finetune_of","declared_in":"card"}
+{"child":"29fcce84844a","parent":"c798cebdc526","relation":"merge_of","declared_in":"card"}
+{"child":"29fcce84844a","parent":"a373c906aacd","relation":"merge_of","declared_in":"card"}
+{"child":"29fcce84844a","parent":"55921bd7ee15","relation":"merge_of","declared_in":"card"}
+{"child":"29fcce84844a","parent":"8f930f0ef9ee","relation":"merge_of","declared_in":"card"}
+{"child":"c5d055ecbe45","parent":"004aef3bf0ee","relation":"quant_of","declared_in":"card"}
+{"child":"d1cce117f22f","parent":"7a4df834d1cd","relation":"adapter_on","declared_in":"card"}
+{"child":"91e863b25553","parent":"8760a565bea9","relation":"finetune_of","declared_in":"card"}
+{"child":"d0ecde29d913","parent":"a0d4284e6e89","relation":"finetune_of","declared_in":"card"}
+{"child":"25481dba1732","parent":"709c12182117","relation":"quant_of","declared_in":"card"}
+{"child":"5e229a646198","parent":"5bba95789f02","relation":"quant_of","declared_in":"card"}
+{"child":"603d37eed418","parent":"658d6f739def","relation":"quant_of","declared_in":"card"}
+{"child":"2673f9050dc8","parent":"ea3856f2d4cc","relation":"quant_of","declared_in":"card"}
+{"child":"b80f489765fd","parent":"12361ef3b2b6","relation":"finetune_of","declared_in":"card"}
+{"child":"5f068eaa206f","parent":"12361ef3b2b6","relation":"quant_of","declared_in":"card"}
+{"child":"9b58f1aa8ed3","parent":"b7d5d9ede801","relation":"finetune_of","declared_in":"card"}
+{"child":"4ced91c3bc8b","parent":"b7d5d9ede801","relation":"quant_of","declared_in":"card"}
+{"child":"4a369393cd2c","parent":"701d4796e508","relation":"quant_of","declared_in":"card"}
+{"child":"d50891f9d236","parent":"315a087a82f7","relation":"finetune_of","declared_in":"card"}
+{"child":"e3b54b4fc600","parent":"315a087a82f7","relation":"quant_of","declared_in":"card"}
+{"child":"d5ed13155b3d","parent":"38916cb805a6","relation":"quant_of","declared_in":"card"}
+{"child":"24ad466089bd","parent":"1c0ca6b594ef","relation":"quant_of","declared_in":"card"}
+{"child":"67e930fa8ff3","parent":"1c0ca6b594ef","relation":"quant_of","declared_in":"card"}
+{"child":"2aedc98897c8","parent":"81cf6ff8f2aa","relation":"quant_of","declared_in":"card"}
+{"child":"0ccb89739f53","parent":"e21bcd281c8a","relation":"finetune_of","declared_in":"card"}
+{"child":"8ccf56ffbcb7","parent":"709c12182117","relation":"finetune_of","declared_in":"card"}
+{"child":"62dc3264f050","parent":"709c12182117","relation":"quant_of","declared_in":"card"}
+{"child":"7fc5ac1963cf","parent":"709c12182117","relation":"quant_of","declared_in":"card"}
+{"child":"6e5addd63a18","parent":"91f55ba36cd4","relation":"quant_of","declared_in":"card"}
+{"child":"ee34f08f156d","parent":"7d6f1306ba56","relation":"quant_of","declared_in":"card"}
+{"child":"d7108df97c5b","parent":"89e8789bb4be","relation":"quant_of","declared_in":"card"}
+{"child":"af9b75975a13","parent":"a96e496c0d15","relation":"quant_of","declared_in":"card"}
+{"child":"afa41f950ce7","parent":"787cfaf21758","relation":"finetune_of","declared_in":"card"}
+{"child":"d9d795790405","parent":"1e2fccf58a1f","relation":"quant_of","declared_in":"card"}
+{"child":"f1cae5632198","parent":"a0d4284e6e89","relation":"quant_of","declared_in":"card"}
+{"child":"dae246e68412","parent":"e98bd35d1239","relation":"quant_of","declared_in":"card"}
+{"child":"4f6f9375b0df","parent":"98d1d2bc2b0e","relation":"finetune_of","declared_in":"card"}
+{"child":"b9c3857579aa","parent":"1e2fccf58a1f","relation":"finetune_of","declared_in":"card"}
+{"child":"e589527b243d","parent":"080332d5eb50","relation":"adapter_on","declared_in":"card"}
+{"child":"d4333ab40392","parent":"80c5d4b3a656","relation":"adapter_on","declared_in":"config"}
+{"child":"c8e18430fbf7","parent":"7d6f1306ba56","relation":"finetune_of","declared_in":"card"}
+{"child":"a661877be20b","parent":"98d1d2bc2b0e","relation":"finetune_of","declared_in":"card"}
+{"child":"ea406273070e","parent":"a0d4284e6e89","relation":"finetune_of","declared_in":"card"}
+{"child":"0497a7800c85","parent":"91f55ba36cd4","relation":"merge_of","declared_in":"card"}
+{"child":"4bf5b9ff98bf","parent":null,"parent_repo":"Qwen/Qwen3.8-27B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6d776d8f2274","parent":null,"parent_repo":"TeeZee/DarkSapling-7B-v1.0","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6d776d8f2274","parent":null,"parent_repo":"TeeZee/DarkSapling-7B-v1.1","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6d776d8f2274","parent":null,"parent_repo":"TeeZee/DarkSapling-7B-v2.0","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6d776d8f2274","parent":null,"parent_repo":"saishf/Multi-Verse-RP-7B","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"9f7a90b830b8","parent":null,"parent_repo":"DavidAU/Qwen3.6-27B-Fable-Fusion-711-Uncensored-Heretic-NM-DAU-MTP","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6abe0326a4d6","parent":null,"parent_repo":"Epiculous/Violet_Twilight-v0.2","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6abe0326a4d6","parent":null,"parent_repo":"NeverSleep/Lumimaid-v0.2-12B","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6abe0326a4d6","parent":null,"parent_repo":"Sao10K/MN-12B-Lyra-v4","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6abe0326a4d6","parent":null,"parent_repo":"flammenai/Mahou-1.5-mistral-nemo-12B","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6abe0326a4d6","parent":null,"parent_repo":"mistralai/Mistral-Nemo-Instruct-2407","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"73f9bca97326","parent":null,"parent_repo":"openchat/openchat_3.5","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"1ca5498e2e5e","parent":null,"parent_repo":"google/gemma-4-e4b-it","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"305969547383","parent":null,"parent_repo":"Qwen/Qwen3.6-35B-A3B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"ad2a1dbd1484","parent":null,"parent_repo":"Qwen/Qwen3.8-27B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"080332d5eb50","parent":null,"parent_repo":"HuggingFaceTB/SmolLM3-3B-Base","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"672e52f62310","parent":null,"parent_repo":"Qwen/Qwen3.5-4B","relation":"adapter_on","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"b4ccd539a241","parent":null,"parent_repo":"Jackrong/Qwopus3.5-9B-v3.5","relation":"adapter_on","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"99ba8dafada4","parent":null,"parent_repo":"Jackrong/Qwopus3.6-27B-v2","relation":"adapter_on","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"e918947ef485","parent":null,"parent_repo":"Qwen/Qwen3.6-27B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8e8d12ef72be","parent":null,"parent_repo":"Qwen/Qwen3.6-27B","relation":"adapter_on","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"f666796e0337","parent":null,"parent_repo":"unsloth/Qwen3.6-35B-A3B","relation":"adapter_on","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"f200fe6ed740","parent":null,"parent_repo":"unsloth/Qwen3.6-35B-A3B","relation":"adapter_on","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"94d08acdc4d8","parent":null,"parent_repo":"Qwen/Qwen3.8-27B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"97e5f73f7f99","parent":null,"parent_repo":"Jackrong/Qwopus3.5-9B-v3.5","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"5f25aee38694","parent":null,"parent_repo":"Qwen/Qwen3.6-27B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"d7e17e624907","parent":null,"parent_repo":"Laxhar/noobai-XL-0.77","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"0fabf95f45b2","parent":null,"parent_repo":"IlyaGusev/gemma-2-9b-it-abliterated","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"0fabf95f45b2","parent":null,"parent_repo":"Mantis2024/Dirty-Shirley-Writer-v2-9B-Uncensored","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"0fabf95f45b2","parent":null,"parent_repo":"nerdigent/Darkest-muse-v1-lorablated-v2","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"210d387f6296","parent":null,"parent_repo":"Minthy/RouWei-0.7","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"e35a77947158","parent":null,"parent_repo":"KBlueLeaf/kohaku-xl-beta5","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"07ba9a77f38e","parent":null,"parent_repo":"Qwen/Qwen2.5-14B","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"7346c8777517","parent":null,"parent_repo":"Qwen/Qwen2.5-32B","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"65df5e031f27","parent":null,"parent_repo":"Qwen/Qwen2.5-Coder-14B","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"ff60120fec7c","parent":null,"parent_repo":"Qwen/Qwen2.5-Coder-32B","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"9bd6fa69c346","parent":null,"parent_repo":"Qwen/Qwen3-14B-Base","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"2c5a6fad3895","parent":null,"parent_repo":"Qwen/Qwen3-30B-A3B-Base","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"c261f13a8b17","parent":null,"parent_repo":"Qwen/Qwen3-TTS-12Hz-0.6B-Base","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"879478653aef","parent":null,"parent_repo":"Qwen/Qwen3.5-4B","relation":"adapter_on","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"4c91f601d6c0","parent":null,"parent_repo":"ACE-Step/Ace-Step1.5","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"d15a745829a0","parent":null,"parent_repo":"FacebookAI/xlm-roberta-base","relation":"adapter_on","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"3391c8cfa973","parent":null,"parent_repo":"Qwen/Qwen3.8-27B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"af6cc9b926e1","parent":null,"parent_repo":"google/gemma-3-27b-pt","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"72482d0eb0f9","parent":null,"parent_repo":"CohereLabs/cohere-transcribe-03-2026","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"56d780922462","parent":null,"parent_repo":"nvidia/nemotron-3.5-asr-streaming-0.6b","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"377d4eb4b11a","parent":null,"parent_repo":"Qwen/Qwen3.8-27B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8041533fb90e","parent":null,"parent_repo":"Fizzarolli/MN-12b-Sunrose","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8041533fb90e","parent":null,"parent_repo":"IntervitensInc/Mistral-Nemo-Base-2407-chatml","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8041533fb90e","parent":null,"parent_repo":"anthracite-org/magnum-v2.5-12b-kto","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8041533fb90e","parent":null,"parent_repo":"elinas/Chronos-Gold-12B-1.0","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8041533fb90e","parent":null,"parent_repo":"nbeerbower/mistral-nemo-bophades-12B","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8041533fb90e","parent":null,"parent_repo":"nbeerbower/mistral-nemo-gutenberg-12B-v4","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8041533fb90e","parent":null,"parent_repo":"nbeerbower/mistral-nemo-wissenschaft-12B","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"6f5006129358","parent":null,"parent_repo":"Qwen/Qwen3-4B-Instruct-2507","relation":"adapter_on","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"171e9ea44f3f","parent":null,"parent_repo":"Qwen/Qwen3.8-27B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"5353956e306f","parent":null,"parent_repo":"mlabonne/NeuBeagle-7B","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"5353956e306f","parent":null,"parent_repo":"mlabonne/NeuralOmniBeagle-7B","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"5353956e306f","parent":null,"parent_repo":"mlabonne/OmniTruthyBeagle-7B-v0","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8e6cf8672f17","parent":null,"parent_repo":"nvidia/parakeet-tdt-0.6b-v3","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"2e6d8eaf9d77","parent":null,"parent_repo":"Nimbz/Froopert-31B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"180a9e475de8","parent":null,"parent_repo":"26B-Suite/BROKEN_Gemma-4-26B-A4B-Plainspeak-SOMPOA","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"cbe2cbb2b38e","parent":null,"parent_repo":"Ateron/Gemma-4-Dark-Thoughts-V2-31B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"1ca4a47e4c77","parent":null,"parent_repo":"Ateron/Gemma-4-Novelist-Eclipse-31B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"19502b0dd17e","parent":null,"parent_repo":"sophosympatheia/Glistening-Gem-31B-v2.1","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"af0dc95f0377","parent":null,"parent_repo":"alexokita/Phoenix-X-26B-A4B-Heretic","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"5775145aea5e","parent":null,"parent_repo":"nlpguy/Qwen3.8-27B-Fimi-2","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"7812d9f1892d","parent":null,"parent_repo":"Nimbz/Schattenblume-31B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"1fe9a6c1caf7","parent":null,"parent_repo":"Vortex5/Shadow-Siren-26B-A4B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"c28eaeb1bc95","parent":null,"parent_repo":"Kwaipilot/KAT-Coder-V2.5-Dev","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"8d7f1033d48a","parent":null,"parent_repo":"mispeech/ced-base","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"dafb9a4eec52","parent":null,"parent_repo":"VAGOsolutions/Llama-3.1-SauerkrautLM-8b-Instruct","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"7efe35b77763","parent":null,"parent_repo":"Blazed-Forge/Gemma-4-Giftige-Blume-31B-v1","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"25d083650468","parent":null,"parent_repo":"hf-internal-testing/tiny-random-gpt2","relation":"adapter_on","declared_in":"config","reason":"declared parent has no manifest record"}
+{"child":"fe3b77a24b49","parent":null,"parent_repo":"peft-internal-testing/tiny-T5ForConditionalGeneration","relation":"adapter_on","declared_in":"config","reason":"declared parent has no manifest record"}
+{"child":"d2e095ec32b4","parent":null,"parent_repo":"hf-internal-testing/tiny-random-WhisperForConditionalGeneration","relation":"adapter_on","declared_in":"config","reason":"declared parent has no manifest record"}
+{"child":"e13e4c1494d9","parent":null,"parent_repo":"FelixChao/Sectumsempra-7B-DPO","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"1a0bd968e21d","parent":null,"parent_repo":"PetroGPT/WestSeverus-7B-DPO-v2","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"1a0bd968e21d","parent":null,"parent_repo":"mlabonne/NeuralBeagle14-7B","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"ba9c1f37c9a2","parent":null,"parent_repo":"google/gemma-3-4b-pt","relation":"finetune_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"e78f1fef1cfb","parent":null,"parent_repo":"thinkingmachines/Inkling-Small","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"66d95c532ec6","parent":null,"parent_repo":"meta-models/Muse-Glimmer-30B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"5067f4d591ec","parent":null,"parent_repo":"Qwen/Qwen3.5-4B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"16a988896b61","parent":null,"parent_repo":"Qwen/Qwen3.5-9B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"424b3ed8e89a","parent":null,"parent_repo":"Qwen/Qwen3.6-27B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"12939999e4c0","parent":null,"parent_repo":"Qwen/Qwen3.6-35B-A3B","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"591b997df347","parent":null,"parent_repo":"google/gemma-4-12B-it-qat-q4_0-unquantized","relation":"quant_of","declared_in":"card","reason":"declared parent has no manifest record"}
+{"child":"0497a7800c85","parent":null,"parent_repo":"Qwen/Qwen3-30B-A3B-Instruct-2507","relation":"merge_of","declared_in":"card","reason":"declared parent has no manifest record"}

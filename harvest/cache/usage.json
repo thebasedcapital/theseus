@@ -1,0 +1,22 @@
+{
+ "budget_bytes": 1073741824,
+ "cache_bytes": 7407736,
+ "df": {
+  "avail_bytes": 9321938944,
+  "total_bytes": 501809635328,
+  "used_bytes": 466921893888
+ },
+ "last_fetch": {
+  "at": "2026-08-31T11:59:28Z",
+  "df_after_avail_bytes": 8096956416,
+  "df_before_avail_bytes": 8369008640,
+  "downloaded": 1,
+  "evicted": [],
+  "incoming_bytes": 269060552,
+  "w_bytes": 269060552
+ },
+ "manifest_records": 390,
+ "schema": 1,
+ "updated_at": "2026-08-31T12:05:16Z",
+ "w_bytes": 0
+}
