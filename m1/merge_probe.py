@@ -80,13 +80,14 @@ def train_specialist(tok,train,held,device):
     with torch.no_grad():
         for name,mod in model.named_modules():
             if isinstance(mod,LoRALinear):
-                key=name+'.weight'; sd[key]=(sd[key].float()+mod.b.float() @ mod.a.float() * mod.scale).to(torch.bfloat16).cpu()
-    common.save_state(sd,SPECIALIST_DIR,common.REF_MODEL)
+                key=name+'.weight'; ba=mod.b.float().cpu() @ mod.a.float().cpu(); sd[key]=(sd[key].float()+ba * mod.scale).to(torch.bfloat16); del ba
+    spec_sd={k:v.detach().to("cpu").clone() for k,v in sd.items()}
+    common.save_state(spec_sd,SPECIALIST_DIR,common.REF_MODEL)
     quality=task_loss(model,held,device)
     batches=[b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=512)]; ppl=common.perplexity(model,batches)
-    marker={'seed':SEED,'rank':RANK,'alpha':ALPHA,'steps':STEPS,'batch_size':BATCH_SIZE,'seq_len':SEQ_LEN,'train_examples':TRAIN_N,'heldout_examples':HELDOUT_N,'rule':'key:value reformat: kv: KEY=VALUE => KEY: VALUE','rule_loss':quality,'eval_ppl':ppl,'runtime_s':runtime}
-    common.wjson(MARKER,marker)
-    del opt,model,sd
+    batches=[b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=128)]; ppl=common.perplexity(model,batches)
+    marker={'seed':SEED,'rank':RANK,'alpha':ALPHA,'steps':STEPS,'batch_size':BATCH_SIZE,'seq_len':SEQ_LEN,'train_examples':TRAIN_N,'heldout_examples':HELDOUT_N,'rule':'key:value reformat: kv: KEY=VALUE => KEY: VALUE','rule_loss':quality,'heldout_rule_loss':quality,'eval_ppl':ppl,'runtime_s':runtime,'max_memory_allocated_gb':torch.cuda.max_memory_allocated()/1e9 if device=='cuda' else 0.0}
+    del opt,model,sd,spec_sd
     common.release(device)
     return marker
 
@@ -98,8 +99,7 @@ def ensure_specialist(tok,train,held,device):
         except Exception: pass
     return train_specialist(tok,train,held,device)
 
-def evaluate_merge(cand_sd, specialist_sd, model_dir, alphas, device, ties=False):
-    batches=[b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=512)]; base=common.state_to_model(cand_sd,model_dir,dtype=torch.bfloat16,device=device); base_ppl=common.perplexity(base,batches); del base
+    batches=[b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=128)]; cand_sd={k:v.to("cpu") for k,v in cand_sd.items()}; specialist_sd={k:v.to("cpu") for k,v in specialist_sd.items()}; base=common.state_to_model(cand_sd,model_dir,dtype=torch.bfloat16,device=device); base_ppl=common.perplexity(base,batches); del base
     common.release(device)
     out=[]
     for alpha in alphas:
@@ -117,7 +117,7 @@ def main():
     result={'script':'merge_probe.py','model_dir':str(model_dir),'tag':model_dir.name if common.WORK in model_dir.parents else 'base','git_head':subprocess.check_output(['git','-C','/home/admin/theseus','rev-parse','HEAD'],text=True).strip(),'torch':torch.__version__,'results':{},'duration_s':None}
     try:
         global HELD_DATA,SPECIALIST_QUALITY
-        set_seed()
+        set_seed(); device=common.pick_device(3.2); device_note=device if device == 'cuda' else 'cpu: insufficient free CUDA memory or CUDA unavailable'
         with common.lock("gpu"):
             while True:
                 device=common.pick_device(2.4)
@@ -130,7 +130,9 @@ def main():
             SPECIALIST_QUALITY=ensure_specialist(tok,train,HELD_DATA,device)
             cand=common.load_state(model_dir); spec=common.load_state(SPECIALIST_DIR)
             linear_base,linear=evaluate_merge(cand,spec,model_dir,ALPHAS,device,False)
-            ties_base,ties=evaluate_merge(cand,spec,model_dir,ALPHAS,device,True)
+            del cand, spec
+            common.release(device)
+            ties_base,ties=evaluate_merge(common.load_state(model_dir),common.load_state(SPECIALIST_DIR),model_dir,ALPHAS,device,True)
             def smallest(rows): return min((r['alpha'] for r in rows if r['pass']),default=None)
             result['results']={'seed':SEED,'rule':SPECIALIST_QUALITY['rule'],'steps':STEPS,'lora_rank':RANK,'lora_alpha':ALPHA,'density':DENSITY,'alphas':list(ALPHAS),'specialist':SPECIALIST_QUALITY,'candidate_ppl':linear_base,'linear':{'matrix':linear,'smallest_passing_alpha':smallest(linear)},'ties':{'matrix':ties,'smallest_passing_alpha':smallest(ties)},'device':device,'device_note':device_note}
     except Exception as e: result['error']={'type':type(e).__name__,'message':str(e)}
