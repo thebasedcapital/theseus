@@ -36,8 +36,7 @@ const QBITS: f64 = 7.0; // 2^(4-1) - 1 for symmetric 4-bit
 ///   g3_pow2_rep J 0.01148, (lattice repair)                      -> LoRA capture 0.983, Q4 KLD 0.0350
 /// n=2 contrast per rule. They are printed with the verdict so a reader can never mistake a
 /// flag for a measurement, and `theseus` must re-fit them on the M3 history ledger (ROADMAP A6).
-const T_QUANT_RATIO: f64 = 1.5; // family J above 1.5x a typical dense Qwen2 family
-const T_QUANT_ABS: f64 = 0.0165;
+const T_QUANT_ABS: f64 = 0.0165; // 1.5x the 0.011 measured for dense Qwen2.5 families
 const T_QUANT_TOTAL_ABS: f64 = 0.0168; // 1.5 x measured base total J (0.01123)
 const T_EXPORT_FRAC: f64 = 0.02; // share of a family below f16 normal range
 const T_ADAPT_DYN: f64 = 12.0; // log10 dynamic range across a family
