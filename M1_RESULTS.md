@@ -236,12 +236,27 @@ column energy on the exponent lattice — takes it to capture **0.9829** (slight
 language model: same orbit, same function, reserve destroyed and then restored by a
 function-preserving re-expression.
 
-**The equivalence is not a fp32-only artifact of my harness.** `m1/compute_dtype_check.py` re-ran
-the base/`g3_pow2` pair in both compute dtypes on 2,048 tokens: fp32 compute gives
-`max|Δlogit| = 0.00e+00, KL = 0, top-1 = 1.00000, ppl 16.9471 → 16.9471`; bf16 compute — the dtype
-everybody actually runs a 0.5B in — gives the same exact zeros and `16.9889 → 16.9889`. So the
-divergence appears only on the GGUF path, which makes it a statement about runtimes and export
-formats rather than about the function (see §5b and the export table).
+**Equivalence is runtime-conditional, and one family shows it.** `m1/compute_dtype_check.py`
+re-ran the pairs in both compute dtypes on 2,048 tokens:
+
+| pair | compute | max\|Δlogit\| | mean KL | top-1 | ppl base → this |
+|---|---|---:|---:|---:|---|
+| base vs `g3_pow2` | fp32 | 0.00e+00 | 0.00e+00 | 1.00000 | 16.9471 → 16.9471 |
+| base vs `g3_pow2` | bf16 | **0.00e+00** | **0.00e+00** | **1.00000** | 16.9889 → 16.9889 |
+| base vs `g7_rand` | fp32 | 3.15e-01 | 2.05e-05 | 0.99805 | 16.9471 → 16.9379 |
+| base vs `g7_rand` | bf16 | **2.69e+00** | **1.09e-03** | **0.98096** | 16.9889 → 16.9861 |
+
+The exponent-lattice gauge is bit-identical in *both* compute dtypes — that is the strong form of
+the claim, and it is what §5's headline rests on. The `g7` up-branch diagonal is not: it passes the
+gate in fp32 (its home) and then, under the bf16 arithmetic a 0.5B is actually served in, 1.9 % of
+greedy positions disagree. Two consequences, both uncomfortable and both kept in:
+
+* my equivalence gate measures fp32 forwards of the stored artifact, so for wide-dynamic-range
+  gauges it *overstates* sameness. The honest object is equivalence per (artifact, compute dtype),
+  and `theseus verify` should be required to name the dtype;
+* it is the same lesson as the export finding, from the other side: the gauge orbit is exact in
+  real arithmetic and only approximately quotitioned by finite formats. A lifecycle tool that
+  ignores that will hand a user a "prepared" checkpoint that is not the model they had.
 
 Mechanism, stated as a hypothesis the data supports rather than a proof: the gauge spreads a
 14-orders-of-magnitude dynamic range across the input coordinates of q/k/v/gate/up (weights down to
