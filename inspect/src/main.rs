@@ -30,6 +30,19 @@ const F16_NORMAL_MIN: f32 = 6.103515625e-5; // 2^-14
 const BLOCK: usize = 32;
 const QBITS: f64 = 7.0; // 2^(4-1) - 1 for symmetric 4-bit
 
+/// Provisional risk thresholds, calibrated on M1's measured pairs and NOWHERE ELSE:
+///   base        J 0.01123, dyn_range 8.83, frac_below_f16 0.0028 -> LoRA capture 0.973, Q4 KLD 0.0319
+///   g3_pow2     J 0.02955, dyn_range 14.6, frac_below_f16 0.0987 -> LoRA capture 0.156, Q4 KLD n/a
+///   g3_pow2_rep J 0.01148, (lattice repair)                      -> LoRA capture 0.983, Q4 KLD 0.0350
+/// n=2 contrast per rule. They are printed with the verdict so a reader can never mistake a
+/// flag for a measurement, and `theseus` must re-fit them on the M3 history ledger (ROADMAP A6).
+const T_QUANT_RATIO: f64 = 1.5; // family J above 1.5x a typical dense Qwen2 family
+const T_QUANT_ABS: f64 = 0.0165;
+const T_QUANT_TOTAL_ABS: f64 = 0.0168; // 1.5 x measured base total J (0.01123)
+const T_EXPORT_FRAC: f64 = 0.02; // share of a family below f16 normal range
+const T_ADAPT_DYN: f64 = 12.0; // log10 dynamic range across a family
+const T_ADAPT_ROW: f64 = 2.0e5; // row-energy imbalance
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Dtype {
     F32,
@@ -634,7 +647,7 @@ fn main() {
         }
         json.push_str(&format!("[\"{}\", \"{}\"]", n.replace('"', "'"), why));
     }
-    json.push_str("]\n}\n");
+    json.push_str("]\n");
     println!(
         "{:<12} {:>9.5} {:>10.3} {:>12.1} {:>10.1} {:>11.6} {:>12}",
         "TOTAL",
@@ -645,6 +658,49 @@ fn main() {
         tr["frac_below_f16_normal"],
         tr["weights"] as u64
     );
+    println!();
+    println!("verdicts (thresholds provisional, calibrated on n=2 measured pairs):");
+    let mut flags: Vec<String> = Vec::new();
+    for (fam, acc) in &per_family {
+        let r = acc.report();
+        if r["q4_block_mse"] > T_QUANT_ABS {
+            flags.push(format!("QUANT_RISK {}: 4-bit block MSE proxy {:.5} > {:.4}",
+                               fam, r["q4_block_mse"], T_QUANT_ABS));
+        }
+        if r["frac_below_f16_normal"] > T_EXPORT_FRAC {
+            flags.push(format!("F16_EXPORT_RISK {}: {:.3}% of weights below the f16 normal range",
+                               fam, 100.0 * r["frac_below_f16_normal"]));
+        }
+        if r["dyn_range_log10"] > T_ADAPT_DYN {
+            flags.push(format!("ADAPT_RISK {}: dynamic range 1e{:.1} > 1e{:.1}",
+                               fam, r["dyn_range_log10"], T_ADAPT_DYN));
+        }
+        if r["row_energy_imbalance"] > T_ADAPT_ROW {
+            flags.push(format!("ADAPT_RISK {}: row-energy imbalance {:.3e} > {:.1e}",
+                               fam, r["row_energy_imbalance"], T_ADAPT_ROW));
+        }
+    }
+    // Absolute, not self-referential: 1.5x the measured total for the pristine Qwen2.5-0.5B
+    // (J = 0.01123). A ratio against the artifact's own number would flag everything.
+    if tr["q4_block_mse"] > T_QUANT_TOTAL_ABS {
+        flags.push(format!("QUANT_RISK TOTAL: 4-bit proxy {:.5} > {:.4} (1.5x pristine-family reference)",
+                           tr["q4_block_mse"], T_QUANT_TOTAL_ABS));
+    }
+    if flags.is_empty() {
+        println!("  none: no family exceeds the provisional quant/export/adaptation risk limits");
+    } else {
+        for f in &flags {
+            println!("  {}", f);
+        }
+    }
+    json.push_str(",\n  \"verdicts\": [\n");
+    for (idx, fl) in flags.iter().enumerate() {
+        json.push_str(&format!("    {}\"{}\"", if idx == 0 { "" } else { ", " },
+                               fl.replace('"', "'")));
+        json.push('\n');
+    }
+    json.push_str("  ]\n}\n");
+
     if let Some(o) = json_out {
         if let Err(e) = std::fs::write(&o, json) {
             eprintln!("error: writing {}: {}", o, e);
@@ -652,6 +708,7 @@ fn main() {
         }
         eprintln!("wrote {}", o);
     }
+
     if let Some(thr) = fail_above {
         if worst_frac > thr {
             eprintln!(
