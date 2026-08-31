@@ -84,6 +84,10 @@ class Lock:
                 self.held = True
                 return self
             except FileExistsError:
+                if self._holder_dead():
+                    log(f"lock {self.path.name}: holder is dead, stealing")
+                    shutil.rmtree(self.path, ignore_errors=True)
+                    continue
                 try:
                     age = time.time() - self.path.stat().st_mtime
                 except FileNotFoundError:
@@ -95,6 +99,28 @@ class Lock:
                 if time.time() - t0 > self.timeout:
                     raise TimeoutError(f"could not acquire {self.path} in {self.timeout}s")
                 time.sleep(5)
+
+    def _holder_dead(self) -> bool:
+        """True when the recorded owner process no longer exists (or its cmdline no longer
+        matches what it claimed). A crashed holder must not stall the panel for stale_s."""
+        try:
+            fields = (self.path / "owner").read_text().split()
+            pid = int(fields[0].split("=", 1)[1])
+            claimed = " ".join(fields[2:]) if len(fields) > 2 else ""
+        except Exception:                                    # noqa: BLE001
+            return False
+        try:
+            cmdline = Path(f"/proc/{pid}/cmdline").read_bytes().replace(b"\0", b" ").decode()
+        except (FileNotFoundError, ProcessLookupError, PermissionError):
+            return True                                      # pid gone
+        except Exception:                                    # noqa: BLE001
+            return False
+        if not cmdline.strip():
+            return False                                     # zombie/parent: leave it alone
+        if claimed:
+            head = claimed.split()[0]
+            return head not in cmdline
+        return False
 
     def __exit__(self, *exc):
         if self.held:
