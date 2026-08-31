@@ -88,72 +88,42 @@ def set_seed(seed: int):
 
 
 def rule_examples(n: int, seed: int, offset: int = 0):
-    rng = random.Random(seed)
-    rows = []
-    for _ in range(offset + n):
-        ident = "".join(rng.choice("0123456789") for _ in range(10))
-        rows.append(ident)
-    return rows[offset:offset + n]
+    """Delegate to the single generator. Verified byte-identical to the copy this replaces."""
+    return adapt_probe.examples(n, seed, offset)
 
 
-def make_data(tok, ids):
-    rows, labels, masks = [], [], []
-    for ident in ids:
-        p = tok(f"rev: {ident} -> ", add_special_tokens=False)["input_ids"]
-        t = tok(ident[::-1], add_special_tokens=False)["input_ids"] + [tok.eos_token_id]
-        x, y = (p + t)[:CONTRACT["adapt"]["seq_len"]], ([-100] * len(p) + t)[:CONTRACT["adapt"]["seq_len"]]
-        m = [1] * len(x)
-        pad = tok.eos_token_id
-        rows.append(x + [pad] * (CONTRACT["adapt"]["seq_len"] - len(x)))
-        labels.append(y + [-100] * (CONTRACT["adapt"]["seq_len"] - len(y)))
-        masks.append(m + [0] * (CONTRACT["adapt"]["seq_len"] - len(m)))
-    return tuple(torch.tensor(x, dtype=torch.long) for x in (rows, labels, masks))
+def make_data(tok, ids, rule="reverse"):
+    """Delegate to adapt_probe. `reverse` reproduces the frozen prompt bytes exactly
+    ("rev: ID -> reversed(ID)"), same SEQ_LEN, same eos padding, so contract data is unchanged;
+    `sorted` is a second skill so operation ORDER can be tested at all."""
+    return adapt_probe.make_data(tok, ids, rule=rule)
 
 
-def train_lora_state(start_sd: dict, tok, seed: int, device: str):
-    """Apply the existing true-LoRA module to a supplied state and return merged bf16 state."""
-    set_seed(seed)
-    model = common.state_to_model(start_sd, common.REF_MODEL, dtype=torch.bfloat16, device=device)
-    model.config.use_cache = False
-    for p in model.parameters():
-        p.requires_grad_(False)
-    # Existing implementation: true LoRA wrappers and target selection, imported read-only.
-    adapt_probe.replace_targets(model)
-    params = [p for p in model.parameters() if p.requires_grad]
-    ids = rule_examples(CONTRACT["adapt"]["train_examples"] + CONTRACT["adapt"]["heldout_examples"], seed)
-    x, y, mask = make_data(tok, ids[:CONTRACT["adapt"]["train_examples"]])
-    held = make_data(tok, ids[CONTRACT["adapt"]["train_examples"]:])
-    task_before = adapt_probe.task_loss(model, held, device)
-    # The optimizer is part of the operation being measured: CONTRACT.adapt.lr was declared but
-    # never consumed here, which made this function raise UnboundLocalError at step 0.
-    opt = torch.optim.AdamW(params, lr=CONTRACT["adapt"]["lr"])
-    model.train()
-    t0 = time.perf_counter()
-    for step in range(CONTRACT["adapt"]["steps"]):
-        i = (step * CONTRACT["adapt"]["batch_size"]) % len(x)
-        xb, yb, mb = (z[i:i + CONTRACT["adapt"]["batch_size"]].to(device) for z in (x, y, mask))
-        out = model(input_ids=xb, attention_mask=mb)
-        loss = F.cross_entropy(out.logits[:, :-1].float().reshape(-1, out.logits.size(-1)),
-                               yb[:, 1:].reshape(-1), ignore_index=-100)
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(params, 1.0)
-        opt.step(); opt.zero_grad(set_to_none=True)
-    if device == "cuda":
-        torch.cuda.synchronize()
-    elapsed = time.perf_counter() - t0
-    task_after = adapt_probe.task_loss(model, held, device)
-    out_sd = {k: v.detach().cpu().clone() for k, v in start_sd.items()}
-    with torch.no_grad():
-        for name, mod in model.named_modules():
-            if isinstance(mod, adapt_probe.LoRALinear):
-                delta = (mod.b.float().cpu() @ mod.a.float().cpu()) * mod.scale
-                out_sd[name + ".weight"] = (out_sd[name + ".weight"].float() + delta).to(torch.bfloat16)
-    del opt, model
-    common.release(device)
-    return out_sd, {"seed": seed, "steps": CONTRACT["adapt"]["steps"], "runtime_s": elapsed,
-                    "base_frozen": True, "targets": list(CONTRACT["adapt"]["targets"]),
-                    "task_loss_before": task_before, "task_loss_after": task_after,
-                    "capture": (task_before - task_after) / task_before}
+def train_lora_state(start_sd: dict, tok, seed: int, device: str, targets=None, rule="reverse"):
+    """One true-LoRA adaptation of an in-memory state, returning the merged bf16 state.
+
+    Thin delegation to `m1/adapt_probe.train_once`, which owns the only real implementation of
+    freezing, LoRA wrapping, the AdamW configuration, gradient clipping, the bf16 fold and capture
+    accounting. The copy this replaces was the direct cause of incident #18: it never built an
+    optimizer at all, and it also called `AdamW(params, lr=...)`, silently inheriting AdamW's default
+    `weight_decay=1e-2` where the contract uses `0.0`, plus default betas. Duplicating the probe was
+    the bug class, so the duplicate is removed rather than repaired in place.
+    """
+    a = CONTRACT["adapt"]
+    tgt = list(a["targets"]) if targets is None else list(targets)
+    ids = rule_examples(a["train_examples"] + a["heldout_examples"], seed)
+    train_data = make_data(tok, ids[:a["train_examples"]], rule=rule)
+    held_data = make_data(tok, ids[a["train_examples"]:], rule=rule)
+    after, elapsed, merged, before = adapt_probe.train_once(
+        None, tok, train_data, held_data, a["lr"], device,
+        targets=tgt, steps=a["steps"], seed=seed, state=start_sd, return_state=True)
+    if not before or before <= 0:
+        raise RuntimeError(f"non-positive pre-adaptation loss {before!r}; capture is undefined")
+    return merged, {"seed": seed, "steps": a["steps"], "runtime_s": elapsed, "base_frozen": True,
+                    "targets": tgt, "rule": rule, "lr": a["lr"], "weight_decay": 0.0,
+                    "betas": [0.9, 0.999], "trainer": "m1/adapt_probe.train_once",
+                    "task_loss_before": before, "task_loss_after": after,
+                    "capture": (before - after) / before}
 
 
 def save_sd(sd: dict, dst: Path):

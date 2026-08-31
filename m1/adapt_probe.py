@@ -39,12 +39,14 @@ class LoRALinear(nn.Module):
         z = F.linear(F.linear(x.float(), self.a), self.b) * self.scale
         return y + z.to(y.dtype)
 
-def replace_targets(model):
+def replace_targets(model, targets=None):
+    """Wrap Linear leaves whose name is in `targets`. Defaults to the frozen contract's full set."""
+    wanted = set(TARGETS if targets is None else targets)
     for name, child in list(model.named_children()):
-        if isinstance(child, nn.Linear) and name in TARGETS:
+        if isinstance(child, nn.Linear) and name in wanted:
             setattr(model, name, LoRALinear(child, RANK, ALPHA))
         else:
-            replace_targets(child)
+            replace_targets(child, wanted)
 
 def set_seed(seed=SEED):
     random.seed(seed); torch.manual_seed(seed)
@@ -59,12 +61,18 @@ def examples(n, seed, offset=0):
         out.append(ident)
     return out[offset:offset+n]
 
-def make_data(tok, ids):
+# A second skill, so operation ORDER can be tested at all. `reverse` keeps its exact original
+# prompt bytes: the frozen adapt-v2 contract cites "rev: ID -> reversed(ID)" and must not drift.
+RULES = {"reverse": ("rev", lambda s: s[::-1]), "sorted": ("srt", lambda s: "".join(sorted(s)))}
+
+
+def make_data(tok, ids, rule="reverse"):
+    prefix, fn = RULES[rule]
     pad = tok.eos_token_id
     rows, labels, masks = [], [], []
     for ident in ids:
-        pre = f"rev: {ident} -> "
-        tgt = ident[::-1]
+        pre = f"{prefix}: {ident} -> "
+        tgt = fn(ident)
         p = tok(pre, add_special_tokens=False)["input_ids"]
         t = tok(tgt, add_special_tokens=False)["input_ids"] + [tok.eos_token_id]
         x = (p + t)[:SEQ_LEN]
@@ -86,19 +94,52 @@ def task_loss(model, data, device):
             count += int((tg != -100).sum())
     return total / max(1, count)
 
-def train_once(model_dir, tok, train_data, held_data, lr, device):
-    set_seed(SEED)
-    model = common.load_model(Path(model_dir), dtype=torch.bfloat16, device=device)
+def merge_lora_state(model, base_sd):
+    """Fold every LoRA delta into a bf16 state dict.
+
+    Single implementation on purpose: `m3/history_pair.py` used to carry its own copy, and a copy
+    that drifted from this one is how incident #18 recorded a result no generator could produce.
+    `base_sd` must be the pre-wrap state dict, because after `replace_targets` the live model's own
+    state_dict is keyed `...q_proj.base.weight`, which is not the artifact layout.
+    """
+    sd = {k: v.detach().cpu().clone() for k, v in base_sd.items()}
+    with torch.no_grad():
+        for name, mod in model.named_modules():
+            if isinstance(mod, LoRALinear):
+                delta = (mod.b.float().cpu() @ mod.a.float().cpu()) * mod.scale
+                key = name + ".weight"
+                if key not in sd:
+                    raise KeyError(f"LoRA module {name!r} has no base tensor {key!r}")
+                sd[key] = (sd[key].float() + delta).to(torch.bfloat16)
+    return sd
+
+
+def train_once(model_dir, tok, train_data, held_data, lr, device, targets=None, steps=None,
+               seed=None, state=None, return_state=False):
+    """One true-LoRA adaptation. `state` adapts an in-memory artifact (no 1 GB round trip);
+    `model_dir` keeps the original behaviour. Pass `return_state=True` to chain operations."""
+    set_seed(SEED if seed is None else seed)
+    base_sd = None
+    if state is not None:
+        base_sd = state
+        model = common.state_to_model(state, common.REF_MODEL, dtype=torch.bfloat16, device=device)
+    else:
+        model = common.load_model(Path(model_dir), dtype=torch.bfloat16, device=device)
     model.config.use_cache = False
     for p in model.parameters():
         p.requires_grad_(False)  # true LoRA: embeddings, norms, lm_head and base linears are frozen
 
-    replace_targets(model)
+    replace_targets(model, targets)
     params = [p for p in model.parameters() if p.requires_grad]
+    if not params:
+        raise RuntimeError(f"no trainable adapters created for targets={targets or TARGETS}")
+    # LoRA `b` is zero-initialised, so the wrapped model is numerically the base model here and
+    # this is an exact pre-adaptation loss, not an approximation.
+    before = task_loss(model, held_data, device) if return_state else None
     opt = torch.optim.AdamW(params, lr=lr, betas=(0.9, 0.999), weight_decay=0.0)
     x, y, m = train_data
     model.train(); t0 = time.perf_counter()
-    for step in range(STEPS):
+    for step in range(STEPS if steps is None else steps):
         i = (step * BATCH_SIZE) % len(x)
         xb, yb, mb = x[i:i+BATCH_SIZE].to(device), y[i:i+BATCH_SIZE].to(device), m[i:i+BATCH_SIZE].to(device)
         o = model(input_ids=xb, attention_mask=mb)
@@ -110,8 +151,13 @@ def train_once(model_dir, tok, train_data, held_data, lr, device):
     if device == "cuda": torch.cuda.synchronize()
     elapsed = time.perf_counter() - t0
     after = task_loss(model, held_data, device)
+    merged = merge_lora_state(model, base_sd) if (return_state and base_sd is not None) else None
     del opt, model
     common.release(device)
+    if return_state:
+        if merged is None:
+            raise ValueError("return_state=True requires state=; a model_dir load has no base_sd")
+        return after, elapsed, merged, before
     return after, elapsed
 
 def base_metrics(model_dir, tok, train_data, held_data, device):

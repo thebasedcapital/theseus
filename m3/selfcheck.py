@@ -70,11 +70,12 @@ def main():
         # The trainer freezes every parameter first (history_pair.py:118-119); adapter insertion is
         # what makes anything trainable again, so the stub must re-enable grad or the test would
         # silently train nothing.
-        h.adapt_probe.replace_targets = lambda model: model._p.requires_grad_(True)
+        h.adapt_probe.replace_targets = lambda model, targets=None: model._p.requires_grad_(True)
         h.rule_examples = lambda n, seed, offset=0: list(range(n))
-        h.make_data = lambda tok, ids: (torch.zeros(4, 8, dtype=torch.long),
-                                        torch.zeros(4, 8, dtype=torch.long),
-                                        torch.ones(4, 8, dtype=torch.long))
+        h.make_data = lambda tok, ids, rule="reverse": (
+            torch.zeros(4, 8, dtype=torch.long),
+            torch.zeros(4, 8, dtype=torch.long),
+            torch.ones(4, 8, dtype=torch.long))
         h.CONTRACT["adapt"]["steps"] = 2
         sd, rep = h.train_lora_state({"w": torch.zeros(1)}, object(), 1, "cpu")
         for k in ("seed", "steps", "runtime_s", "base_frozen", "targets",

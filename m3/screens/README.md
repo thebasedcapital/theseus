@@ -61,3 +61,15 @@ Implication for K-8: the gate itself, not the pair, is the obstacle. Either "sam
 redefined as *indistinguishable to ordinary evaluation* (with distributional drift reported rather
 than gated), or pair construction needs a mechanism that equalizes the endpoint by construction
 instead of shrinking the operations. Decided as an open question, not silently.
+
+## Caveat on the alpha sweep, found while fixing weakness #1
+
+The sweep above ran through `m3/history_pair.py`'s **private copy** of the LoRA training loop. That
+copy called `AdamW(params, lr=...)`, inheriting AdamW's default `weight_decay=1e-2`, whereas the
+contract and the real probe (`m1/adapt_probe.py`) use `weight_decay=0.0`. So the numbers above were
+produced by an adaptation operation that is not the one the contract specifies.
+
+The duplicate is now gone: `m3.train_lora_state` delegates to `adapt_probe.train_once`, which owns
+the single implementation. Directionally the plateau is unlikely to be a weight-decay artefact
+(KL barely moves across a 15x range of alpha), but the specific values are superseded and the sweep
+should be re-run under the consolidated trainer before it is quoted anywhere.

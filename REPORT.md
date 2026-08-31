@@ -26,7 +26,7 @@ measurable quantity, and argue it cannot be summarized by a scalar. The same fun
 move that improves 4-bit quantization damage on two disjoint corpora (`-0.185` and `-0.478`
 percentage points of relative damage) makes both merge operators fail. The repo ships the static
 detector (~2 s, no model load), the append-only evidence ledger behind these numbers, and a log of
-18 pipeline incidents. One surfaced while writing this report: a recorded natural-history attempt
+19 pipeline incidents. One surfaced while writing this report: a recorded natural-history attempt
 proved not reproducible from its own generator, and §11 withdraws it.
 
 ---
@@ -272,6 +272,11 @@ Stated in the repo itself (`m1/passport.py` `UNCLAIMED`, `CLAIMS.md`):
   every screened alpha **both** fail. What the screen does keep is narrow but reproducible: the two
   orders are indistinguishable in the features that drive quantization reserve (gaps `<= 2e-3`) and
   differ most in `row_energy_imbalance` (`0.017-0.094`), the feature M1 ties to adaptation capture.
+- **Caveat travelling with every figure in the two bullets above.** That sweep ran `m3`'s then-private
+  copy of the training loop, which inherited AdamW's default `weight_decay=1e-2` rather than the
+  contract's `0.0`. The duplicate has since been deleted so `m3` delegates to
+  `m1/adapt_probe.train_once`, and `m3/screens/README.md` records the divergence. These values are
+  superseded until the sweep is re-run under the consolidated trainer.
 - **One model, one scale, base (non-instruct) weights.** Two corpora now support the Q4 result; no
   second architecture does.
 - **Merge tests are constructed** against a specialist derived from the ungauged base.
@@ -335,7 +340,7 @@ derived from WikiText-2 raw `test` (CC BY-SA 4.0) and regenerated rather than re
 
 The reason the negative results are in this document is structural, not stylistic. `ledger/` is an
 append-only store: `182` admission-clean cells, each binding `(artifact, operation, environment)` to
-a verdict, re-derivable and re-checkable, plus `18` incident records linked to the invariant that now
+a verdict, re-derivable and re-checkable, plus `19` incident records linked to the invariant that now
 prevents recurrence — including #18, which voids the natural-history attempt described in §11.
 `CLAIMS.md` holds the claim register with an explicit refuter per claim, and
 states `UNSUPPORTED → PRELIMINARY → CONTROLLED → CONFIRMED` from the obligations table; prose never
