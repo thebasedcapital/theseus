@@ -5,8 +5,16 @@ Every M1 script is CLI-shaped: it takes `--model-dir <HF dir>` and writes a JSON
 That keeps the gauge library, the equivalence verifier, and the surgery probes independent
 of each other: a *variant* is just a directory of safetensors.
 
-Run with the counterpoint venv (torch 2.13 + cu13, transformers 5.16):
-    /home/admin/counterpoint/.venv/bin/python m1/<script>.py ...
+Interpreter: any python with torch 2.13+cu13, transformers 5.16, safetensors (see
+requirements.txt). Theseus is its own project; it does not import anything from a sibling
+checkout. On this workstation a suitable environment already exists inside the separate
+counterpoint project, so the scripts default to it and honour $THESEUS_PY:
+
+    THESEUS_PY=/path/to/.venv/bin/python   # or the default below
+    $THESEUS_PY m1/<script>.py ...
+
+A dedicated venv costs ~6 GB of disk (torch+cuda); the shared one costs nothing. Nothing in
+Theseus reads counterpoint source, git history, or data.
 """
 from __future__ import annotations
 

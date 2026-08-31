@@ -13,7 +13,7 @@ Properties checked per family:
                    residual gauge freedom, not a bug. G5 has an intrinsic witness — the tie —
                    so its bitwise representative IS asserted.)
 
-Run: /home/admin/counterpoint/.venv/bin/python m1/test_gauge_math.py
+Run: ${THESEUS_PY:-python} m1/test_gauge_math.py
 """
 from __future__ import annotations
 
