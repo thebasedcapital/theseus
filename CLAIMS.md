@@ -169,9 +169,17 @@ that file could run (incident #18). `m3/selfcheck.py` reported PASS the whole ti
 
 The file is kept deliberately, as a failed-attempt record, not deleted. K-8 has still never been
 tested: it needs a re-run under the fixed harness before any claim about natural histories, positive
-or negative, is made. What survives the incident untouched is the *methodological* lesson — passing
-on perplexity (9.3× inside tolerance) while failing on distribution (16.2× outside) is itself the
-phenomenon this project is about, seen from the pair-construction side.
+or negative, is made.
+
+The first re-run under the repaired harness is an exploratory screen (`m3/screens/`, never evidence,
+never ledger-admitted) and it closes the obvious route: sweeping merge alpha over 0.30 → 0.02 leaves
+mean KL at 0.029-0.048, i.e. **15-24× outside** the `2e-3` gate, and non-monotone in alpha. Weakening
+the operations does not make the two orders agree, because they adapt from different coordinates.
+
+Equally important, a flattering detail from the withdrawn record does **not** survive re-running: the
+claim that a pair sat inside the perplexity tolerance while failing the distributional one was
+specific to the void numbers. At every screened alpha, **both** statistics fail (`rel ΔPPL` 0.0069 to
+0.0343 against a 0.005 limit). That observation is therefore void too and is not carried forward.
 
 **Refuter:** two present-matched history pairs surviving the registered shuffled null would support
 it; a present-matched pair whose reserves are equal would refute it. Neither has been earned.

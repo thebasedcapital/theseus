@@ -262,9 +262,16 @@ Stated in the repo itself (`m1/passport.py` `UNCLAIMED`, `CLAIMS.md`):
   consumed, and the stored `adapt` records lack the `capture` / `task_loss_*` fields that function
   always returns. Its self-check passed only because it replaced that function with a lambda
   (incident #18). The JSON is kept as a failed-attempt record and cited as nothing. K-8 is open.
-- **What survives is methodological, not empirical.** A pair can sit `9.3×` **inside** a perplexity
-  tolerance and `16.2×` **outside** a distributional one, because perplexity is a scalar over a
-  distribution. That is this project's thesis, appearing inside the instrument built to test it.
+- **The obvious fix for that failure does not work.** Re-running the repaired harness as an
+  exploratory screen (`m3/screens/`, not evidence), sweeping merge alpha from `0.30` down to `0.02`
+  leaves mean KL at `0.029-0.048`, i.e. 15-24x outside the `2e-3` gate, and non-monotone in alpha:
+  at `alpha = 0.02` the merge is nearly a no-op and the orders are still distributionally distinct.
+  Weakening the operations cannot produce a present-matched natural pair, because the two orders
+  adapt from different coordinates. The screen also voids a detail the withdrawn record had made
+  look elegant - a pair inside the perplexity tolerance while outside the distributional one. At
+  every screened alpha **both** fail. What the screen does keep is narrow but reproducible: the two
+  orders are indistinguishable in the features that drive quantization reserve (gaps `<= 2e-3`) and
+  differ most in `row_energy_imbalance` (`0.017-0.094`), the feature M1 ties to adaptation capture.
 - **One model, one scale, base (non-instruct) weights.** Two corpora now support the Q4 result; no
   second architecture does.
 - **Merge tests are constructed** against a specialist derived from the ungauged base.
