@@ -17,6 +17,14 @@ invalid numbers that would have been reported as results if the checks had not c
 | 10 | Reference export dtype (f16 GGUF) conflated with quantizer damage | a gauge with bit-identical logits showed ppl 177 before any quantizer ran; f32 export also 177, bf16 export 12.14 | identity round-trip control (base through my own `save_state` → f16 GGUF ppl 12.1399, exactly the pristine number) + three-export decomposition | Measure an operation only against a reference that shares the artifact's native dtype; make export a separately metered operation |
 | 9 | `pass: null` (the run that *defines* the reference) tallied as a failure | driver summary showed base failing quantization | `m1/retally.py` | `null` means "no verdict", never `False`; derive summaries from per-cell JSON, not from in-run tallies |
 
+| 11 | Two implementations of one statistic disagreed 5.7 % | pooled block ratio-of-sums vs mean-of-per-tensor-ratios, neither labelled | cross-validation of the Rust inspector against the Python one | Every aggregate carries its `convention`; a number without a convention is not comparable (I7) |
+| 12 | "Control" claimed globally | `g4_perm` is quantization-inert and costs 6.4 pp of LoRA capture | the ledger's per-operation verdict vectors | A control must name the operation it controls for (K-7) |
+
+Invariant map: #1,#2 → I2 (frozen code snapshot per cell) · #3,#8 → I6 (typed leases with pid
+liveness) · #4 → I4 (calibration gate) · #5,#6 → I3+I5 (environment digest; mandatory controls) ·
+#7,#9,#10,#11 → I1+I7 (write-once ledger, closed vocabulary, named conventions) · #12 → K-7
+(reserve is a vector). `RUNBOOK.md` §3 is this table from the driver's side.
+
 Cross-cutting: the panel records everything to per-cell JSON files (`m1/work/ops/<variant>.<op>.json`)
 and every downstream artifact (`M1_TABLE.md`, `M1_ANALYSIS.md`, `m1_summary.json`,
 `m1_prediction_check.json`) is regenerated from those files. That is what made 1-3 and 9

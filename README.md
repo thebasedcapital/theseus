@@ -3,16 +3,25 @@
 > Two checkpoints can compute the same function and have very different futures. Theseus
 > measures the difference, per operation, and then repairs it without changing the function.
 
-This repo is organised as:
+This repo is organised as a tower, and each layer has exactly one job:
 
-| path | what |
-|---|---|
-| `prototype.py`, `results.json`, `math.md`, `optionality.svg` | **V0** — the deterministic, no-LLM ReLU smoke test (4 operations, 4/4 → 0/4 → 4/4) |
-| `ROADMAP.md` | the plan: Track A scientific validity, Track B usable local-ML tool, milestones M1…M6 |
-| `M1_NOTES.md` | **M1** derivation of the exact symmetry group of a Qwen2 decoder + the frozen protocol |
-| `M1_RESULTS.md`, `M1_TABLE.md`, `M1_ANALYSIS.md` | **M1** measured results: the reserve table and the static-proxy analysis |
-| `m1/` | M1 code: gauges, canonicalizers, equivalence gate, llama.cpp/LoRA/merge probes, report |
-| `m1/PRIOR_ART.md` | the novelty boundary against QuaRot / SpinQuant / QuIP# / Git Re-Basin / LoRA-RITE |
+```
+SYSTEM.md    how the thing is built and WHY each rule exists (invariants I1-I10)
+PLAN.md      claims + evidence obligations + budget + ordering   -> what is owed
+SCHEMA.md    the record contract (artifact / cell / claim / incident) -> what is stored
+RUNBOOK.md   the agent-facing verbs, session procedure, triage  -> how to drive it
+CLAIMS.md    the live claim register with refuters               -> what is believed
+ROADMAP.md   the scientific wish-list (operations, architectures, Track B surface)
+M1_*         evidence for milestone 1: NOTES (derivations), RESULTS (measurements),
+             TABLE/ANALYSIS (generated), m1/PRIOR_ART.md (novelty boundary)
+inspect/     the zero-dependency Rust static diagnostic + preflight (its own crate, its own tests)
+prototype.py V0: the deterministic ReLU smoke test
+```
+
+The rule that keeps the tower honest: **generated files are generated** (`views/`, `M1_TABLE.md`,
+`M1_ANALYSIS.md`, passports, figures) and **narrative files are only written by hand at the top two
+layers** (`SYSTEM.md`, `RUNBOOK.md`). Everything below that is a rendering of the ledger, so a
+session that loses its working tree loses nothing.
 
 ## M1 in one screen (real transformer, real surgery)
 

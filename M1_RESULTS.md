@@ -1,5 +1,8 @@
 # M1 — can two function-equivalent real Transformers have different futures?
 
+> Belief state with obligations and refuters lives in [`CLAIMS.md`](CLAIMS.md) (K-1…K-9); this
+> file is the evidence narrative for milestone 1. Numbers here are cited by the claim register.
+
 Subject: `Qwen/Qwen2.5-0.5B` (base, bf16, tied), surgery executed by real tools (llama.cpp
 `b9851` GGUF K-quants, hand-written AdamW LoRA, task-vector merges). Nothing here is
 model-judged or simulated; every number comes from a persisted JSON under `m1/work/` and the
