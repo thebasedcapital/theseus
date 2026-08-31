@@ -55,6 +55,49 @@ def jtotal(d: dict | None) -> float | None:
     return sum(v) / len(v) if v else None
 
 
+def prediction_check(rows):
+    """Score the pre-registered static predictions against measured Q4_K_M damage.
+
+    Registered direction (m1/predict.py): debt > 1e-3 -> "Q4 damage expected", else neutral.
+    Measured direction: this variant's q4_k_m mean KLD exceeds base's by > 10 % (KLD is the
+    monotone statistic; rel_dppl is not, see M1_RESULTS §4). A prediction is only scored when
+    both sides exist, so partial runs report coverage instead of guessing.
+    """
+    pred_file = None
+    for cand in (common.WORK / "PREDICTIONS_new.json", common.WORK / "PREDICTIONS.json"):
+        if cand.exists():
+            pred_file = cand
+            break
+    if pred_file is None:
+        return {"error": "no PREDICTIONS.json snapshot found"}
+    preds = json.loads(pred_file.read_text()).get("variants", {})
+    base_kld = (rows.get("base", {}) or {}).get("q4_kl_mean")
+    out = {"source": str(pred_file), "base_q4_kld": base_kld, "checked": {}, "skipped": {}}
+    if not isinstance(base_kld, (int, float)):
+        out["skipped"]["all"] = "base q4 KLD not measured yet"
+        return out
+    for name, r in rows.items():
+        p = preds.get(name)
+        if p is None:
+            out["skipped"][name] = "not in the pre-registration snapshot"
+            continue
+        kld = r.get("q4_kl_mean")
+        if not isinstance(kld, (int, float)):
+            out["skipped"][name] = "no measured q4 KLD yet"
+            continue
+        damaged = kld > base_kld * 1.10
+        predicted_damaged = p["debt"] > 1e-3
+        out["checked"][name] = {"debt": p["debt"], "predicted": "damage" if predicted_damaged
+                                else "neutral", "measured_kld": kld,
+                                "ratio_to_base": round(kld / base_kld, 3),
+                                "measured": "damage" if damaged else "neutral",
+                                "held": predicted_damaged == damaged}
+    held = [k for k, v in out["checked"].items() if v["held"]]
+    out["summary"] = {"checked": len(out["checked"]), "held": len(held),
+                      "broken": [k for k in out["checked"] if not out["checked"][k]["held"]]}
+    return out
+
+
 def main():
     if not SUM.exists():
         raise SystemExit(f"run m1/report.py first (missing {SUM})")
@@ -105,6 +148,16 @@ def main():
             " predictor may not be called predictive until it is validated out of sample."]
     text = "\n".join(out)
     print(text)
+    pc = prediction_check({r["variant"]: r for r in rows})
+    print("\npre-registered prediction check (static debt -> measured Q4_K_M damage):")
+    for k, v in sorted(pc.get("checked", {}).items()):
+        print(f"  {k:16s} debt {v['debt']:+.5f} predicted {v['predicted']:7s} measured "
+              f"{v['measured']:7s} KLD {v['measured_kld']:.5f} ({v['ratio_to_base']:.2f}x base) "
+              f"{'HELD' if v['held'] else 'BROKEN'}")
+    if pc.get("summary"):
+        print(f"  coverage: {pc['summary']['checked']} checked, {pc['summary']['held']} held, "
+              f"broken={pc['summary']['broken']}")
+    common.wjson(common.WORK / "m1_prediction_check.json", pc)
     common.wjson(common.WORK / "m1_analysis.json",
                  {"rows": rows, "spearman": {"J_to_q4_kld": [rho_kld, n_kld],
                                              "J_to_q4_dppl": [rho_dppl, n_dppl],
