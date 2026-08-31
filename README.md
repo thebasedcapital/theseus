@@ -28,7 +28,7 @@ m1/          the M1 pipeline: gauges, canonicalizer, probes, equivalence gate, r
 m3/          natural-history harness (K-8), plus exploratory screens kept separate
 harvest/     public HF artifact population and lineage edges
 archcheck/   cross-architecture exactness audit; fails closed on unsupported gauges
-m1/PIPELINE_FAILURES.md   the 19 incidents and the invariant each one produced
+m1/PIPELINE_FAILURES.md   the 20 incidents and the invariant each one produced
 prototype.py V0: the deterministic ReLU smoke test
 ```
 

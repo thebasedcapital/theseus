@@ -1,0 +1,54 @@
+{
+  "_purpose": "Independent re-derivation of the headline M1 claims, performed 2026-08-31 after incident #18 proved that a recorded cell in this repo could be unreproducible from its own generator. Nothing here is quoted from a log line: each row was produced again on this machine from rebuilt artifacts.",
+  "date": "2026-08-31",
+  "repo_head": "a2e0f66",
+  "device": "cuda (equivalence), cpu (GGUF probe)",
+  "reproduced": [
+    {
+      "claim": "g3_pow2 is bit-identical to base (REPORT 5, M1_RESULTS 0, K-1)",
+      "recorded": {"max_dlogit": 0.0, "kl_mean_nats": 0.0, "top1_agree": 1.0, "ppl_a": 17.71019172668457},
+      "rederived": {"max_dlogit": 0.0, "kl_mean_nats": 0.0, "top1_agree": 1.0, "ppl_a": 17.710643768310547},
+      "verdict": "CONFIRMED",
+      "note": "equivalence is exact and unaffected; the ppl_a delta is the base-reference drift recorded under base_reference_drift below"
+    },
+    {
+      "claim": "make_variants is deterministic (M1_RESULTS 0 cites artifact sha 0c106a426af05dc8)",
+      "recorded_sha": "0c106a426af05dc8",
+      "rederived_sha": "0c106a426af05dc8",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "base Q8_0 KLD 0.00094 (REPORT 5, K-4)",
+      "recorded": 0.00094,
+      "rederived": 0.00094,
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "g3_pow2 collapses under 8-bit quantization: Q8_0 KLD 10.69 (REPORT 1, 5)",
+      "recorded": {"kl_mean": 10.690304, "ppl": 633431.0375},
+      "rederived": {"kl_mean": 10.690189, "ppl": 633431.0375},
+      "verdict": "CONFIRMED",
+      "note": "ppl identical to 7 significant digits; kl differs by 1.15e-4 (0.001% relative), which is the recorded cell's Vulkan backend versus this run's CPU backend. The 4-digit headline value 10.69 is unaffected."
+    },
+    {
+      "claim": "G5 artifact-only repair reproduces the pristine checkpoint byte for byte (REPORT 6, K-5)",
+      "recorded": "sha256 88c142557820ccad...a0ed342, 0/290 tensors differ",
+      "rederived": "sha256 88c142557820ccad55bb59756bfcfcf891de9cc6202816bd346445188a0ed342, 0/290 tensors differ, c_recovered=8.0",
+      "verdict": "CONFIRMED",
+      "how": "python m1/verify_g5_recovery.py after python m1/make_variants.py --only g5_c8"
+    }
+  ],
+  "base_reference_drift": {
+    "finding": "verify_equiv's base-reference perplexity is deterministic within a commit but NOT invariant across this repo's own history. Four cells recorded on cuda, with identical corpus snapshot (060db6499f32), ntokens 4096, seqlen 512, positions 4096 and gate, carry two different ppl_a values: 17.71019172668457 (git 6503f8c1, 9684e7e0) and 17.710643768310547 (git fcc4c67b, 0d580345). Three repeats at HEAD give 17.710643768310547 with spread 0.000e+00, so this is measurement-code drift, not hardware nondeterminism.",
+    "magnitude": {"abs": 0.000452, "rel": 2.55e-05},
+    "impact_on_verdicts": "none observed: the equivalence gate is rel_ppl_max 2e-3, roughly 78x this drift, and every reproduced verdict above is unchanged. Cross-commit comparisons at the 4th decimal are unsafe.",
+    "consequence": "I3's environment digest and the per-cell git_head are load-bearing, not ceremony. Claims of the form 'perplexity unchanged to four decimals' must be read within a single commit.",
+    "open": true
+  },
+  "cleanup": "the rebuilt g3_pow2 artifact (988 MB) was deleted after measurement; disk on this host is the binding constraint (6.4 GB free, shared with ~49 other agents). Re-derive with make_variants + the commands in REPORT 13.",
+  "not_yet_reproduced": [
+    "LoRA capture panel 0.9705 -> 0.0989 -> 0.9753 (needs the 3-seed rerun; artifact rebuilt and deleted, ~25-35 min GPU)",
+    "merge panel and K-10 second-corpus numbers",
+    "m3/results.json: NOT to be reproduced - voided under incident #18, see ledger/quarantine.json"
+  ]
+}

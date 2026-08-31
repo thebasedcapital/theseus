@@ -26,7 +26,7 @@ measurable quantity, and argue it cannot be summarized by a scalar. The same fun
 move that improves 4-bit quantization damage on two disjoint corpora (`-0.185` and `-0.478`
 percentage points of relative damage) makes both merge operators fail. The repo ships the static
 detector (~2 s, no model load), the append-only evidence ledger behind these numbers, and a log of
-19 pipeline incidents. One surfaced while writing this report: a recorded natural-history attempt
+20 pipeline incidents. One surfaced while writing this report: a recorded natural-history attempt
 proved not reproducible from its own generator, and §11 withdraws it.
 
 ---
@@ -121,7 +121,7 @@ across all 24 layers, and is bit-exact because bf16 × `2^k` is lossless:
 | `g7_rand` | 3.15e-1 | 1.95e-5 | 0.99683 | — | **0.1931** | fail | fail |
 | `g7_rand_rep` | 4.8e-01 | — | — | 0.00088 | **0.9359** | fail | fail |
 
-Same logits, same perplexity, reserve collapsed. `g7_rand` repeats the result under a weaker
+Same logits, same perplexity, reserve collapsed. Both halves of that sentence were re-derived on 2026-08-31 after incident #18 showed a recorded cell here could be unreproducible from its own generator: `make_variants` rebuilt `g3_pow2` to the identical sha256 (`0c106a426af05dc8`), equivalence came back `max|Δlogit| 0.0 / KL 0.0 / top-1 1.0`, and the 8-bit collapse measured KLD `10.690189` against the recorded `10.690304` with perplexity `633431.0375` reproduced exactly. Full log in `analysis/data/reverification.json`. `g7_rand` repeats the result under a weaker
 equivalence condition (exact in fp32 arithmetic, not bit-identical under bf16 compute), and both
 effects clear a deliberately conservative bar: a gap must exceed three times the largest
 within-variant SD across the panel. Of the nine gauged artifacts in that panel only G3 and G7 clear
@@ -361,7 +361,7 @@ derived from WikiText-2 raw `test` (CC BY-SA 4.0) and regenerated rather than re
 
 The reason the negative results are in this document is structural, not stylistic. `ledger/` is an
 append-only store: `182` admission-clean cells, each binding `(artifact, operation, environment)` to
-a verdict, re-derivable and re-checkable, plus `19` incident records linked to the invariant that now
+a verdict, re-derivable and re-checkable, plus `20` incident records linked to the invariant that now
 prevents recurrence — including #18, which voids the natural-history attempt described in §11.
 `python -m ledger.cli verify` audits every persisted cell against three claims it makes about itself:
 the recorded commit resolves, the named generator existed in that commit's tree, and the cell carries

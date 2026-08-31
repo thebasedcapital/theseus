@@ -56,7 +56,7 @@ freeze the base before adapter insertion; their contract is
   separates trusted 2-D expert families and makes fused rank-3 stacks explicitly unavailable.
   Q8 uses contract v3; Q4/export/adaptation remain v2 provisional. Two independent Rust suites pass
   (13 scanner + 9 inspector) and `cargo fmt --check` is clean.
-- `ledger/`: append-only evidence store now imports 182 admission-clean cells, including Q8 v3 and
+- `ledger/`: append-only evidence store now imports 182 admission-clean cells and 20 incidents, including Q8 v3 and
   the second-corpus K-10 replication. The K-8 history attempt is carried as a quarantined
   failed-attempt record, not as citable evidence (incident #18).
 - `analysis/`: 22 tests pass. Nine CPU/native-bf16 augmentation probes bring Q8/Q4 to n=20;
