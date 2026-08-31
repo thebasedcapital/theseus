@@ -14,8 +14,9 @@ Reserve is a VECTOR (K-7). Nothing here collapses coordinates into one score; wh
 disagree on the same artifact - as they do for `g1_haar`, neutral on KLD and failing on relative
 ΔPPL - both are reported and the disagreement is the finding.
 
-Bits-per-weight is computed from the measured artifact size against the metered parameter count,
-not from llama.cpp's nominal labels.
+Nothing here reports bits-per-weight: the scanner meters only the 290 non-embedding tensors, so
+dividing a GGUF's bytes by that count is not bpw (an earlier revision did exactly that and printed
+Q4_K_M as 8.5 bpw). The ladder is ordered by scheme name, which is all `deepest_passing` needs.
 """
 from __future__ import annotations
 
@@ -26,14 +27,16 @@ ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / "m1" / "work"
 OUT = ROOT / "analysis" / "data" / "reserve"
 
-# Measured by theseus-scan on the pristine artifact: 357,826,560 weights.
+# Weights metered by theseus-scan on the pristine artifact. This is the count of the 290 tensors
+# the scanner reads; it EXCLUDES token embeddings and the LM head, which a GGUF does carry. It is
+# therefore not a denominator for bits-per-weight - an earlier revision divided artifact bytes by
+# it and reported Q4_K_M as 8.5 bpw, which is impossible. The ladder is ordered by scheme instead.
 N_PARAMS = 357_826_560
 SCHEMES = ["q8_0", "q5_k_m", "q4_k_m"]          # ladder from least to most aggressive
 CONVENTIONS = {
     "reserve": "R_o = clip(1 - excess/allowed_slack, 0, 1); 1.0 = at or better than the reference, "
                "0.0 = the operation is lost. Margin in the statistic's own units, not parameter "
                "distance (math.md §5 notes Euclidean distance is invalid under gauge freedom).",
-    "bpw": "measured artifact bytes / metered parameter count * 8, not llama.cpp's nominal label",
     "deep_bit": "most aggressive scheme on the recorded ladder whose OWN cells both pass",
     "merge": "largest alpha that passes / largest alpha swept; the specialist fraction the "
              "coordinates can absorb",
@@ -57,7 +60,7 @@ def quant_reserve(cell: dict, base_cell: dict) -> dict:
     pc = cell.get("pass_contract") or {}
     slack_d, slack_k = pc.get("rel_dppl_slack"), pc.get("kl_mean_slack")
     ref = (base_cell or {}).get("results", {})
-    out = {"schemes": {}, "bpw": {}}
+    out = {"schemes": {}}
     for s in SCHEMES:
         v = (cell.get("results") or {}).get(s)
         r = ref.get(s) if isinstance(ref, dict) else None
@@ -68,9 +71,6 @@ def quant_reserve(cell: dict, base_cell: dict) -> dict:
             out["schemes"][s] = {"status": "UNAVAILABLE", "reason": "probe did not produce a number"}
             continue
         entry = {"status": "MEASURED", "pass": v.get("pass")}
-        if isinstance(v.get("size_mb"), (int, float)):
-            entry["bpw"] = round(v["size_mb"] * 1e6 / N_PARAMS * 8, 3)
-            out["bpw"][s] = entry["bpw"]
         for key, slack, base_v in (("rel_dppl", slack_d, (r or {}).get("rel_dppl")),
                                    ("kl_mean", slack_k, (r or {}).get("kl_mean"))):
             got, bs = v.get(key), base_v
@@ -184,7 +184,7 @@ def main(argv=None):
         print(json.dumps(rep, indent=2))
         return 0
     print(f"reserve vectors for {len(rep['artifacts'])} artifacts "
-          f"(bpw measured: {rep['conventions']['bpw']})\n")
+          f"(ladder {rep['ladder']}; margins in each statistic's own units)\n")
     for name in sorted(rep["artifacts"]):
         q = rep["artifacts"][name].get("quantize", {})
         ad = rep["artifacts"][name].get("adapt.lora.r16", {})

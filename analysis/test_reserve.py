@@ -53,9 +53,11 @@ class QuantTests(unittest.TestCase):
         self.assertNotIn(0.0, [q["schemes"]["q4_k_m"].get("R_rel_dppl")])
         self.assertIsNone(q["deepest_passing"])
 
-    def test_bpw_is_measured_from_bytes_not_labels(self):
+    def test_no_bits_per_weight_is_claimed(self):
+        """The scanner's metered count excludes embeddings, so a bpw figure would be wrong."""
         q = R.quant_reserve(BASE, BASE)
-        self.assertAlmostEqual(400e6 / R.N_PARAMS * 8, q["schemes"]["q8_0"]["bpw"], places=3)
+        self.assertNotIn("bpw", json.dumps(q))
+        self.assertNotIn("bpw", q["schemes"]["q8_0"])
 
 
 class AdaptTests(unittest.TestCase):
