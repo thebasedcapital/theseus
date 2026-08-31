@@ -67,81 +67,55 @@ def task_loss(model,data,device):
             total+=F.cross_entropy(lg.reshape(-1,lg.size(-1)),tg.reshape(-1),ignore_index=-100,reduction='sum').item(); n+=int((tg!=-100).sum())
     return total/max(1,n)
 
-def eval_batches(device):
-    return [b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=SEQ_LEN)]
-
-def model_metrics(model,data,device):
-    return task_loss(model,data,device), common.perplexity(model,eval_batches(device))
+def eval_batches(device): return [b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=SEQ_LEN)]
+def model_metrics(model,data,device): return task_loss(model,data,device),common.perplexity(model,eval_batches(device))
 
 def train_specialist(tok,train,held,device,base_rule_loss,base_ppl):
     set_seed(); model=common.load_model(common.REF_MODEL,dtype=torch.bfloat16,device=device); model.config.use_cache=False; replace_targets(model)
-    params=[p for p in model.parameters() if p.requires_grad]; opt=torch.optim.AdamW(params,lr=3e-3,weight_decay=0.0)
-    x,y,m=train; model.train(); t0=time.perf_counter()
+    params=[p for p in model.parameters() if p.requires_grad]; opt=torch.optim.AdamW(params,lr=3e-3,weight_decay=0.0); x,y,m=train; model.train(); t0=time.perf_counter()
     for step in range(STEPS):
-        i=(step*BATCH_SIZE)%len(x); xb,yb,mb=x[i:i+BATCH_SIZE].to(device),y[i:i+BATCH_SIZE].to(device),m[i:i+BATCH_SIZE].to(device)
-        o=model(input_ids=xb,attention_mask=mb); loss=F.cross_entropy(o.logits[:,:-1].float().reshape(-1,o.logits.size(-1)),yb[:,1:].reshape(-1),ignore_index=-100); loss.backward(); torch.nn.utils.clip_grad_norm_(params,1.0); opt.step(); opt.zero_grad(set_to_none=True)
+        i=(step*BATCH_SIZE)%len(x); xb,yb,mb=x[i:i+BATCH_SIZE].to(device),y[i:i+BATCH_SIZE].to(device),m[i:i+BATCH_SIZE].to(device); o=model(input_ids=xb,attention_mask=mb); loss=F.cross_entropy(o.logits[:,:-1].float().reshape(-1,o.logits.size(-1)),yb[:,1:].reshape(-1),ignore_index=-100); loss.backward(); torch.nn.utils.clip_grad_norm_(params,1.0); opt.step(); opt.zero_grad(set_to_none=True)
     if device=='cuda': torch.cuda.synchronize()
-    runtime=time.perf_counter()-t0
-    quality,ppl=model_metrics(model,held,device)
-    gate = quality < 0.5*base_rule_loss and ppl <= 1.5*base_ppl
-    if not gate: raise RuntimeError(f"SPECIALIST_GATE_FAILED rule_loss={quality} base_rule_loss={base_rule_loss} eval_ppl={ppl} base_eval_ppl={base_ppl}")
+    runtime=time.perf_counter()-t0; quality,ppl=model_metrics(model,held,device); gate=quality<0.5*base_rule_loss and ppl<=1.5*base_ppl
+    if not gate: raise RuntimeError(f'SPECIALIST_GATE_FAILED rule_loss={quality} base_rule_loss={base_rule_loss} eval_ppl={ppl} base_eval_ppl={base_ppl}')
     sd=common.load_state(common.REF_MODEL)
     with torch.no_grad():
         for name,mod in model.named_modules():
             if isinstance(mod,LoRALinear):
-                key=name+'.weight'; delta=(mod.b.float().cpu() @ mod.a.float().cpu())*mod.scale
-                if key not in sd: raise RuntimeError(f"SPECIALIST_MERGE_KEY_MISSING {key}")
-                sd[key]=(sd[key].float()+delta).to(torch.bfloat16); del delta
+                key=name+'.weight'; delta=(mod.b.float().cpu() @ mod.a.float().cpu())*mod.scale; sd[key]=(sd[key].float()+delta).to(torch.bfloat16); del delta
     common.save_state(sd,SPECIALIST_DIR,common.REF_MODEL)
-    marker={'seed':SEED,'rank':RANK,'alpha':ALPHA,'steps':STEPS,'batch_size':BATCH_SIZE,'seq_len':SEQ_LEN,'train_examples':TRAIN_N,'heldout_examples':HELDOUT_N,'rule':'key:value reformat: kv: KEY=VALUE => KEY: VALUE','rule_loss':quality,'heldout_rule_loss':quality,'eval_ppl':ppl,'base_rule_loss':base_rule_loss,'base_eval_ppl':base_ppl,'runtime_s':runtime,'max_memory_allocated_gb':torch.cuda.max_memory_allocated()/1e9 if device=='cuda' else 0.0,'gate_pass':gate}
-    common.wjson(MARKER,marker)
-    del opt,model,sd
-    common.release(device)
-    return marker
+    marker={'seed':SEED,'rank':RANK,'alpha':ALPHA,'steps':STEPS,'batch_size':BATCH_SIZE,'seq_len':SEQ_LEN,'train_examples':TRAIN_N,'heldout_examples':HELDOUT_N,'rule':'key:value reformat: kv: KEY=VALUE => KEY: VALUE','rule_loss':quality,'heldout_rule_loss':quality,'eval_ppl':ppl,'base_rule_loss':base_rule_loss,'base_eval_ppl':base_ppl,'runtime_s':runtime,'max_memory_allocated_gb':torch.cuda.max_memory_allocated()/1e9 if device=='cuda' else 0.0,'gate_pass':gate}; common.wjson(MARKER,marker)
+    del opt,model,sd; common.release(device); return marker
 
 def ensure_specialist(tok,train,held,device,base_rule_loss,base_ppl):
     expected={'seed':SEED,'rank':RANK,'alpha':ALPHA,'steps':STEPS,'batch_size':BATCH_SIZE,'seq_len':SEQ_LEN,'train_examples':TRAIN_N,'heldout_examples':HELDOUT_N}
     if (SPECIALIST_DIR/'model.safetensors').exists() and MARKER.exists():
         m=common.rjson(MARKER)
-        if all(m.get(k)==v for k,v in expected.items()) and m.get('gate_pass'):
-            return m
+        if all(m.get(k)==v for k,v in expected.items()) and m.get('gate_pass'): return m
     if (SPECIALIST_DIR/'model.safetensors').exists():
-        model=common.state_to_model(common.load_state(SPECIALIST_DIR),common.REF_MODEL,dtype=torch.bfloat16,device=device)
-        quality,ppl=model_metrics(model,held,device); del model; common.release(device)
-        gate=quality < 0.5*base_rule_loss and ppl <= 1.5*base_ppl
-        if not gate: raise RuntimeError(f"SPECIALIST_GATE_FAILED rule_loss={quality} base_rule_loss={base_rule_loss} eval_ppl={ppl} base_eval_ppl={base_ppl}")
-        marker={**expected,'rule':'key:value reformat: kv: KEY=VALUE => KEY: VALUE','rule_loss':quality,'heldout_rule_loss':quality,'eval_ppl':ppl,'base_rule_loss':base_rule_loss,'base_eval_ppl':base_ppl,'runtime_s':0.0,'max_memory_allocated_gb':torch.cuda.max_memory_allocated()/1e9 if device=='cuda' else 0.0,'gate_pass':True,'recovered_from_weights':True}
-        common.wjson(MARKER,marker); return marker
+        model=common.state_to_model(common.load_state(SPECIALIST_DIR),common.REF_MODEL,dtype=torch.bfloat16,device=device); quality,ppl=model_metrics(model,held,device); del model; common.release(device); gate=quality<0.5*base_rule_loss and ppl<=1.5*base_ppl
+        if not gate: raise RuntimeError(f'SPECIALIST_GATE_FAILED rule_loss={quality} base_rule_loss={base_rule_loss} eval_ppl={ppl} base_eval_ppl={base_ppl}')
+        marker={**expected,'rule':'key:value reformat: kv: KEY=VALUE => KEY: VALUE','rule_loss':quality,'heldout_rule_loss':quality,'eval_ppl':ppl,'base_rule_loss':base_rule_loss,'base_eval_ppl':base_ppl,'runtime_s':0.0,'max_memory_allocated_gb':torch.cuda.max_memory_allocated()/1e9 if device=='cuda' else 0.0,'gate_pass':True,'recovered_from_weights':True}; common.wjson(MARKER,marker); return marker
     return train_specialist(tok,train,held,device,base_rule_loss,base_ppl)
 
 def evaluate_merge(cand_sd,specialist_sd,model_dir,alphas,device,ties=False):
-    batches=eval_batches(device); cand_sd={k:v.to('cpu') for k,v in cand_sd.items()}; specialist_sd={k:v.to('cpu') for k,v in specialist_sd.items()}
-    model=common.state_to_model(cand_sd,model_dir,dtype=torch.bfloat16,device=device); base_ppl=common.perplexity(model,batches); out=[]
+    batches=eval_batches(device); cand_sd={k:v.cpu() for k,v in cand_sd.items()}; specialist_sd={k:v.cpu() for k,v in specialist_sd.items()}; model=common.state_to_model(cand_sd,model_dir,dtype=torch.bfloat16,device=device); base_ppl=common.perplexity(model,batches); out=[]
     for alpha in alphas:
-        merged=common.merge_sd(cand_sd,specialist_sd,alpha,ties=ties,density=DENSITY)
-        model.load_state_dict(merged,strict=False); model.eval()
-        ppl=common.perplexity(model,batches); loss=task_loss(model,HELD_DATA,device)
-        out.append({'alpha':alpha,'eval_ppl':ppl,'specialist_rule_loss':loss,'pass':ppl<=1.05*base_ppl and loss<=0.7*SPECIALIST_QUALITY['rule_loss']})
-        del merged
+        merged=common.merge_sd(cand_sd,specialist_sd,alpha,ties=ties,density=DENSITY); model.load_state_dict(merged,strict=False); model.eval(); ppl=common.perplexity(model,batches); loss=task_loss(model,HELD_DATA,device); out.append({'alpha':alpha,'eval_ppl':ppl,'specialist_rule_loss':loss,'pass':ppl<=1.05*base_ppl and loss<=0.7*SPECIALIST_QUALITY['rule_loss']}); del merged
     del model; common.release(device); return base_ppl,out
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--model-dir',required=True); ap.add_argument('--out',required=True); ap.add_argument('--tags',default=''); ap.add_argument('--dry-run',action='store_true')
-    args=ap.parse_args(); t0=time.perf_counter(); model_dir=Path(args.model_dir).expanduser().resolve(); out=Path(args.out)
-    result={'script':'merge_probe.py','model_dir':str(model_dir),'tag':model_dir.name if common.WORK in model_dir.parents else 'base','git_head':subprocess.check_output(['git','-C','/home/admin/theseus','rev-parse','HEAD'],text=True).strip(),'torch':torch.__version__,'results':{},'duration_s':None}
+    args=ap.parse_args(); t0=time.perf_counter(); model_dir=Path(args.model_dir).expanduser().resolve(); out=Path(args.out); result={'script':'merge_probe.py','model_dir':str(model_dir),'tag':model_dir.name if common.WORK in model_dir.parents else 'base','git_head':subprocess.check_output(['git','-C','/home/admin/theseus','rev-parse','HEAD'],text=True).strip(),'torch':torch.__version__,'results':{},'duration_s':None}
     try:
         global HELD_DATA,SPECIALIST_QUALITY
         if args.dry_run:
             result['results']={'dry_run':True,'merge_shapes':[(2,2),(2,2)],'alphas':list(ALPHAS)}; result['duration_s']=time.perf_counter()-t0; common.wjson(out,result); print(json.dumps(result,indent=2,sort_keys=True)); return
-        set_seed(); device=common.pick_device(3.2); device_note=device if device == 'cuda' else 'cpu: insufficient free CUDA memory or CUDA unavailable'
+        set_seed()
+        # Acquire the arbiter before measuring VRAM: llama.cpp is a separate process.
         with common.lock('gpu'):
             while common.pick_device(3.2) != 'cuda': common.log('waiting for gpu'); time.sleep(30)
-            device='cuda'; tok=common.load_tokenizer(common.REF_MODEL); ex=examples(TRAIN_N+HELDOUT_N); train=make_data(tok,ex[:TRAIN_N]); HELD_DATA=make_data(tok,ex[TRAIN_N:])
-            base_model=common.load_model(common.REF_MODEL,dtype=torch.bfloat16,device=device); base_rule_loss,base_ppl=model_metrics(base_model,HELD_DATA,device); del base_model; common.release(device)
-            SPECIALIST_QUALITY=ensure_specialist(tok,train,HELD_DATA,device,base_rule_loss,base_ppl)
-            cand=common.load_state(model_dir); spec=common.load_state(SPECIALIST_DIR)
-            linear_base,linear=evaluate_merge(cand,spec,model_dir,ALPHAS,device,False)
-            ties_base,ties=evaluate_merge(cand,spec,model_dir,ALPHAS,device,True)
+            device='cuda'; device_note=device; tok=common.load_tokenizer(common.REF_MODEL); ex=examples(TRAIN_N+HELDOUT_N); train=make_data(tok,ex[:TRAIN_N]); HELD_DATA=make_data(tok,ex[TRAIN_N:]); base_model=common.load_model(common.REF_MODEL,dtype=torch.bfloat16,device=device); base_rule_loss,base_ppl=model_metrics(base_model,HELD_DATA,device); del base_model; common.release(device); SPECIALIST_QUALITY=ensure_specialist(tok,train,HELD_DATA,device,base_rule_loss,base_ppl); cand=common.load_state(model_dir); spec=common.load_state(SPECIALIST_DIR); linear_base,linear=evaluate_merge(cand,spec,model_dir,ALPHAS,device,False); ties_base,ties=evaluate_merge(cand,spec,model_dir,ALPHAS,device,True); del cand,spec; common.release(device)
             def smallest(rows): return min((r['alpha'] for r in rows if r['pass']),default=None)
             result['results']={'seed':SEED,'rule':SPECIALIST_QUALITY['rule'],'steps':STEPS,'lora_rank':RANK,'lora_alpha':ALPHA,'density':DENSITY,'alphas':list(ALPHAS),'specialist':SPECIALIST_QUALITY,'candidate_ppl':linear_base,'base_rule_loss':base_rule_loss,'base_eval_ppl':base_ppl,'linear':{'matrix':linear,'smallest_passing_alpha':smallest(linear)},'ties':{'matrix':ties,'smallest_passing_alpha':smallest(ties)},'device':device,'device_note':device_note}
     except Exception as e: result['error']={'type':type(e).__name__,'message':str(e)}
