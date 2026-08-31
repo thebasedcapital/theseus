@@ -27,6 +27,16 @@ never seen (see §1). And the `ε → c²ε` config edit is what makes residual 
 without it, `g5_c8` drifts by `max|Δlogit| 1.67e-01` / `KL 3.89e-06` purely because
 `rms(cz) ≠ c·rms(z)` at finite ε; with it, `g5_c8_eps` is exactly zero.
 
+The two repairs of the *same* lattice stress isolate the rounding explanation on the real model:
+
+| artifact | repair rule | max\|Δlogit\| | mean KL | top-1 |
+|---|---|---:|---:|---:|
+| `g3_pow2_rep` | column-energy balance snapped to `2^k` | **0.00e+00** | **0.00e+00** | **1.00000** |
+| `g3_pow2_rep_raw` | same balance, continuous multiplier | 5.40e-01 | 5.29e-05 | 0.99707 |
+
+Same stress, same objective, same data — only the representability of the gauge parameter differs,
+and the drift appears exactly where the theory says it must.
+
 So the setup M1 needs is on the table: **identical logits, identical perplexity, different bytes**,
 and the only remaining question is whether real surgery treats them differently. That is what
 §5's panel answers.
