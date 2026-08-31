@@ -6,6 +6,31 @@ model-judged or simulated; every number comes from a persisted JSON under `m1/wo
 scripts that produced it are in `m1/`. Derivations: `M1_NOTES.md`. Novelty boundary:
 `m1/PRIOR_ART.md`. Table generator: `m1/report.py`; static analysis: `m1/analyze.py`.
 
+## 0. Headline: checkpoints with provably *bit-identical* behaviour, different bytes
+
+The exponent-lattice gauges (§1, bottom) remove every numerical caveat from the equivalence half
+of M1. `G3:pow2` rescales the RMSNorm/consumer pair by `2^k`, `k ∈ [-10,10]`, per input column of
+q, k, v, gate, up in all 24 layers — 3 orders of magnitude of coordinate change, and because
+bf16 × `2^k` is exact, the resulting artifact is a *different file that computes the identical
+function to the last bit*:
+
+| artifact | sha256 (file digest) | max\|Δlogit\| | mean KL | top-1 | PPL |
+|---|---|---:|---:|---:|---:|
+| `base` | `88c142557820ccad…` | 0 (self) | 0 | 1.00000 | 17.7102 |
+| `g3_pow2` (stressed) | `0c106a426af05dc8…` | **0.00e+00** | **0.00e+00** | **1.00000** | 17.7102 |
+| `g3_pow2_rep` (repaired) | `eee3345d64d604b1…` | **0.00e+00** | **0.00e+00** | **1.00000** | 17.7102 |
+| `g5_c8_rep` (repaired) | `88c142557820ccad…` | 0.00e+00 | 0 | 1.00000 | 17.7102 |
+
+`g5_c8_rep`'s digest is the *pristine checkpoint's own blob hash*: the artifact-only canonicalizer
+regenerated the original file byte for byte from a tie-broken, embedding-scaled descendant it had
+never seen (see §1). And the `ε → c²ε` config edit is what makes residual scaling bitwise-exact:
+without it, `g5_c8` drifts by `max|Δlogit| 1.67e-01` / `KL 3.89e-06` purely because
+`rms(cz) ≠ c·rms(z)` at finite ε; with it, `g5_c8_eps` is exactly zero.
+
+So the setup M1 needs is on the table: **identical logits, identical perplexity, different bytes**,
+and the only remaining question is whether real surgery treats them differently. That is what
+§5's panel answers.
+
 ## 1. The exact gauges, verified on a real checkpoint
 
 Gate (frozen before measurement, `verify_equiv.GATE`): fp32 forwards over the stored bf16
