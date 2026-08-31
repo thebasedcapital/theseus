@@ -189,6 +189,22 @@ Reference-relative contracts, fixed on base *before* any variant was measured:
   collateral at this budget, so the contract is reference-relative
   (`capture ≥ 0.75 × capture_ref` and `protected_dppl ≤ dppl_ref + 0.02`).
 
+## 4b. Importer audit: the GGUF sees the coordinates we wrote
+
+Everything above would be meaningless if `convert_hf_to_gguf.py` re-expressed the weights before
+quantizing. Audited against the actual artifacts (`m1/check_gguf_layout.py`, layout JSON in
+`m1/work/gguf/g1_haar.layout.json`) and against the importer source:
+
+* the Qwen2 GGUF carries 290 tensors with the expected per-block names, q/k/v biases at
+  896/128/128, `qwen2.rope.freq_base` in metadata, and `attn_norm`/`ffn_norm` as **separate F32
+  tensors** — so no RMSNorm absorption happens on export and the `G3` column scaling really is
+  present when the K-quant blocks are formed;
+* **no q/k row permutation or interleaving**: `conversion/qwen.py::Qwen2Model.modify_tensors` only
+  re-prefixes names, whereas `llama.py` has an explicit `permute` on q/k weights and biases and
+  `plamo.py` a separate `shuffle_attn_q_weight` — neither applies to Qwen2. Therefore the RoPE
+  pairs my `G2` gauge rotates are the same pairs the quantizer sees, and the `G2` row needs no
+  caveat.
+
 ## 5. Status of the surgery panel
 
 Phase 1 (the equivalence gate above) is complete for 18 checkpoints. Phase 2 — the same three

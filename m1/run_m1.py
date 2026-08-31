@@ -95,8 +95,8 @@ def summarize(variant: str, eq: dict | None, probes: dict) -> dict:
         for k, v in (res.get("results") or {}).items():
             if not isinstance(v, dict):
                 continue
-            if "pass" in v:
-                verdicts[k] = bool(v["pass"])
+            if v.get("pass") is not None:      # None means "this run defined the reference",
+                verdicts[k] = bool(v["pass"])   # never tally it as a failure
             elif "smallest_passing_alpha" in v:          # merge matrix shape
                 verdicts[k] = v["smallest_passing_alpha"] is not None
             elif isinstance(v.get("matrix"), list):
