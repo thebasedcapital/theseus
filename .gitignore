@@ -17,6 +17,11 @@ target/
 
 m1/rescue_out/
 
+# Third-party eval corpus (CC BY-SA 4.0) is not redistributed here.
+# Regenerate byte-identically with:  cd m1 && python prep_data.py
+# Pinned sha256 f58687faad11242aac5876010246b033b73a632932cd3956129281348de38af8
+m1/data/eval_wikitext.txt
+
 # Graphify persistent index: commit graph/report/manifest, ignore local caches and snapshots.
 graphify-out/cache/
 graphify-out/20*/
