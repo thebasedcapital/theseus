@@ -1,0 +1,5 @@
+# HarvestLineage (harvest/.gitignore): harvest cache is regenerable — never commit it.
+cache/raw/
+cache/probes/
+cache/w/
+__pycache__/
