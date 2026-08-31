@@ -1,8 +1,20 @@
-# Theseus V0 🧬
+# Theseus 🧬 — model optionality / checkpoint lifecycle diagnostics
 
-A no-LLM proof-of-concept for **model optionality**: measuring a neural network by the future transformations it can still safely undergo.
+> Two checkpoints can compute the same function and have very different futures. Theseus
+> measures the difference, per operation, and then repairs it without changing the function.
 
-## What this prototype tests
+This repo is organised as:
+
+| path | what |
+|---|---|
+| `prototype.py`, `results.json`, `math.md`, `optionality.svg` | **V0** — the deterministic, no-LLM ReLU smoke test (4 operations, 4/4 → 0/4 → 4/4) |
+| `ROADMAP.md` | the plan: Track A scientific validity, Track B usable local-ML tool, milestones M1…M6 |
+| `M1_NOTES.md` | **M1** derivation of the exact symmetry group of a Qwen2 decoder + the frozen protocol |
+| `M1_RESULTS.md`, `M1_TABLE.md`, `M1_ANALYSIS.md` | **M1** measured results: the reserve table and the static-proxy analysis |
+| `m1/` | M1 code: gauges, canonicalizers, equivalence gate, llama.cpp/LoRA/merge probes, report |
+| `m1/PRIOR_ART.md` | the novelty boundary against QuaRot / SpinQuant / QuIP# / Git Re-Basin / LoRA-RITE |
+
+## V0 in one screen
 
 Two checkpoints can have the same current behavior but very different futures.
 

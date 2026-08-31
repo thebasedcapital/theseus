@@ -27,3 +27,18 @@ g7_rand_rep      rc=0 dlogit=4.83e-01 kl=3.71e-05 top1=0.99609 ppl=17.7093 (base
 == verify g7_few
 g7_few           rc=0 dlogit=8.11e-03 kl=1.07e-08 top1=1.00000 ppl=17.7101 (base 17.7102) dev=cpu EQUIVALENT
 == verify g4_perm
+g4_perm          rc=0 dlogit=1.26e-04 kl=1.09e-09 top1=1.00000 ppl=17.7102 (base 17.7102) dev=cpu EQUIVALENT
+== verify g5_c8
+g5_c8            rc=1 NO JSON: [Errno 2] No such file or directory: 'm1/work/equiv/g5_c8.json' in use. Of the allocated memory 2.37 GiB is allocated by PyTorch, and 126.03 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+
+== verify g5_c8_rep
+g5_c8_rep        rc=2 dlogit=4.22e+01 kl=2.48e+01 top1=0.00000 ppl=1099411030016.0000 (base 17.7106) dev=cuda NOT_EQUIVALENT
+BUILD FAIL g5_c8_eps
+== verify g5_c8_eps_rep
+g5_c8_eps_rep    rc=2 dlogit=4.19e+01 kl=2.51e+01 top1=0.00000 ppl=1305968902144.0000 (base 17.7106) dev=cuda NOT_EQUIVALENT
+== verify g6_perm
+g6_perm          rc=0 dlogit=1.64e-04 kl=-5.21e-09 top1=1.00000 ppl=17.7106 (base 17.7106) dev=cuda EQUIVALENT
+== verify bad_all
+bad_all          rc=2 dlogit=1.07e+00 kl=1.49e-04 top1=0.99292 ppl=17.6912 (base 17.7106) dev=cuda NOT_EQUIVALENT
+== verify bad_all_rep
+bad_all_rep      rc=2 dlogit=1.98e+00 kl=3.35e-04 top1=0.99170 ppl=17.6876 (base 17.7102) dev=cpu NOT_EQUIVALENT

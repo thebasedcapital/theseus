@@ -68,12 +68,12 @@ _v("g6_perm",      "G6::1",      None,  "CONTROL: SwiGLU neuron permutation (the
 _v("g7_rand",      "G7:random:1", None, "SwiGLU up-branch diagonal +-3 decades per neuron (V0\'s mechanism)")
 _v("g7_few",       "G7:few:1",    None, "same family, extreme scale on 0.1% of neurons (outlier-neuron model)")
 _v("g7_rand_rep",  "G7:random:1", "g7", "stress + V0 closed-form balance")
-_v("bad_all",       "G3:random:1+G1:haar:1+G2:random:1+G7:random:1", None,  "V0-style multi-family stress, seed 1")
-_v("bad_all_rep",   "G3:random:1+G1:haar:1+G2:random:1", "all", "seed 1 stress + full canonicalization")
-_v("bad_all_s2",    "G3:random:2+G1:haar:2+G2:random:2+G7:random:2", None,  "replication seed 2")
-_v("bad_all_s2_rep", "G3:random:2+G1:haar:2+G2:random:2+G7:random:2", "all", "replication seed 2 + repair")
-_v("bad_all_s3",    "G3:random:3+G1:haar:3+G2:random:3+G7:random:3", None,  "replication seed 3")
-_v("bad_all_s3_rep", "G3:random:3+G1:haar:3+G2:random:3+G7:random:3", "all", "replication seed 3 + repair")
+_v("bad_all",       "G3:pow2:1+G1:haar:1+G2:random:1+G7:random:1", None,  "V0-style multi-family stress (4 families), seed 1; G3 drawn on the bf16-lossless exponent lattice")
+_v("bad_all_rep",   "G3:random:1+G1:haar:1+G2:random:1", "all", "seed 1 stress + full canonicalization (lattice-snapped G3, lossless)")
+_v("bad_all_s2",    "G3:pow2:2+G1:haar:2+G2:random:2+G7:random:2", None,  "replication seed 2")
+_v("bad_all_s2_rep", "G3:pow2:2+G1:haar:2+G2:random:2+G7:random:2", "all", "replication seed 2 + repair")
+_v("bad_all_s3",    "G3:pow2:3+G1:haar:3+G2:random:3+G7:random:3", None,  "replication seed 3")
+_v("bad_all_s3_rep", "G3:pow2:3+G1:haar:3+G2:random:3+G7:random:3", "all", "replication seed 3 + repair")
 
 # --- `prepare` on a model nobody stressed (does canonicalization buy reserve on its own?) --
 _v("prep_base",    None, "all",  "canonicalizer applied to the pristine base")
@@ -104,12 +104,15 @@ def build(name: str, arch: common.Arch, base_sd: dict, out_root: Path,
         man["gauge"] = m
         cfg_patch.update(m.get("config_patch") or {})
     if cmethod:
-        sd, ms = canon.run(sd, arch, CANS[cmethod], g3_snap=(cmethod == "g3s"))
+        sd, ms = canon.run(sd, arch, CANS[cmethod], g3_snap=(cmethod in ("g3s", "all")))
         man["canon"] = ms
         if "G5" in CANS[cmethod] and "rms_norm_eps" in cfg_patch:
             # the tied representative is the c=1 point, where the original eps belongs
             cfg_patch["rms_norm_eps"] = eps0
-    untied = bool(spec) and "G5" in spec
+    # untied only if the artifact still carries its own head: a G5 *repair* re-ties, and
+    # writing tie_word_embeddings=false without an lm_head tensor would make transformers
+    # initialise a random head (measured: ppl 1.1e15). Decide from the final tensors, not the spec.
+    untied = "lm_head.weight" in sd
     d = out_root / name
     if untied:
         cfg_patch["tie_word_embeddings"] = False

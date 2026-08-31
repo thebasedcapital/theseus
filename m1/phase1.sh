@@ -5,6 +5,8 @@ set -uo pipefail
 cd /home/admin/theseus
 PY=/home/admin/counterpoint/.venv/bin/python
 export TSX_THREADS="${TSX_THREADS:-4}" OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}" MKL_NUM_THREADS="${MKL_NUM_THREADS:-4}"
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export TSX_CPU=1   # the surgery probes own the GPU; verification is CPU-only
 for v in "$@"; do
   [ "$v" = "base" ] && { echo "== control: base vs itself (harness floor)"; \
       $PY m1/verify_equiv.py --ntokens "${NTOK:-4096}" --out m1/work/equiv/base.json >/dev/null 2>&1; \

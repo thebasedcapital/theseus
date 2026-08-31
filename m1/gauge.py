@@ -394,7 +394,7 @@ def apply_spec(sd: dict, arch: Arch, spec: str,
             out, m = g5_res_scale(out, arch, float(mode[1:]),
                                   rms_norm_eps=cfg_eps if want_eps else None)
             if m.get("eps_patch"):
-                cfg_patch["rms_norm_eps"] = m["eps_patch"]
+                cfg_patch.update(m["eps_patch"])
         elif fam == "G6":
             out, m = g6_neuron_perm(out, arch, seed)
         elif fam == "G7":

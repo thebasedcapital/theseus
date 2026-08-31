@@ -43,7 +43,7 @@ def log(*a):
 def pick_device(need_gb: float = 3.6) -> str:
     """The GPU is shared with the desktop and sibling agents: take it only if it really
     has room, otherwise run on CPU (slow but correct) instead of OOM-killing a sibling."""
-    if not torch.cuda.is_available():
+    if os.environ.get("TSX_CPU") or not torch.cuda.is_available():
         return "cpu"
     try:
         free, _ = torch.cuda.mem_get_info()
