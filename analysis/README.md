@@ -82,11 +82,15 @@ contract when its chosen cut both catches >=95% of true fails and reaches precis
 `contract unchanged` is the honest output. `n` per flag is printed so the reader can see how
 far each flag is from the gate.
 
-## Current evidence base rates (contract v2)
+## Current fitted status
 
-Computed from `analysis/data/evidence/` (20 scanned artifacts, 34 measured labels), per flag:
-artifact-level prevalence, measured-confusion n, catastrophic rate. See `baserates.py
---root analysis/data/evidence` for live intervals; labels per flag today are
-export.f16 = 2, quant.q8_0 = 10, quant.q4_k_m = 10, adapt.lora.r16 = 12 — all below the
-n>=20 emission gate, so `thresholds.py` correctly refuses to emit on real data until more
-cells land.
+The reproducible freeze now contains 26 scanned artifacts and 55 measured labels. CPU-only,
+native-bf16 augmentation adds nine equivalence-gated artifacts with matching scan JSONs.
+
+- `quant.q8_0`: n=20, contract v3 emitted at `q4_block_mse > 0.01282348`; recall 1.0,
+  precision 0.40, specificity 0.833. Eight prior verdicts are invalidated, never rewritten.
+- `quant.q4_k_m`: n=20, fit refused. Best recall-preserving cut has precision 0.278, below the
+  required 0.3125.
+- export and adaptation remain below n=20.
+
+Identical evidence reuses contract v3 byte-for-byte. It does not emit duplicate v4 files.

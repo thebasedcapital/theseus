@@ -1,0 +1,147 @@
+{
+  "arch": "Qwen2ForCausalLM",
+  "families": {
+    "down_proj": {
+      "amax_over_rms": 34.08257508,
+      "below_f16_normal": 312793.0,
+      "dyn_range_log10": 7.80329879,
+      "frac_below_f16_normal": 0.0029905,
+      "q4_block_mse": 0.01109909,
+      "q4_block_mse_pooled": 0.01109643,
+      "row_energy_imbalance": 276.29923619,
+      "weights": 104595456.0
+    },
+    "gate_proj": {
+      "amax_over_rms": 88.89625556,
+      "below_f16_normal": 14091935.0,
+      "dyn_range_log10": 13.46874495,
+      "frac_below_f16_normal": 0.13472798,
+      "q4_block_mse": 0.01070298,
+      "q4_block_mse_pooled": 0.01083196,
+      "row_energy_imbalance": 9218.07530654,
+      "weights": 104595456.0
+    },
+    "k_proj": {
+      "amax_over_rms": 79.49158067,
+      "below_f16_normal": 357986.0,
+      "dyn_range_log10": 12.44242581,
+      "frac_below_f16_normal": 0.13005793,
+      "q4_block_mse": 0.01165503,
+      "q4_block_mse_pooled": 0.01133064,
+      "row_energy_imbalance": 7737.24259052,
+      "weights": 2752512.0
+    },
+    "o_proj": {
+      "amax_over_rms": 50.80017095,
+      "below_f16_normal": 68582.0,
+      "dyn_range_log10": 7.67477082,
+      "frac_below_f16_normal": 0.00355945,
+      "q4_block_mse": 0.01018009,
+      "q4_block_mse_pooled": 0.01015753,
+      "row_energy_imbalance": 833.06072961,
+      "weights": 19267584.0
+    },
+    "q_proj": {
+      "amax_over_rms": 91.34057386,
+      "below_f16_normal": 2698653.0,
+      "dyn_range_log10": 12.71775975,
+      "frac_below_f16_normal": 0.14006183,
+      "q4_block_mse": 0.01130853,
+      "q4_block_mse_pooled": 0.01138757,
+      "row_energy_imbalance": 54643.29678946,
+      "weights": 19267584.0
+    },
+    "up_proj": {
+      "amax_over_rms": 105.02810442,
+      "below_f16_normal": 14756312.0,
+      "dyn_range_log10": 13.41268124,
+      "frac_below_f16_normal": 0.14107986,
+      "q4_block_mse": 0.01065492,
+      "q4_block_mse_pooled": 0.01082746,
+      "row_energy_imbalance": 12631.97600255,
+      "weights": 104595456.0
+    },
+    "v_proj": {
+      "amax_over_rms": 52.36282071,
+      "below_f16_normal": 402914.0,
+      "dyn_range_log10": 11.7227084,
+      "frac_below_f16_normal": 0.14638047,
+      "q4_block_mse": 0.01282682,
+      "q4_block_mse_pooled": 0.01321871,
+      "row_energy_imbalance": 234.08518632,
+      "weights": 2752512.0
+    }
+  },
+  "path": "m1/work/g3_smooth/model.safetensors",
+  "skipped": [
+    [
+      "model.layers.0.self_attn.k_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.0.self_attn.q_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.0.self_attn.v_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.1.self_attn.k_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.1.self_attn.q_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.1.self_attn.v_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.10.self_attn.k_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.10.self_attn.q_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.10.self_attn.v_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.11.self_attn.k_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.11.self_attn.q_proj.bias",
+      "rank 1 skipped"
+    ],
+    [
+      "model.layers.11.self_attn.v_proj.bias",
+      "rank 1 skipped"
+    ]
+  ],
+  "total": {
+    "amax_over_rms": 125.37625374,
+    "below_f16_normal": 32689175.0,
+    "dyn_range_log10": 13.51142316,
+    "frac_below_f16_normal": 0.0913548,
+    "q4_block_mse": 0.01120392,
+    "q4_block_mse_pooled": 0.01092001,
+    "row_energy_imbalance": 54643.29678946,
+    "weights": 357826560.0
+  },
+  "verdicts": [
+    "F16_EXPORT_RISK gate_proj: 13.473% of weights below the f16 normal range",
+    "ADAPT_RISK gate_proj: dynamic range 1e13.5 > 1e12.0",
+    "F16_EXPORT_RISK k_proj: 13.006% of weights below the f16 normal range",
+    "ADAPT_RISK k_proj: dynamic range 1e12.4 > 1e12.0",
+    "F16_EXPORT_RISK q_proj: 14.006% of weights below the f16 normal range",
+    "ADAPT_RISK q_proj: dynamic range 1e12.7 > 1e12.0",
+    "F16_EXPORT_RISK up_proj: 14.108% of weights below the f16 normal range",
+    "ADAPT_RISK up_proj: dynamic range 1e13.4 > 1e12.0",
+    "F16_EXPORT_RISK v_proj: 14.638% of weights below the f16 normal range"
+  ]
+}

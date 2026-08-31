@@ -17,11 +17,9 @@ QBITS = 7.0                              # 2^(4-1) - 1, symmetric 4-bit max-abs 
 CATASTROPHE_MULTIPLE = 100.0
 REF_ABS_MIN = 1e-9    # below this the damage/reference ratio is meaningless; catastrophic undefined
 
-# ---- Contract v2: the provisional thresholds currently compiled into inspect/src/main.rs ----
-# Calibrated on the n = 2 measured contrast (base vs g3_pow2) and printed as provisional with
-# their n in the binary's own output. Thresholds are chosen by thresholds.py and never changed
-# in place: a new contract is emitted as a new version, prior verdicts it invalidates are listed.
-CONTRACT_V2 = 2
+# ---- Active contract: Q8 v3 fitted at n=20; other flags remain v2 provisional ----
+# Immutable source: analysis/data/evidence/contracts/contract-3.json.
+CONTRACT_VERSION = 3
 FLAG_DEFS = {
     "export.f16": {
         "op": "export.gguf.f16",
@@ -33,12 +31,12 @@ FLAG_DEFS = {
     },
     "quant.q8_0": {
         "op": "quantize.gguf.q8_0",
-        "feature": "q4_block_mse",                # mean of per-tensor 32-block ratios
-        "threshold": 0.0165,                      # 1.5x measured dense Qwen2.5 family (0.011)
-        "total_threshold": 0.0168,                # 1.5x measured base total J (0.01123)
+        "feature": "q4_block_mse",
+        "threshold": 0.01282348,
+        "total_threshold": 0.0168,
         "aggregate": "worst_family_or_total",
-        "damage": "rel_dppl",                     # fraction, not percent (base q8 = -0.000989)
-        "reference_note": "base q8_0 rel_dppl -0.000989",
+        "damage": "rel_dppl",
+        "reference_note": "v3 n=20: recall 1.0, precision 0.4; base q8_0 rel_dppl -0.000989",
     },
     "quant.q4_k_m": {
         "op": "quantize.gguf.q4_k_m",

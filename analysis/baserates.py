@@ -15,7 +15,7 @@ import json
 import sys
 from math import sqrt
 
-from risk_flags import (FLAG_DEFS, CONTRACT_V2, FEATURE_KEYS, FAMILIES, flag_ranks,
+from risk_flags import (FLAG_DEFS, CONTRACT_VERSION, FEATURE_KEYS, FAMILIES, flag_ranks,
                         family_fires, is_catastrophic, artifact_fires_eval, CATASTROPHE_MULTIPLE)
 from loader import (Inputs, load_all, summarize, note_missing)
 
@@ -318,9 +318,8 @@ def catastrophe(flag, labels):
 # ---- compute + report ----------------------------------------------------------------------
 
 def compute(inputs, thr_overrides=None):
-    """Base rates under the referenced contract (v2). thr_overrides maps a flag to an explicit
-    primary cut (used by the threshold/vs-learned-contract flows and by tests); prevalence and
-    confusion switch meaning to 'flag fires under this cut'."""
+    """Base rates under the active contract. ``thr_overrides`` maps a flag to an explicit
+    primary cut used by threshold-fitting flows and tests."""
     frames = load_all(inputs)
     scans, labels = frames["scans"], all_labels(frames)
     fam_rows, total_rows = scans["family"], scans["total"]
@@ -333,7 +332,7 @@ def compute(inputs, thr_overrides=None):
         c = thr_overrides.get(flag) if thr_overrides else None
         conf, n_meas = build_confusion(flag, fam_rows, total_rows, labels, thr=c)
         result["flags"][flag] = {
-            "contract": {"version": CONTRACT_V2, "threshold": d["threshold"],
+            "contract": {"version": CONTRACT_VERSION, "threshold": d["threshold"],
                          "feature": d["feature"],
                          "override_primary_cut": c},
             "prevalence": {
@@ -383,7 +382,7 @@ def format_report(res):
         else:
             conf = d["confusion"]
             lines.append(f"  confusion (predicted flag vs measured verdict; "
-                         f"contract v{CONTRACT_V2} thresholds; n={n_meas} artifacts):")
+                         f"active contract v{CONTRACT_VERSION}; n={n_meas} artifacts):")
             lines.append(f"    artifact-level: TP={conf['artifact']['tp']} "
                          f"FP={conf['artifact']['fp']} TN={conf['artifact']['tn']} "
                          f"FN={conf['artifact']['fn']}  "

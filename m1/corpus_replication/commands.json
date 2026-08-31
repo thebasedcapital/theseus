@@ -1,0 +1,407 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/home/admin/counterpoint/.venv/bin/python",
+        "/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py",
+        "--outfile",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-bf16.gguf",
+        "--outtype",
+        "bf16",
+        "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 10.59,
+      "output_tail": "M/988M [00:01<00:02, 260Mbyte/s]\nWriting:  49%|\u2588\u2588\u2588\u2588\u258a     | 481M/988M [00:01<00:01, 271Mbyte/s]\nWriting:  52%|\u2588\u2588\u2588\u2588\u2588\u258f    | 511M/988M [00:02<00:01, 276Mbyte/s]\nWriting:  56%|\u2588\u2588\u2588\u2588\u2588\u258c    | 549M/988M [00:02<00:01, 288Mbyte/s]\nWriting:  60%|\u2588\u2588\u2588\u2588\u2588\u2589    | 588M/988M [00:02<00:01, 297Mbyte/s]\nWriting:  63%|\u2588\u2588\u2588\u2588\u2588\u2588\u258e   | 627M/988M [00:02<00:01, 303Mbyte/s]\nWriting:  67%|\u2588\u2588\u2588\u2588\u2588\u2588\u258b   | 658M/988M [00:02<00:01, 304Mbyte/s]\nWriting:  70%|\u2588\u2588\u2588\u2588\u2588\u2588\u2589   | 690M/988M [00:02<00:00, 304Mbyte/s]\nWriting:  74%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258e  | 728M/988M [00:02<00:00, 307Mbyte/s]\nWriting:  78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a  | 767M/988M [00:02<00:00, 309Mbyte/s]\nWriting:  82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258f | 806M/988M [00:02<00:00, 309Mbyte/s]\nWriting:  85%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258d | 837M/988M [00:03<00:00, 293Mbyte/s]\nWriting:  88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a | 867M/988M [00:03<00:00, 289Mbyte/s]\nWriting:  91%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588 | 897M/988M [00:03<00:00, 275Mbyte/s]\nWriting:  94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258e| 925M/988M [00:03<00:00, 268Mbyte/s]\nWriting:  97%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258b| 955M/988M [00:03<00:00, 261Mbyte/s]\nWriting: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2589| 985M/988M [00:03<00:00, 235Mbyte/s]\nWriting: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 988M/988M [00:03<00:00, 264Mbyte/s]\nINFO:hf-to-gguf:Model successfully exported to /home/admin/theseus/m1/corpus_replication/.scratch/base-bf16.gguf\n",
+      "returncode": 0,
+      "started_unix": 1788191130.413338
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-bf16.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_ppl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 3.363,
+      "output_tail": "0.00.897.915 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.197.945 I \n0.01.198.054 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.198.074 I perplexity: tokenizing the input ..\n0.01.226.730 I perplexity: tokenization took 28.647 ms\n0.01.226.841 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.02.713.713 I perplexity: 1.49 seconds per pass - ETA 0.02 minutes\n[1]11.9079,[2]14.8324,[3]16.9070,[4]18.2368,\n0.03.032.387 I Final estimate: PPL = 18.2368 +/- 1.64645\n\n",
+      "returncode": 0,
+      "started_unix": 1788191141.003725
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-bf16.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_kl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4",
+        "--save-all-logits",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-bf16-logits.bin"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 3.74,
+      "output_tail": "0.01.107.191 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.404.268 I \n0.01.404.376 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.404.454 I perplexity: saving all logits to /home/admin/theseus/m1/corpus_replication/.scratch/base-bf16-logits.bin\n0.01.404.460 I perplexity: tokenizing the input ..\n0.01.412.498 I perplexity: tokenization took 8.029 ms\n0.01.412.969 I perplexity: calculating perplexity over 3 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.02.907.746 I perplexity: 1.42 seconds per pass - ETA 0.02 minutes\n[1]11.9083,[2]14.8327,[3]16.9076,\n0.03.466.642 I Final estimate: PPL = 16.9076 +/- 1.75675\n\n",
+      "returncode": 0,
+      "started_unix": 1788191144.3666618
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-bf16.gguf",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-q8_0.gguf",
+        "Q8_0",
+        "8"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 2.608,
+      "output_tail": " [   896,    896,      1,      1], type =   bf16, converting to q8_0 .. size =     1.53 MiB ->     0.81 MiB\n[ 285/ 290] blk.23.attn_v.bias                   - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB\n[ 286/ 290] blk.23.attn_v.weight                 - [   896,    128,      1,      1], type =   bf16, converting to q8_0 .. size =     0.22 MiB ->     0.12 MiB\n[ 287/ 290] blk.23.ffn_down.weight               - [  4864,    896,      1,      1], type =   bf16, converting to q8_0 .. size =     8.31 MiB ->     4.42 MiB\n[ 288/ 290] blk.23.ffn_gate.weight               - [   896,   4864,      1,      1], type =   bf16, converting to q8_0 .. size =     8.31 MiB ->     4.42 MiB\n[ 289/ 290] blk.23.ffn_norm.weight               - [   896,      1,      1,      1], type =    f32, size =    0.003 MiB\n[ 290/ 290] blk.23.ffn_up.weight                 - [   896,   4864,      1,      1], type =   bf16, converting to q8_0 .. size =     8.31 MiB ->     4.42 MiB\nllama_model_quantize_impl: model size  =   942.43 MiB (16.00 BPW)\nllama_model_quantize_impl: quant size  =   500.79 MiB (8.50 BPW)\n\nllama_quantize: quantize time =  2495.18 ms\nllama_quantize:    total time =  2495.18 ms\n",
+      "returncode": 0,
+      "started_unix": 1788191148.106378
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-q8_0.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_ppl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 2.847,
+      "output_tail": "0.00.917.159 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.106.866 I \n0.01.106.950 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.106.966 I perplexity: tokenizing the input ..\n0.01.124.284 I perplexity: tokenization took 17.31 ms\n0.01.124.361 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.02.218.651 I perplexity: 1.09 seconds per pass - ETA 0.02 minutes\n[1]11.8614,[2]14.8275,[3]16.9008,[4]18.2553,\n0.02.635.853 I Final estimate: PPL = 18.2553 +/- 1.64536\n\n",
+      "returncode": 0,
+      "started_unix": 1788191150.7145047
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-q8_0.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_kl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "1",
+        "--kl-divergence",
+        "--kl-divergence-base",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-bf16-logits.bin"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 2.635,
+      "output_tail": "lexity statistics ======\nMean PPL(Q)                   :  16.897408 \u00b1   1.752615\nMean PPL(base)                :  16.907625 \u00b1   1.756747\nCor(ln(PPL(Q)), ln(PPL(base))):  99.99%\nMean ln(PPL(Q)/PPL(base))     :  -0.000604 \u00b1   0.001755\nMean PPL(Q)/PPL(base)         :   0.999396 \u00b1   0.001754\nMean PPL(Q)-PPL(base)         :  -0.010217 \u00b1   0.029788\n\n====== KL divergence statistics ======\nMean    KLD:   0.001044 \u00b1   0.000037\nMaximum KLD:   0.013937\n99.9%   KLD:   0.008455\n99.0%   KLD:   0.004758\n95.0%   KLD:   0.002702\n90.0%   KLD:   0.002021\nMedian  KLD:   0.000874\n10.0%   KLD:   0.000111\n 5.0%   KLD:   0.000021\n 1.0%   KLD:   0.000002\n 0.1%   KLD:  -0.000002\nMinimum KLD:  -0.000006\n\n====== Token probability statistics ======\nMean    \u0394p: -0.067 \u00b1 0.025 %\nMaximum \u0394p:  2.828%\n99.9%   \u0394p:  2.650%\n99.0%   \u0394p:  1.696%\n95.0%   \u0394p:  1.039%\n90.0%   \u0394p:  0.581%\n75.0%   \u0394p:  0.111%\nMedian  \u0394p: -0.000%\n25.0%   \u0394p: -0.190%\n10.0%   \u0394p: -0.798%\n 5.0%   \u0394p: -1.334%\n 1.0%   \u0394p: -2.373%\n 0.1%   \u0394p: -3.921%\nMinimum \u0394p: -4.673%\nRMS \u0394p    :  0.706 \u00b1 0.037 %\nSame top p: 97.516 \u00b1 0.563 %\n\n0.02.428.726 W ~llama_context:    Vulkan0 compute buffer size of 441.4355 MiB, does not match expectation of 436.4424 MiB\n",
+      "returncode": 0,
+      "started_unix": 1788191153.5617273
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-bf16.gguf",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-q4_k_m.gguf",
+        "Q4_K_M",
+        "8"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 4.974,
+      "output_tail": "MiB ->     0.53 MiB\n[ 285/ 290] blk.23.attn_v.bias                   - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB\n[ 286/ 290] blk.23.attn_v.weight                 - [   896,    128,      1,      1], type =   bf16, converting to q8_0 .. size =     0.22 MiB ->     0.12 MiB\n[ 287/ 290] blk.23.ffn_down.weight               - [  4864,    896,      1,      1], type =   bf16, converting to q6_K .. size =     8.31 MiB ->     3.41 MiB\n[ 288/ 290] blk.23.ffn_gate.weight               - [   896,   4864,      1,      1], type =   bf16, converting to q5_0 .. size =     8.31 MiB ->     2.86 MiB\n[ 289/ 290] blk.23.ffn_norm.weight               - [   896,      1,      1,      1], type =    f32, size =    0.003 MiB\n[ 290/ 290] blk.23.ffn_up.weight                 - [   896,   4864,      1,      1], type =   bf16, converting to q5_0 .. size =     8.31 MiB ->     2.86 MiB\nllama_model_quantize_impl: model size  =   942.43 MiB (16.00 BPW)\nllama_model_quantize_impl: quant size  =   373.71 MiB (6.35 BPW)\nllama_model_quantize_impl: WARNING: 144 of 290 tensor(s) required fallback quantization\n\nllama_quantize: quantize time =  4857.37 ms\nllama_quantize:    total time =  4857.37 ms\n",
+      "returncode": 0,
+      "started_unix": 1788191156.291688
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-q4_k_m.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_ppl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 3.058,
+      "output_tail": "0.01.159.296 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.347.288 I \n0.01.347.368 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.347.388 I perplexity: tokenizing the input ..\n0.01.366.843 I perplexity: tokenization took 19.449 ms\n0.01.366.921 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.02.581.803 I perplexity: 1.21 seconds per pass - ETA 0.02 minutes\n[1]12.2391,[2]15.1537,[3]17.2874,[4]18.7125,\n0.02.886.481 I Final estimate: PPL = 18.7125 +/- 1.69048\n\n",
+      "returncode": 0,
+      "started_unix": 1788191161.2659645
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-q4_k_m.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_kl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "1",
+        "--kl-divergence",
+        "--kl-divergence-base",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/base-bf16-logits.bin"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 3.325,
+      "output_tail": "    1.7953       0.02292 \u00b1    0.01073       0.03166 \u00b1    0.00191     4.553 \u00b1  0.626 %    89.281 \u00b1  1.119 %\n\n====== Perplexity statistics ======\nMean PPL(Q)                   :  17.299613 \u00b1   1.795298\nMean PPL(base)                :  16.907625 \u00b1   1.756747\nCor(ln(PPL(Q)), ln(PPL(base))):  99.47%\nMean ln(PPL(Q)/PPL(base))     :   0.022919 \u00b1   0.010731\nMean PPL(Q)/PPL(base)         :   1.023184 \u00b1   0.010980\nMean PPL(Q)-PPL(base)         :   0.391989 \u00b1   0.187520\n\n====== KL divergence statistics ======\nMean    KLD:   0.031663 \u00b1   0.001913\nMaximum KLD:   0.999578\n99.9%   KLD:   0.542441\n99.0%   KLD:   0.197803\n95.0%   KLD:   0.093701\n90.0%   KLD:   0.060076\nMedian  KLD:   0.020946\n10.0%   KLD:   0.002091\n 5.0%   KLD:   0.000682\n 1.0%   KLD:   0.000033\n 0.1%   KLD:   0.000003\nMinimum KLD:   0.000002\n\n====== Token probability statistics ======\nMean    \u0394p: -0.560 \u00b1 0.163 %\nMaximum \u0394p: 16.072%\n99.9%   \u0394p: 15.956%\n99.0%   \u0394p: 10.922%\n95.0%   \u0394p:  4.453%\n90.0%   \u0394p:  2.665%\n75.0%   \u0394p:  0.412%\nMedian  \u0394p: -0.009%\n25.0%   \u0394p: -1.013%\n10.0%   \u0394p: -4.395%\n 5.0%   \u0394p: -7.070%\n 1.0%   \u0394p: -16.635%\n 0.1%   \u0394p: -31.861%\nMinimum \u0394p: -64.475%\nRMS \u0394p    :  4.553 \u00b1 0.626 %\nSame top p: 89.281 \u00b1 1.119 %\n\n",
+      "returncode": 0,
+      "started_unix": 1788191164.3245025
+    },
+    {
+      "argv": [
+        "/home/admin/counterpoint/.venv/bin/python",
+        "/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py",
+        "--outfile",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16.gguf",
+        "--outtype",
+        "bf16",
+        "/home/admin/theseus/m1/work/prep_base_exact"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 11.763,
+      "output_tail": "01<00:01, 278Mbyte/s]\nWriting:  53%|\u2588\u2588\u2588\u2588\u2588\u258e    | 520M/988M [00:02<00:01, 287Mbyte/s]\nWriting:  56%|\u2588\u2588\u2588\u2588\u2588\u258b    | 558M/988M [00:02<00:01, 294Mbyte/s]\nWriting:  60%|\u2588\u2588\u2588\u2588\u2588\u2588    | 597M/988M [00:02<00:01, 300Mbyte/s]\nWriting:  64%|\u2588\u2588\u2588\u2588\u2588\u2588\u258e   | 628M/988M [00:02<00:01, 302Mbyte/s]\nWriting:  67%|\u2588\u2588\u2588\u2588\u2588\u2588\u258b   | 660M/988M [00:02<00:01, 298Mbyte/s]\nWriting:  71%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588   | 699M/988M [00:02<00:00, 302Mbyte/s]\nWriting:  75%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258d  | 737M/988M [00:02<00:00, 305Mbyte/s]\nWriting:  78%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a  | 776M/988M [00:02<00:00, 291Mbyte/s]\nWriting:  82%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258f | 806M/988M [00:03<00:00, 267Mbyte/s]\nWriting:  85%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258d | 835M/988M [00:03<00:00, 222Mbyte/s]\nWriting:  88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a | 865M/988M [00:03<00:00, 202Mbyte/s]\nWriting:  91%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588 | 895M/988M [00:03<00:00, 186Mbyte/s]\nWriting:  94%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258e| 925M/988M [00:03<00:00, 198Mbyte/s]\nWriting:  96%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258c| 946M/988M [00:03<00:00, 199Mbyte/s]\nWriting:  98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a| 967M/988M [00:03<00:00, 188Mbyte/s]\nWriting: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2589| 988M/988M [00:04<00:00, 191Mbyte/s]\nWriting: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 988M/988M [00:04<00:00, 241Mbyte/s]\nINFO:hf-to-gguf:Model successfully exported to /home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16.gguf\n",
+      "returncode": 0,
+      "started_unix": 1788191167.7247288
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_ppl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 5.423,
+      "output_tail": "0.00.597.829 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 0, abort\n0.00.807.539 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.265.256 I \n0.01.265.350 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.265.364 I perplexity: tokenizing the input ..\n0.01.294.876 I perplexity: tokenization took 29.504 ms\n0.01.295.103 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.04.954.840 I perplexity: 3.66 seconds per pass - ETA 0.05 minutes\n[1]11.9079,[2]14.8324,[3]16.9070,[4]18.2368,\n0.05.229.419 I Final estimate: PPL = 18.2368 +/- 1.64645\n\n",
+      "returncode": 0,
+      "started_unix": 1788191179.487377
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_kl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4",
+        "--save-all-logits",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16-logits.bin"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 4.08,
+      "output_tail": "0.00.764.640 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 0, abort\n0.00.990.123 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.226.253 I \n0.01.226.336 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.226.410 I perplexity: saving all logits to /home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16-logits.bin\n0.01.226.416 I perplexity: tokenizing the input ..\n0.01.231.567 I perplexity: tokenization took 5.146 ms\n0.01.231.640 I perplexity: calculating perplexity over 3 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.03.278.512 I perplexity: 1.99 seconds per pass - ETA 0.02 minutes\n[1]11.9083,[2]14.8327,[3]16.9076,\n0.03.820.673 I Final estimate: PPL = 16.9076 +/- 1.75675\n\n",
+      "returncode": 0,
+      "started_unix": 1788191184.9105868
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16.gguf",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-q8_0.gguf",
+        "Q8_0",
+        "8"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 2.677,
+      "output_tail": " [   896,    896,      1,      1], type =   bf16, converting to q8_0 .. size =     1.53 MiB ->     0.81 MiB\n[ 285/ 290] blk.23.attn_v.bias                   - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB\n[ 286/ 290] blk.23.attn_v.weight                 - [   896,    128,      1,      1], type =   bf16, converting to q8_0 .. size =     0.22 MiB ->     0.12 MiB\n[ 287/ 290] blk.23.ffn_down.weight               - [  4864,    896,      1,      1], type =   bf16, converting to q8_0 .. size =     8.31 MiB ->     4.42 MiB\n[ 288/ 290] blk.23.ffn_gate.weight               - [   896,   4864,      1,      1], type =   bf16, converting to q8_0 .. size =     8.31 MiB ->     4.42 MiB\n[ 289/ 290] blk.23.ffn_norm.weight               - [   896,      1,      1,      1], type =    f32, size =    0.003 MiB\n[ 290/ 290] blk.23.ffn_up.weight                 - [   896,   4864,      1,      1], type =   bf16, converting to q8_0 .. size =     8.31 MiB ->     4.42 MiB\nllama_model_quantize_impl: model size  =   942.43 MiB (16.00 BPW)\nllama_model_quantize_impl: quant size  =   500.79 MiB (8.50 BPW)\n\nllama_quantize: quantize time =  2551.91 ms\nllama_quantize:    total time =  2551.91 ms\n",
+      "returncode": 0,
+      "started_unix": 1788191188.9913244
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-q8_0.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_ppl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 2.924,
+      "output_tail": "0.00.877.929 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.245.136 I \n0.01.245.252 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.245.270 I perplexity: tokenizing the input ..\n0.01.272.174 I perplexity: tokenization took 26.896 ms\n0.01.272.272 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.02.455.730 I perplexity: 1.18 seconds per pass - ETA 0.02 minutes\n[1]11.8497,[2]14.7964,[3]16.8896,[4]18.2359,\n0.02.763.448 I Final estimate: PPL = 18.2359 +/- 1.64485\n\n",
+      "returncode": 0,
+      "started_unix": 1788191191.668245
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-q8_0.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_kl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "1",
+        "--kl-divergence",
+        "--kl-divergence-base",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16-logits.bin"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 2.992,
+      "output_tail": "lexity statistics ======\nMean PPL(Q)                   :  16.881634 \u00b1   1.752292\nMean PPL(base)                :  16.907625 \u00b1   1.756747\nCor(ln(PPL(Q)), ln(PPL(base))):  99.98%\nMean ln(PPL(Q)/PPL(base))     :  -0.001538 \u00b1   0.001815\nMean PPL(Q)/PPL(base)         :   0.998463 \u00b1   0.001813\nMean PPL(Q)-PPL(base)         :  -0.025991 \u00b1   0.030943\n\n====== KL divergence statistics ======\nMean    KLD:   0.001008 \u00b1   0.000034\nMaximum KLD:   0.008798\n99.9%   KLD:   0.007294\n99.0%   KLD:   0.004632\n95.0%   KLD:   0.002535\n90.0%   KLD:   0.001928\nMedian  KLD:   0.000836\n10.0%   KLD:   0.000105\n 5.0%   KLD:   0.000024\n 1.0%   KLD:   0.000001\n 0.1%   KLD:  -0.000002\nMinimum KLD:  -0.000003\n\n====== Token probability statistics ======\nMean    \u0394p: -0.035 \u00b1 0.024 %\nMaximum \u0394p:  3.498%\n99.9%   \u0394p:  2.695%\n99.0%   \u0394p:  1.951%\n95.0%   \u0394p:  1.018%\n90.0%   \u0394p:  0.614%\n75.0%   \u0394p:  0.120%\nMedian  \u0394p: -0.000%\n25.0%   \u0394p: -0.181%\n10.0%   \u0394p: -0.732%\n 5.0%   \u0394p: -1.152%\n 1.0%   \u0394p: -2.043%\n 0.1%   \u0394p: -3.506%\nMinimum \u0394p: -4.095%\nRMS \u0394p    :  0.672 \u00b1 0.034 %\nSame top p: 97.255 \u00b1 0.591 %\n\n0.02.753.576 W ~llama_context:    Vulkan0 compute buffer size of 441.4355 MiB, does not match expectation of 436.4424 MiB\n",
+      "returncode": 0,
+      "started_unix": 1788191194.5920413
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16.gguf",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-q4_k_m.gguf",
+        "Q4_K_M",
+        "8"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 4.926,
+      "output_tail": "MiB ->     0.53 MiB\n[ 285/ 290] blk.23.attn_v.bias                   - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB\n[ 286/ 290] blk.23.attn_v.weight                 - [   896,    128,      1,      1], type =   bf16, converting to q8_0 .. size =     0.22 MiB ->     0.12 MiB\n[ 287/ 290] blk.23.ffn_down.weight               - [  4864,    896,      1,      1], type =   bf16, converting to q6_K .. size =     8.31 MiB ->     3.41 MiB\n[ 288/ 290] blk.23.ffn_gate.weight               - [   896,   4864,      1,      1], type =   bf16, converting to q5_0 .. size =     8.31 MiB ->     2.86 MiB\n[ 289/ 290] blk.23.ffn_norm.weight               - [   896,      1,      1,      1], type =    f32, size =    0.003 MiB\n[ 290/ 290] blk.23.ffn_up.weight                 - [   896,   4864,      1,      1], type =   bf16, converting to q5_0 .. size =     8.31 MiB ->     2.86 MiB\nllama_model_quantize_impl: model size  =   942.43 MiB (16.00 BPW)\nllama_model_quantize_impl: quant size  =   373.71 MiB (6.35 BPW)\nllama_model_quantize_impl: WARNING: 144 of 290 tensor(s) required fallback quantization\n\nllama_quantize: quantize time =  4797.29 ms\nllama_quantize:    total time =  4797.29 ms\n",
+      "returncode": 0,
+      "started_unix": 1788191197.7623909
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-q4_k_m.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_ppl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 5.348,
+      "output_tail": "0.00.808.228 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 0, abort\n0.01.068.883 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.260.425 I \n0.01.260.522 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.260.536 I perplexity: tokenizing the input ..\n0.01.279.134 I perplexity: tokenization took 18.59 ms\n0.01.279.213 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.04.736.804 I perplexity: 3.46 seconds per pass - ETA 0.05 minutes\n[1]11.8950,[2]14.8794,[3]17.0723,[4]18.6254,\n0.05.105.000 I Final estimate: PPL = 18.6254 +/- 1.67189\n\n",
+      "returncode": 0,
+      "started_unix": 1788191202.688203
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-q4_k_m.gguf",
+        "-f",
+        "/home/admin/theseus/m1/corpus_replication/corpus_second_kl.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "1",
+        "--kl-divergence",
+        "--kl-divergence-base",
+        "/home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16-logits.bin"
+      ],
+      "cwd": "/home/admin/theseus",
+      "duration_s": 4.33,
+      "output_tail": "    1.7540       0.00955 \u00b1    0.01139       0.03118 \u00b1    0.00155     4.318 \u00b1  0.530 %    90.458 \u00b1  1.063 %\n\n====== Perplexity statistics ======\nMean PPL(Q)                   :  17.069930 \u00b1   1.754047\nMean PPL(base)                :  16.907625 \u00b1   1.756747\nCor(ln(PPL(Q)), ln(PPL(base))):  99.40%\nMean ln(PPL(Q)/PPL(base))     :   0.009554 \u00b1   0.011389\nMean PPL(Q)/PPL(base)         :   1.009600 \u00b1   0.011498\nMean PPL(Q)-PPL(base)         :   0.162306 \u00b1   0.192522\n\n====== KL divergence statistics ======\nMean    KLD:   0.031178 \u00b1   0.001549\nMaximum KLD:   0.731746\n99.9%   KLD:   0.404350\n99.0%   KLD:   0.182499\n95.0%   KLD:   0.087442\n90.0%   KLD:   0.060625\nMedian  KLD:   0.021772\n10.0%   KLD:   0.002233\n 5.0%   KLD:   0.000441\n 1.0%   KLD:   0.000065\n 0.1%   KLD:   0.000003\nMinimum KLD:   0.000001\n\n====== Token probability statistics ======\nMean    \u0394p: -0.649 \u00b1 0.154 %\nMaximum \u0394p: 21.844%\n99.9%   \u0394p: 17.438%\n99.0%   \u0394p: 10.248%\n95.0%   \u0394p:  4.247%\n90.0%   \u0394p:  2.224%\n75.0%   \u0394p:  0.332%\nMedian  \u0394p: -0.024%\n25.0%   \u0394p: -1.401%\n10.0%   \u0394p: -4.386%\n 5.0%   \u0394p: -7.223%\n 1.0%   \u0394p: -12.448%\n 0.1%   \u0394p: -32.057%\nMinimum \u0394p: -57.218%\nRMS \u0394p    :  4.318 \u00b1 0.530 %\nSame top p: 90.458 \u00b1 1.063 %\n\n",
+      "returncode": 0,
+      "started_unix": 1788191208.0362253
+    }
+  ],
+  "timings": {
+    "total_s": 145.279
+  },
+  "aborted_attempts": [{
+    "status": "ABORTED_NON_EVIDENCE",
+    "reason": "terminated when K8History acquired GPU; no result was published from overlap",
+    "backend": "vulkan",
+    "ngl": "99",
+    "command": "TSX_NGL=99 /home/admin/counterpoint/.venv/bin/python m1/corpus_replication/run.py --run",
+    "transient_files_removed": true
+  }]
+}

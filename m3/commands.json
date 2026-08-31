@@ -1,0 +1,234 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/home/admin/counterpoint/.venv/bin/python",
+        "/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py",
+        "--outfile",
+        "/tmp/theseus-m3-czev7w53/A.bf16.bf16.gguf",
+        "--outtype",
+        "bf16",
+        "/tmp/theseus-m3-czev7w53/A.bf16"
+      ],
+      "returncode": 0,
+      "started": 1788193555.4194458,
+      "stderr_tail": "ng:  39%|\u2588\u2588\u2588\u2589      | 388M/988M [00:01<00:01, 309Mbyte/s]\nWriting:  43%|\u2588\u2588\u2588\u2588\u258e     | 421M/988M [00:01<00:01, 311Mbyte/s]\nWriting:  47%|\u2588\u2588\u2588\u2588\u258b     | 460M/988M [00:01<00:01, 313Mbyte/s]\nWriting:  50%|\u2588\u2588\u2588\u2588\u2588     | 499M/988M [00:01<00:01, 317Mbyte/s]\nWriting:  54%|\u2588\u2588\u2588\u2588\u2588\u258d    | 537M/988M [00:01<00:01, 320Mbyte/s]\nWriting:  58%|\u2588\u2588\u2588\u2588\u2588\u258a    | 570M/988M [00:01<00:01, 320Mbyte/s]\nWriting:  62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258f   | 609M/988M [00:01<00:01, 322Mbyte/s]\nWriting:  66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258c   | 648M/988M [00:02<00:01, 326Mbyte/s]\nWriting:  69%|\u2588\u2588\u2588\u2588\u2588\u2588\u2589   | 686M/988M [00:02<00:00, 327Mbyte/s]\nWriting:  73%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258e  | 719M/988M [00:02<00:00, 324Mbyte/s]\nWriting:  77%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258b  | 758M/988M [00:02<00:00, 324Mbyte/s]\nWriting:  81%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  | 797M/988M [00:02<00:00, 324Mbyte/s]\nWriting:  85%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258d | 835M/988M [00:02<00:00, 329Mbyte/s]\nWriting:  88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a | 869M/988M [00:02<00:00, 330Mbyte/s]\nWriting:  92%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258f| 907M/988M [00:02<00:00, 330Mbyte/s]\nWriting:  96%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258c| 946M/988M [00:02<00:00, 332Mbyte/s]\nWriting: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2589| 985M/988M [00:03<00:00, 332Mbyte/s]\nWriting: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 988M/988M [00:03<00:00, 318Mbyte/s]\nINFO:hf-to-gguf:Model successfully exported to /tmp/theseus-m3-czev7w53/A.bf16.bf16.gguf\n",
+      "stdout_tail": ""
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize",
+        "/tmp/theseus-m3-czev7w53/A.bf16.bf16.gguf",
+        "/tmp/theseus-m3-czev7w53/A.bf16.q4_k_m.gguf",
+        "Q4_K_M",
+        "8"
+      ],
+      "returncode": 0,
+      "started": 1788193564.5855231,
+      "stderr_tail": "- [   896,    896,      1,      1], type =   bf16, converting to q5_0 .. size =     1.53 MiB ->     0.53 MiB\n[ 285/ 290] blk.23.attn_v.bias                   - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB\n[ 286/ 290] blk.23.attn_v.weight                 - [   896,    128,      1,      1], type =   bf16, converting to q8_0 .. size =     0.22 MiB ->     0.12 MiB\n[ 287/ 290] blk.23.ffn_down.weight               - [  4864,    896,      1,      1], type =   bf16, converting to q6_K .. size =     8.31 MiB ->     3.41 MiB\n[ 288/ 290] blk.23.ffn_gate.weight               - [   896,   4864,      1,      1], type =   bf16, converting to q5_0 .. size =     8.31 MiB ->     2.86 MiB\n[ 289/ 290] blk.23.ffn_norm.weight               - [   896,      1,      1,      1], type =    f32, size =    0.003 MiB\n[ 290/ 290] blk.23.ffn_up.weight                 - [   896,   4864,      1,      1], type =   bf16, converting to q5_0 .. size =     8.31 MiB ->     2.86 MiB\nllama_model_quantize_impl: model size  =   942.43 MiB (16.00 BPW)\nllama_model_quantize_impl: quant size  =   373.71 MiB (6.35 BPW)\nllama_model_quantize_impl: WARNING: 144 of 290 tensor(s) required fallback quantization\n",
+      "stdout_tail": "\nllama_quantize: quantize time =  3174.20 ms\nllama_quantize:    total time =  3174.20 ms\n"
+    },
+    {
+      "argv": [
+        "/home/admin/counterpoint/.venv/bin/python",
+        "/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py",
+        "--outfile",
+        "/tmp/theseus-m3-czev7w53/B.bf16.bf16.gguf",
+        "--outtype",
+        "bf16",
+        "/tmp/theseus-m3-czev7w53/B.bf16"
+      ],
+      "returncode": 0,
+      "started": 1788193591.4134436,
+      "stderr_tail": "ng:  38%|\u2588\u2588\u2588\u258a      | 379M/988M [00:01<00:01, 309Mbyte/s]\nWriting:  42%|\u2588\u2588\u2588\u2588\u258f     | 418M/988M [00:01<00:01, 316Mbyte/s]\nWriting:  46%|\u2588\u2588\u2588\u2588\u258c     | 451M/988M [00:01<00:01, 320Mbyte/s]\nWriting:  50%|\u2588\u2588\u2588\u2588\u2589     | 490M/988M [00:01<00:01, 325Mbyte/s]\nWriting:  53%|\u2588\u2588\u2588\u2588\u2588\u258e    | 528M/988M [00:01<00:01, 329Mbyte/s]\nWriting:  57%|\u2588\u2588\u2588\u2588\u2588\u258b    | 567M/988M [00:01<00:01, 333Mbyte/s]\nWriting:  62%|\u2588\u2588\u2588\u2588\u2588\u2588\u258f   | 609M/988M [00:01<00:01, 331Mbyte/s]\nWriting:  66%|\u2588\u2588\u2588\u2588\u2588\u2588\u258c   | 648M/988M [00:02<00:01, 328Mbyte/s]\nWriting:  69%|\u2588\u2588\u2588\u2588\u2588\u2588\u2589   | 686M/988M [00:02<00:00, 328Mbyte/s]\nWriting:  73%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258e  | 719M/988M [00:02<00:00, 326Mbyte/s]\nWriting:  77%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258b  | 758M/988M [00:02<00:00, 325Mbyte/s]\nWriting:  81%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  | 797M/988M [00:02<00:00, 326Mbyte/s]\nWriting:  85%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258d | 835M/988M [00:02<00:00, 327Mbyte/s]\nWriting:  88%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a | 869M/988M [00:02<00:00, 327Mbyte/s]\nWriting:  92%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258f| 907M/988M [00:02<00:00, 326Mbyte/s]\nWriting:  96%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258c| 946M/988M [00:02<00:00, 326Mbyte/s]\nWriting: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2589| 985M/988M [00:03<00:00, 323Mbyte/s]\nWriting: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 988M/988M [00:03<00:00, 318Mbyte/s]\nINFO:hf-to-gguf:Model successfully exported to /tmp/theseus-m3-czev7w53/B.bf16.bf16.gguf\n",
+      "stdout_tail": ""
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize",
+        "/tmp/theseus-m3-czev7w53/B.bf16.bf16.gguf",
+        "/tmp/theseus-m3-czev7w53/B.bf16.q4_k_m.gguf",
+        "Q4_K_M",
+        "8"
+      ],
+      "returncode": 0,
+      "started": 1788193600.528352,
+      "stderr_tail": "- [   896,    896,      1,      1], type =   bf16, converting to q5_0 .. size =     1.53 MiB ->     0.53 MiB\n[ 285/ 290] blk.23.attn_v.bias                   - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB\n[ 286/ 290] blk.23.attn_v.weight                 - [   896,    128,      1,      1], type =   bf16, converting to q8_0 .. size =     0.22 MiB ->     0.12 MiB\n[ 287/ 290] blk.23.ffn_down.weight               - [  4864,    896,      1,      1], type =   bf16, converting to q6_K .. size =     8.31 MiB ->     3.41 MiB\n[ 288/ 290] blk.23.ffn_gate.weight               - [   896,   4864,      1,      1], type =   bf16, converting to q5_0 .. size =     8.31 MiB ->     2.86 MiB\n[ 289/ 290] blk.23.ffn_norm.weight               - [   896,      1,      1,      1], type =    f32, size =    0.003 MiB\n[ 290/ 290] blk.23.ffn_up.weight                 - [   896,   4864,      1,      1], type =   bf16, converting to q5_0 .. size =     8.31 MiB ->     2.86 MiB\nllama_model_quantize_impl: model size  =   942.43 MiB (16.00 BPW)\nllama_model_quantize_impl: quant size  =   373.71 MiB (6.35 BPW)\nllama_model_quantize_impl: WARNING: 144 of 290 tensor(s) required fallback quantization\n",
+      "stdout_tail": "\nllama_quantize: quantize time =  3199.86 ms\nllama_quantize:    total time =  3199.86 ms\n"
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/tmp/theseus-m3-czev7w53/A.bf16.q4_k_m.gguf",
+        "-f",
+        "/tmp/theseus-m3-czev7w53/present_corpus.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4"
+      ],
+      "returncode": 0,
+      "started": 1788193608.7556944,
+      "stderr_tail": "0.00.791.470 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.00.959.748 I \n0.00.959.822 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.00.959.837 I perplexity: tokenizing the input ..\n0.00.976.932 I perplexity: tokenization took 17.089 ms\n0.00.977.006 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.01.915.020 I perplexity: 0.94 seconds per pass - ETA 0.02.137.714 I Final estimate: PPL = 12.9563 +/- 1.21026\n",
+      "stdout_tail": "0.00 minutes\n[1]9.3157,[2]11.7825,[3]12.4852,[4]12.9563,\n\n"
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/tmp/theseus-m3-czev7w53/A.bf16.q4_k_m.gguf",
+        "-f",
+        "/tmp/theseus-m3-czev7w53/present_corpus.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "1",
+        "--save-all-logits",
+        "/tmp/theseus-m3-czev7w53/A.logits.bin"
+      ],
+      "returncode": 0,
+      "started": 1788193611.0437958,
+      "stderr_tail": "0.00.667.091 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.00.835.509 I \n0.00.835.583 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.00.835.651 I perplexity: saving all logits to /tmp/theseus-m3-czev7w53/A.logits.bin\n0.00.835.658 I perplexity: tokenizing the input ..\n0.00.852.549 I perplexity: tokenization took 16.885 ms\n0.00.852.642 I perplexity: calculating perplexity over 1 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.01.188.956 I perplexity: 0.28 seconds per pass - ETA 0.01.287.215 I Final estimate: PPL = 9.3115 +/- 1.79631\n",
+      "stdout_tail": "0.00 minutes\n[1]9.3115,\n\n"
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/tmp/theseus-m3-czev7w53/B.bf16.q4_k_m.gguf",
+        "-f",
+        "/tmp/theseus-m3-czev7w53/present_corpus.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "4"
+      ],
+      "returncode": 0,
+      "started": 1788193612.4637315,
+      "stderr_tail": "0.00.724.424 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.00.905.681 I \n0.00.905.763 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.00.905.783 I perplexity: tokenizing the input ..\n0.00.923.319 I perplexity: tokenization took 17.53 ms\n0.00.923.394 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.01.893.564 I perplexity: 0.97 seconds per pass - ETA 0.02.122.058 I Final estimate: PPL = 12.9633 +/- 1.20462\n",
+      "stdout_tail": "0.00 minutes\n[1]9.3286,[2]11.7710,[3]12.4551,[4]12.9633,\n\n"
+    },
+    {
+      "argv": [
+        "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity",
+        "-m",
+        "/tmp/theseus-m3-czev7w53/B.bf16.q4_k_m.gguf",
+        "-f",
+        "/tmp/theseus-m3-czev7w53/present_corpus.txt",
+        "-c",
+        "512",
+        "--temp",
+        "0",
+        "--seed",
+        "0",
+        "-ngl",
+        "0",
+        "--chunks",
+        "1",
+        "--kl-divergence",
+        "--kl-divergence-base",
+        "/tmp/theseus-m3-czev7w53/A.logits.bin"
+      ],
+      "returncode": 0,
+      "started": 1788193614.735239,
+      "stderr_tail": "0.00.668.091 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.00.834.319 I \n0.00.834.400 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.00.861.750 I kl_divergence: computing over 1 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.01.145.822 I kl_divergence: 0.28 seconds per pass - ETA ",
+      "stdout_tail": "    1.7908       0.00144 \u00b1    0.01808       0.03231 \u00b1    0.00307     4.995 \u00b1  0.487 %    88.235 \u00b1  2.022 %\n\n====== Perplexity statistics ======\nMean PPL(Q)                   :   9.325080 \u00b1   1.790822\nMean PPL(base)                :   9.311643 \u00b1   1.796329\nCor(ln(PPL(Q)), ln(PPL(base))):  99.56%\nMean ln(PPL(Q)/PPL(base))     :   0.001442 \u00b1   0.018079\nMean PPL(Q)/PPL(base)         :   1.001443 \u00b1   0.018105\nMean PPL(Q)-PPL(base)         :   0.013437 \u00b1   0.168358\n\n====== KL divergence statistics ======\nMean    KLD:   0.032311 \u00b1   0.003073\nMaximum KLD:   0.421224\n99.9%   KLD:   0.376589\n99.0%   KLD:   0.237306\n95.0%   KLD:   0.107114\n90.0%   KLD:   0.075422\nMedian  KLD:   0.016273\n10.0%   KLD:   0.000093\n 5.0%   KLD:   0.000007\n 1.0%   KLD:   0.000002\n 0.1%   KLD:   0.000001\nMinimum KLD:   0.000001\n\n====== Token probability statistics ======\nMean    \u0394p: -0.424 \u00b1 0.312 %\nMaximum \u0394p: 16.194%\n99.9%   \u0394p: 16.175%\n99.0%   \u0394p: 14.674%\n95.0%   \u0394p:  7.283%\n90.0%   \u0394p:  3.298%\n75.0%   \u0394p:  0.273%\nMedian  \u0394p: -0.004%\n25.0%   \u0394p: -1.279%\n10.0%   \u0394p: -4.667%\n 5.0%   \u0394p: -8.593%\n 1.0%   \u0394p: -14.715%\n 0.1%   \u0394p: -27.465%\nMinimum \u0394p: -29.853%\nRMS \u0394p    :  4.995 \u00b1 0.487 %\nSame top p: 88.235 \u00b1 2.022 %\n\n"
+    }
+  ],
+  "contract": {
+    "adapt": {
+      "alpha": 32,
+      "batch_size": 2,
+      "grad_accum": 1,
+      "heldout_examples": 128,
+      "lr": 0.0003,
+      "rank": 16,
+      "rule": "reverse 10-digit identifier: rev: ID -> reversed(ID)",
+      "seq_len": 128,
+      "steps": 80,
+      "targets": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "train_examples": 512
+    },
+    "base": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+    "corpus": {
+      "kl_bytes": 8192,
+      "ppl_bytes": 32768,
+      "seed": 0,
+      "sequence_length": 512,
+      "source": "/home/admin/theseus/m1/data/eval_wikitext.txt",
+      "tokens": 2048
+    },
+    "future_seed": 9091,
+    "history_pair": {
+      "A": [
+        "adapt.lora.rule",
+        "merge.linear",
+        "quantize.q4_k_m"
+      ],
+      "B": [
+        "merge.linear",
+        "adapt.lora.rule",
+        "quantize.q4_k_m"
+      ]
+    },
+    "history_seed": 4242,
+    "merge": {
+      "alpha": 0.3,
+      "formula": "candidate + alpha*(specialist-candidate)",
+      "kind": "linear"
+    },
+    "null": {
+      "alpha": 0.05,
+      "min_shuffles": 200,
+      "seed": 7
+    },
+    "present_match": {
+      "mean_kl_max": 0.002,
+      "relative_ppl_max": 0.005,
+      "static_tolerances": [
+        0.05,
+        0.1,
+        0.2,
+        0.4,
+        0.8
+      ],
+      "top1_min": 0.995
+    },
+    "quantizer": {
+      "commit": "llama.cpp b9851",
+      "export_dtype": "bf16",
+      "source_dtype": "bf16",
+      "threads": 8,
+      "type": "Q4_K_M"
+    },
+    "specialist": "/home/admin/theseus/m1/work/specialist",
+    "specialist_seed": 2718
+  }
+}

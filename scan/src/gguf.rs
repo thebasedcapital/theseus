@@ -19,7 +19,7 @@ use std::fs::File;
 use std::io::{BufReader, Read, Seek, SeekFrom};
 
 use crate::formats::ScanOut;
-use crate::stats::{StatAcc, bf16_to_f32, f16_to_f32, F16_NORMAL_MIN};
+use crate::stats::{bf16_to_f32, f16_to_f32, StatAcc, F16_NORMAL_MIN};
 
 pub const GGUF_DEFAULT_ALIGNMENT: u64 = 32;
 
@@ -165,12 +165,14 @@ pub struct GgufCtx {
 
 fn rd_u32(f: &mut impl Read) -> Result<u32, String> {
     let mut b = [0u8; 4];
-    f.read_exact(&mut b).map_err(|e| format!("read u32: {}", e))?;
+    f.read_exact(&mut b)
+        .map_err(|e| format!("read u32: {}", e))?;
     Ok(u32::from_le_bytes(b))
 }
 fn rd_u64(f: &mut impl Read) -> Result<u64, String> {
     let mut b = [0u8; 8];
-    f.read_exact(&mut b).map_err(|e| format!("read u64: {}", e))?;
+    f.read_exact(&mut b)
+        .map_err(|e| format!("read u64: {}", e))?;
     Ok(u64::from_le_bytes(b))
 }
 fn rd_str(f: &mut impl Read) -> Result<String, String> {
@@ -179,7 +181,8 @@ fn rd_str(f: &mut impl Read) -> Result<String, String> {
         return Err(format!("implausible string length {}", n));
     }
     let mut s = vec![0u8; n as usize];
-    f.read_exact(&mut s).map_err(|e| format!("read string: {}", e))?;
+    f.read_exact(&mut s)
+        .map_err(|e| format!("read string: {}", e))?;
     Ok(String::from_utf8_lossy(&s).into_owned())
 }
 
@@ -189,7 +192,8 @@ pub fn parse_gguf(path: &str) -> Result<GgufCtx, String> {
     let f = File::open(path).map_err(|e| e.to_string())?;
     let mut br = BufReader::with_capacity(1 << 16, f);
     let mut magic = [0u8; 4];
-    br.read_exact(&mut magic).map_err(|e| format!("read magic: {}", e))?;
+    br.read_exact(&mut magic)
+        .map_err(|e| format!("read magic: {}", e))?;
     if &magic != b"GGUF" {
         return Err("not a GGUF file (bad magic)".into());
     }
@@ -214,17 +218,20 @@ pub fn parse_gguf(path: &str) -> Result<GgufCtx, String> {
         let t = rd_u32(&mut br)?;
         let value_u32 = |br: &mut BufReader<File>| -> Result<u32, String> {
             let mut b = [0u8; 4];
-            br.read_exact(&mut b).map_err(|e| format!("read value: {}", e))?;
+            br.read_exact(&mut b)
+                .map_err(|e| format!("read value: {}", e))?;
             Ok(u32::from_le_bytes(b))
         };
         match t {
             0 | 1 => {
                 let mut b = [0u8; 1];
-                br.read_exact(&mut b).map_err(|e| format!("read u8: {}", e))?;
+                br.read_exact(&mut b)
+                    .map_err(|e| format!("read u8: {}", e))?;
             }
             2 | 3 => {
                 let mut b = [0u8; 2];
-                br.read_exact(&mut b).map_err(|e| format!("read u16: {}", e))?;
+                br.read_exact(&mut b)
+                    .map_err(|e| format!("read u16: {}", e))?;
             }
             4 | 5 | 6 => {
                 // GGUF type 4/5/6 (UINT32/INT32/FLOAT32): 4-byte scalars.
@@ -245,7 +252,8 @@ pub fn parse_gguf(path: &str) -> Result<GgufCtx, String> {
                 // gguf_writer.py:1392 packs BOOL with the '?' fmt). Reading 4 here would
                 // desync every subsequent KV on real llama.cpp files.
                 let mut b = [0u8; 1];
-                br.read_exact(&mut b).map_err(|e| format!("read bool: {}", e))?;
+                br.read_exact(&mut b)
+                    .map_err(|e| format!("read bool: {}", e))?;
             }
             8 => {
                 let s = rd_str(&mut br)?;
@@ -263,11 +271,13 @@ pub fn parse_gguf(path: &str) -> Result<GgufCtx, String> {
                     match et {
                         0 | 1 => {
                             let mut b = [0u8; 1];
-                            br.read_exact(&mut b).map_err(|e| format!("arr u8: {}", e))?;
+                            br.read_exact(&mut b)
+                                .map_err(|e| format!("arr u8: {}", e))?;
                         }
                         2 | 3 => {
                             let mut b = [0u8; 2];
-                            br.read_exact(&mut b).map_err(|e| format!("arr u16: {}", e))?;
+                            br.read_exact(&mut b)
+                                .map_err(|e| format!("arr u16: {}", e))?;
                         }
                         4 | 5 | 6 => {
                             let _ = value_u32(&mut br)?;
@@ -275,7 +285,8 @@ pub fn parse_gguf(path: &str) -> Result<GgufCtx, String> {
                         7 => {
                             // BOOL array elements are also 1 byte (see the scalar arm note).
                             let mut b = [0u8; 1];
-                            br.read_exact(&mut b).map_err(|e| format!("arr bool: {}", e))?;
+                            br.read_exact(&mut b)
+                                .map_err(|e| format!("arr bool: {}", e))?;
                         }
                         8 => {
                             let _ = rd_str(&mut br)?;
@@ -310,7 +321,11 @@ pub fn parse_gguf(path: &str) -> Result<GgufCtx, String> {
         let offset = rd_u64(&mut br)?;
         let (blk_el, blk_by) = ty.blk();
         let n_el: u64 = ne[0..n_dims].iter().product();
-        let nbytes = if blk_el > 0 { n_el / blk_el as u64 * blk_by as u64 } else { 0 };
+        let nbytes = if blk_el > 0 {
+            n_el / blk_el as u64 * blk_by as u64
+        } else {
+            0
+        };
         tensors.push(TensorMeta {
             name: tname,
             ne,
@@ -340,33 +355,67 @@ pub fn parse_gguf(path: &str) -> Result<GgufCtx, String> {
     })
 }
 
-/// True GGUF family mapping for llama-family weight tensor names (blk.N.attn_* / ffn_*).
+/// Map llama.cpp tensor components without substring collisions. Expert naming follows
+/// conversion/llama.py:250-276; fused expert tensors remain unavailable unless split exactly.
 pub fn gguf_family_of(name: &str) -> Option<&'static str> {
-    if name.contains("attn_qkv") || name.contains("attn_kv") {
-        return None; // fused projections: single family, different meaning
+    let parts: Vec<&str> = name.split('.').collect();
+    // Canonical llama.cpp per-expert names (src/llama-arch.cpp:388-390):
+    // blk.N.ffn_{gate,down,up}.E. They are independent 2-D expert matrices.
+    for (stem, family) in [
+        ("ffn_gate", "expert_gate"),
+        ("ffn_down", "expert_down"),
+        ("ffn_up", "expert_up"),
+    ] {
+        if let Some(i) = parts.iter().position(|p| *p == stem) {
+            if parts.get(i + 1).is_some_and(|p| p.parse::<u32>().is_ok()) {
+                return Some(family);
+            }
+        }
     }
-    if name.contains("attn_output") {
-        return Some("o_proj");
+    if let Some(i) = parts.iter().position(|p| *p == "experts") {
+        let next = parts.get(i + 1).copied().unwrap_or("");
+        let stem = if next.parse::<u32>().is_ok() {
+            parts.get(i + 2).copied().unwrap_or("")
+        } else {
+            next
+        };
+        if next.parse::<u32>().is_ok() {
+            return match stem {
+                "w1" => Some("expert_gate"),
+                "w2" => Some("expert_down"),
+                "w3" => Some("expert_up"),
+                _ => None,
+            };
+        }
+        if matches!(stem, "gate_up_proj" | "down_proj") {
+            return Some("__unavailable_expert_fused");
+        }
+        return None;
     }
-    if name.contains("attn_q") {
-        return Some("q_proj");
+    // llama.cpp canonical merged-expert names (src/llama-arch.cpp:391-394). These are rank-3
+    // expert stacks, so this row scanner cannot deaggregate them into independent 2-D weights.
+    if parts.iter().any(|p| {
+        matches!(
+            *p,
+            "ffn_gate_exps" | "ffn_up_exps" | "ffn_down_exps" | "ffn_gate_up_exps"
+        )
+    }) {
+        return Some("__unavailable_expert_fused");
     }
-    if name.contains("attn_k") {
-        return Some("k_proj");
+    if parts.iter().any(|p| *p == "attn_qkv" || *p == "attn_kv") {
+        return None;
     }
-    if name.contains("attn_v") {
-        return Some("v_proj");
-    }
-    if name.contains("ffn_gate") {
-        return Some("gate_proj");
-    }
-    if name.contains("ffn_up") {
-        return Some("up_proj");
-    }
-    if name.contains("ffn_down") {
-        return Some("down_proj");
-    }
-    None
+    [
+        ("attn_output", "o_proj"),
+        ("attn_q", "q_proj"),
+        ("attn_k", "k_proj"),
+        ("attn_v", "v_proj"),
+        ("ffn_gate", "gate_proj"),
+        ("ffn_up", "up_proj"),
+        ("ffn_down", "down_proj"),
+    ]
+    .iter()
+    .find_map(|(needle, family)| parts.iter().any(|p| *p == *needle).then_some(*family))
 }
 
 /// Per-census-32-block structural accumulator emitted by scan_row_*.
@@ -426,7 +475,8 @@ impl<'a> RowSink<'a> {
     #[inline]
     pub(crate) fn block(&mut self, b: &Blk) {
         self.row_sq += b.sum_sq;
-        self.acc.feed_block(b.amax, b.sum_sq, b.below, b.amin, b.cnt);
+        self.acc
+            .feed_block(b.amax, b.sum_sq, b.below, b.amin, b.cnt);
     }
     pub(crate) fn end_row(&mut self) {
         self.acc.row_energy(self.row_sq);
@@ -704,7 +754,7 @@ pub(crate) fn scan_q6_k(buf: &[u8], sink: &mut RowSink) {
                 blk.add(v);
             }
             blk.finish_amax(sub_abs_max);
-			if i % 2 == 1 {
+            if i % 2 == 1 {
                 sink.block(&blk);
                 blk = Blk::default();
             }
@@ -830,7 +880,11 @@ pub(crate) fn scan_q3_k(buf: &[u8], sink: &mut RowSink) {
             let mut qmax = -5i32;
             for l in 0..16 {
                 let q = ((qs[qbase + l] >> shift) & 3) as i32;
-                let qv = if (hm[qbase + l] & mbit) != 0 { q } else { q - 4 };
+                let qv = if (hm[qbase + l] & mbit) != 0 {
+                    q
+                } else {
+                    q - 4
+                };
                 qmin = qmin.min(qv);
                 qmax = qmax.max(qv);
                 blk.add(dl * qv as f32);
@@ -869,7 +923,11 @@ fn scan_float_row(buf: &[u8], ty: GType, acc: &mut StatAcc) {
 }
 
 /// Scan one tensor's row stream into `acc` (structural for quant, dequantized for float).
-fn scan_tensor_rows(f: &mut BufReader<File>, t: &TensorMeta, acc: &mut StatAcc) -> Result<(), String> {
+fn scan_tensor_rows(
+    f: &mut BufReader<File>,
+    t: &TensorMeta,
+    acc: &mut StatAcc,
+) -> Result<(), String> {
     let row_el = t.ne[0] as usize;
     let (blk_el, blk_by) = t.ty.blk();
     let nblocks_row = row_el / blk_el;
@@ -882,7 +940,8 @@ fn scan_tensor_rows(f: &mut BufReader<File>, t: &TensorMeta, acc: &mut StatAcc) 
     if let GType::F32 | GType::F16 | GType::Bf16 = t.ty {
         let mut raw = vec![0u8; row_bytes];
         for _ in 0..n_rows {
-            f.read_exact(&mut raw).map_err(|_| "short row (float)".to_string())?;
+            f.read_exact(&mut raw)
+                .map_err(|_| "short row (float)".to_string())?;
             scan_float_row(&raw, t.ty, acc);
         }
         return Ok(());
@@ -891,7 +950,8 @@ fn scan_tensor_rows(f: &mut BufReader<File>, t: &TensorMeta, acc: &mut StatAcc) 
     let mut buf = vec![0u8; row_bytes];
     let mut sink = RowSink::new(acc);
     for _ in 0..n_rows {
-        f.read_exact(&mut buf).map_err(|_| "short row (quant)".to_string())?;
+        f.read_exact(&mut buf)
+            .map_err(|_| "short row (quant)".to_string())?;
         match t.ty {
             GType::Q8_0 => scan_q8_0(&buf, &mut sink),
             GType::Q8_K => scan_q8_k(&buf, &mut sink),
@@ -925,8 +985,26 @@ pub fn scan_gguf(path: &str, ctx: &GgufCtx) -> Result<ScanOut, String> {
     let mut type_counts: BTreeMap<&'static str, usize> = BTreeMap::new();
 
     for t in &ctx.tensors {
+        let expert_path = t
+            .name
+            .split('.')
+            .any(|p| p == "experts" || p.ends_with("_exps"));
         let fam = match gguf_family_of(&t.name) {
+            Some("__unavailable_expert_fused") => {
+                skipped.push((t.name.clone(), format!("UNAVAILABLE: fused expert tensor rank {} cannot be split/deaggregated from header shape alone", t.n_dims)));
+                continue;
+            }
             Some(x) => x,
+            None if expert_path => {
+                skipped.push((
+                    t.name.clone(),
+                    format!(
+                        "UNAVAILABLE: unrecognized expert tensor layout rank {}",
+                        t.n_dims
+                    ),
+                ));
+                continue;
+            }
             None => continue,
         };
         if t.n_dims != 2 || t.ne[0] == 0 || t.ne[1] == 0 {
@@ -934,27 +1012,32 @@ pub fn scan_gguf(path: &str, ctx: &GgufCtx) -> Result<ScanOut, String> {
             continue;
         }
         if !t.ty.supported() {
-            // IQ1/2/3 latent-grid types need the codebook tables + lattice index math to rebuild
-            // values; not representable structurally here, so they are skipped, never faked.
             let code = match t.ty {
                 GType::Unsupported(c) => c,
                 _ => 0,
             };
             skipped.push((
                 t.name.clone(),
-                format!("unsupported quant type (code {}): latent grid, no structural amax", code),
+                format!(
+                    "unsupported quant type (code {}): latent grid, no structural amax",
+                    code
+                ),
             ));
             continue;
         }
         let abs_off = ctx.data_start + t.offset;
-        br.seek(SeekFrom::Start(abs_off)).map_err(|e| e.to_string())?;
+        br.seek(SeekFrom::Start(abs_off))
+            .map_err(|e| e.to_string())?;
         let mut acc = StatAcc::new();
         scan_tensor_rows(&mut br, t, &mut acc).map_err(|e| format!("{}: {}", t.name, e))?;
         acc.close_tensor();
         metered += 1;
         *type_counts.entry(t.ty.name()).or_insert(0) += 1;
         total.merge(&acc);
-        per_family.entry(fam).or_insert_with(StatAcc::new).merge(&acc);
+        per_family
+            .entry(fam)
+            .or_insert_with(StatAcc::new)
+            .merge(&acc);
     }
 
     Ok(ScanOut {

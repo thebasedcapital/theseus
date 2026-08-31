@@ -43,14 +43,16 @@ from 0.9705 to 0.0989 and Q8 KLD jumps from 0.00094 to 10.69. Artifact-only latt
 adaptation to 0.9753 and Q4 close to base. G7 repeats the adaptation result under fp32-equivalent,
 bf16-sensitive arithmetic. Both effects survive a conservative three-seed, 3σ gate.
 
-There is no single reserve score. `prep_base_exact` improves Q4 relative ΔPPL from +2.195 % to
-+2.010 % while causing both merge operators to fail. And the provisional static threshold is
-refuted by Q4 false negatives, so preflight prints its n and refuses to learn a replacement below
-20 labelled cells.
+There is no single reserve score. `prep_base_exact` improves Q4 relative ΔPPL on two disjoint
+corpus slices, by 0.185 pp and 0.478 pp versus base, while both merge operators fail.
 
-`theseus-inspect preflight` prints the provisional operation matrix and the calibration count.
-It localizes G3/G7 stress correctly, but Q4 has measured false negatives, so the current thresholds
-are diagnostic hints rather than a validated predictor. UNAVAILABLE remains a first-class verdict.
+Q8 preflight now uses fitted contract v3 from 20 measured artifacts: recall 1.0, precision 0.40.
+Q4 also reaches n=20 but its fit is refused. MoE expert names are boundary-keyed into separate
+families; fused rank-3 expert stacks are explicit `UNAVAILABLE`.
+
+The first real K-8 ordered-history pair was built through Q4, but current behavior did not match
+(KL 0.032311, top-1 0.88235). Future reserve probes stopped, so natural-history divergence remains
+unsupported.
 
 `inspect/` is a zero-dependency Rust implementation of the static half: it parses the safetensors
 container itself and prints per-family 4-bit conditioning, dynamic range, row-energy imbalance and

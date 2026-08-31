@@ -20,11 +20,15 @@ invalid numbers that would have been reported as results if the checks had not c
 | 11 | Two implementations of one statistic disagreed 5.7 % | pooled block ratio-of-sums vs mean-of-per-tensor-ratios, neither labelled | cross-validation of the Rust inspector against the Python one | Every aggregate carries its `convention`; a number without a convention is not comparable (I7) |
 | 13 | Four "driver" shell scripts whose wait-predicates named each other | `queue_merge` waited for `queue_gaps` and vice versa: a two-cycle that idled the GPU for six hours while I believed work was progressing | single sequential `m1/drive.sh`; admission derived from on-disk cell state, so no predicates are needed at all | One scheduler. Never encode ordering in mutual waiting — a cycle is invisible until it costs you an hour of wall clock |
 | 12 | "Control" claimed globally | `g4_perm` is quantization-inert and costs 6.4 pp of LoRA capture | the ledger's per-operation verdict vectors | A control must name the operation it controls for (K-7) |
+| 14 | Inspector preflight wrote truncated JSON while exiting 0 | downstream parsers needed a stdout workaround; a visible matrix and invalid machine record disagreed | end-to-end synthetic MoE preflight JSON parse | Every CLI mutation/report path must persist a complete machine record before exit; test JSON parsing, not only stdout |
+| 15 | K-8 contract named Q4 as the final history op, but the first harness revision matched bf16 parents and left future probes as placeholders | a plausible unavailable result did not actually exercise the declared graph | lead read the code after agent completion | Acceptance follows executed edges, not labels. Mock the matched branch and assert every declared operation produces a real cell |
+| 16 | Identical threshold evidence emitted duplicate contract v4 after v3 | history grew without a semantic change | independent rerun and byte diff | Contract emission is content-idempotent; include calibration n in identity and reuse the latest byte-for-byte |
+| 17 | K-8 metric path had a 510/511 alignment bug, a missing `return`, and failed to parse llama.cpp `Same top p` | three expensive reruns before a trustworthy present-match verdict | fail-closed exceptions plus command-log review | Persist failed attempts as non-evidence; parse every registered gate from the tool output and test the real branch boundary |
 
-Invariant map: #13 → I6 (one scheduler, typed leases, admission from state) (frozen code snapshot per cell) · #3,#8 → I6 (typed leases with pid
-liveness) · #4 → I4 (calibration gate) · #5,#6 → I3+I5 (environment digest; mandatory controls) ·
-#7,#9,#10,#11 → I1+I7 (write-once ledger, closed vocabulary, named conventions) · #12 → K-7
-(reserve is a vector). `RUNBOOK.md` §3 is this table from the driver's side.
+Invariant map: #13 → I6 (one scheduler, typed leases, admission from state) · #3,#8 → I6 ·
+#4 → I4 · #5,#6 → I3+I5 · #7,#9,#10,#11,#14,#16 → I1+I7 · #12 → K-7 ·
+#15,#17 → I2+I5 (the executed operation graph and all claim gates must match the frozen contract).
+`RUNBOOK.md` §3 is this table from the driver's side.
 
 Cross-cutting: the panel records everything to per-cell JSON files (`m1/work/ops/<variant>.<op>.json`)
 and every downstream artifact (`M1_TABLE.md`, `M1_ANALYSIS.md`, `m1_summary.json`,

@@ -114,16 +114,18 @@ refuses to ship it even when a finite token probe happens to return `EQUIVALENT`
 
 **Refuter:** either repaired G3/G7 mean remains more than 3σ below base.
 
-## K-6 — The current provisional static thresholds predict operation risk
+## K-6 — A fitted static threshold predicts Q8 risk; Q4 remains unsupported
 
-**State: REFUTED.** The static features remain useful measurements, but the current n=2 thresholds
-are not a predictor. On the frozen measured slice, Q4 has TP=1, FN=2 at n=10. A preflight tool
-cannot tolerate those false negatives. `analysis/thresholds.py` prints candidate cuts but refuses
-to emit a replacement until each flag has at least 20 labelled cells and precision reaches 1.25×
-the failure base rate.
+**State: PARTIAL.** Nine new equivalence-gated artifacts were measured with CPU llama.cpp,
+native-bf16 export and the original corpus contract. Q8 reaches n=20 and emits immutable contract
+v3 at `q4_block_mse > 0.01282348`: recall 1.0, precision 0.40, specificity 0.833. Eight v2 verdicts
+are invalidated through edges, not rewritten. The Rust scanners now use this threshold for Q8.
 
-The honest surviving statement is narrower: G3/G7 stress raises the expected conditioning and
-their lattice repairs remove it. That does not license the current thresholds for new artifacts.
+Q4 also reaches n=20 but does not pass the information gate: its recall-preserving cut has
+precision 0.278, below the required 0.3125. Export and adaptation remain below n=20. Contract v3
+is in-sample calibration, not an out-of-sample predictor.
+
+**Refuter:** any measured Q8 false negative, or out-of-sample recall below 0.95.
 
 ## K-7 — Reserve is a vector; no scalar summarizes it
 
@@ -132,30 +134,33 @@ It is equivalent to base and improves Q4 relative ΔPPL from +2.195 % to +2.010 
 both calibrated merge operators. Its single-seed true-LoRA row passes. One coordinate change can
 improve one future operation and reduce another, so the schema rejects scalar `health` fields.
 
-## K-10 — Lattice prepare helps Q4 on a pristine checkpoint but hurts merge reserve
+## K-10 — Lattice prepare improves Q4 on a pristine checkpoint across two corpora, but hurts merge
 
 **State: CONTROLLED.** `prep_base_exact` applies the exact lattice path to untouched
 Qwen2.5-0.5B. It never sees a stressed ancestor.
 
-| artifact | equivalence | Q4 rel ΔPPL | true-LoRA capture | linear merge | TIES-trim |
-|---|---|---:|---:|---|---|
-| `base` | reference | +2.195 % | 0.9860 | pass at α=0.3 | pass at α=0.4 |
-| `prep_base_exact` | EQUIVALENT | **+2.010 %** | 0.9900 | fail | fail |
+| corpus | base Q4 rel ΔPPL | prepared Q4 rel ΔPPL | prepared minus base |
+|---|---:|---:|---:|
+| original `[0,32768)` | +2.195 % | **+2.010 %** | **−0.185 pp** |
+| disjoint `[65536,98304)` | +2.608 % | **+2.131 %** | **−0.478 pp** |
 
-The Q4 gain is real but small and measured on one corpus. The merge loss is large enough to cross
-both calibrated contracts. `prepare` therefore needs an operation target; “make the model
-healthier” is not a valid command.
+The second slice has sha256 prefix `c2cc1b4175c60879`. Base and prepared fp32 outputs are exactly
+equal on it: KL 0, top-1 1.0, max Δlogit 0. Q8 also improves slightly. The same prepared artifact
+still fails both calibrated merge operators, so `prepare` needs an operation target.
 
-**Refuter:** a repeated Q4 corpus where the prepared artifact no longer beats base, or a prepared
+**Refuter:** a third corpus or architecture where prepared Q4 no longer beats base, or a prepared
 merge cell that passes under the same contract.
 
 ## K-8 — Natural histories, not constructed gauges, produce divergent reserves
 
-**State: UNSUPPORTED. Highest-value open claim.** Two matched pairs at 0.5B:
-`sft→merge→q4` vs `merge→sft→q4`, matched on L0 features and current behaviour, compared on
-adaptation and re-quantization reserve. The ledger already stores `ancestry` edges, so this is a
-selection query, not a new mechanism. Until this lands, M1 remains "a symmetry curiosity with
-excellent evidence".
+**State: UNSUPPORTED.** The first ordered-history attempt was executed, not simulated:
+`adapt → merge → Q4` versus `merge → adapt → Q4`, with identical budgets and seeds. The final Q4
+artifacts match static features at tolerance 0.05 and PPL within 0.054 %, but they are not the same
+current model: mean KL is 0.032311 and teacher-forced top-1 agreement is 0.88235. The registered
+present-match gate failed, so future reserve probes and the shuffled null were correctly not run.
+
+This is useful negative evidence about pair construction, not evidence for K-8. The next attempt
+needs histories whose present distributions match before any lifecycle comparison.
 
 ## K-9 — Merge compatibility is gauge-dependent
 

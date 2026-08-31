@@ -1,0 +1,137 @@
+{
+  "arch": "Qwen2ForCausalLM",
+  "families": {
+    "down_proj": {
+      "amax_over_rms": 34.08257508,
+      "below_f16_normal": 312793.0,
+      "dyn_range_log10": 7.80329879,
+      "frac_below_f16_normal": 0.0029905,
+      "q4_block_mse": 0.01109909,
+      "q4_block_mse_pooled": 0.01109643,
+      "row_energy_imbalance": 276.29923619,
+      "weights": 104595456.0
+    },
+    "gate_proj": {
+      "amax_over_rms": 35.19982376,
+      "below_f16_normal": 262618.0,
+      "dyn_range_log10": 8.18706984,
+      "frac_below_f16_normal": 0.0025108,
+      "q4_block_mse": 0.01076465,
+      "q4_block_mse_pooled": 0.01072983,
+      "row_energy_imbalance": 557.11286246,
+      "weights": 104595456.0
+    },
+    "k_proj": {
+      "amax_over_rms": 33.89085825,
+      "below_f16_normal": 7579.0,
+      "dyn_range_log10": 7.71435771,
+      "frac_below_f16_normal": 0.00275348,
+      "q4_block_mse": 0.01176268,
+      "q4_block_mse_pooled": 0.0110858,
+      "row_energy_imbalance": 3237.65954361,
+      "weights": 2752512.0
+    },
+    "o_proj": {
+      "amax_over_rms": 35.20183253,
+      "below_f16_normal": 67056.0,
+      "dyn_range_log10": 8.66478462,
+      "frac_below_f16_normal": 0.00348025,
+      "q4_block_mse": 0.00966911,
+      "q4_block_mse_pooled": 0.00966776,
+      "row_energy_imbalance": 836.04932784,
+      "weights": 19267584.0
+    },
+    "q_proj": {
+      "amax_over_rms": 62.96939294,
+      "below_f16_normal": 62137.0,
+      "dyn_range_log10": 7.92216338,
+      "frac_below_f16_normal": 0.00322495,
+      "q4_block_mse": 0.01132272,
+      "q4_block_mse_pooled": 0.01142856,
+      "row_energy_imbalance": 53575.68740025,
+      "weights": 19267584.0
+    },
+    "up_proj": {
+      "amax_over_rms": 41.61139512,
+      "below_f16_normal": 284705.0,
+      "dyn_range_log10": 8.50971099,
+      "frac_below_f16_normal": 0.00272196,
+      "q4_block_mse": 0.01068659,
+      "q4_block_mse_pooled": 0.01069088,
+      "row_energy_imbalance": 699.28546042,
+      "weights": 104595456.0
+    },
+    "v_proj": {
+      "amax_over_rms": 12.78691252,
+      "below_f16_normal": 9111.0,
+      "dyn_range_log10": 8.11178244,
+      "frac_below_f16_normal": 0.00331007,
+      "q4_block_mse": 0.0126521,
+      "q4_block_mse_pooled": 0.01311045,
+      "row_energy_imbalance": 10.99223527,
+      "weights": 2752512.0
+    }
+  },
+  "path": "m1/work/g1_svd_rep/model.safetensors",
+  "skipped": [
+    [
+      "model.layers.0.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.1.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.10.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.11.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.12.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.13.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.14.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.15.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.16.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.17.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.18.self_attn.v_proj.bias",
+      "dtype/Other"
+    ],
+    [
+      "model.layers.19.self_attn.v_proj.bias",
+      "dtype/Other"
+    ]
+  ],
+  "total": {
+    "amax_over_rms": 81.70883525,
+    "below_f16_normal": 1005999.0,
+    "dyn_range_log10": 9.07147774,
+    "frac_below_f16_normal": 0.00281142,
+    "q4_block_mse": 0.01113671,
+    "q4_block_mse_pooled": 0.01084896,
+    "row_energy_imbalance": 53575.68740025,
+    "weights": 357826560.0
+  },
+  "verdicts": []
+}

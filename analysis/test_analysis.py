@@ -81,6 +81,43 @@ class TestLoader(unittest.TestCase):
             self.assertEqual(scans["context"]["aaa"]["artifact"], "aaa")
         finally:
             rm(root)
+    def test_augmentation_import_is_reproducible_and_deduped(self):
+        root = make_tmp()
+        try:
+            aug = root / "augmentation"
+            aug.mkdir()
+            probe = {
+                "status": "OK", "tag": "aug1", "git_head": "pinned",
+                "backend": {"device": "cpu", "ngl": "0"},
+                "export": {"outtype": "bf16"},
+                "corpus": {"ppl_bytes": 32768, "kl_bytes": 8192,
+                           "source": "/tmp/eval_wikitext.txt"},
+                "versions": {"llama_cpp": ["version: 9851 test"]},
+                "pass_contract": {"mode": "reference-relative", "rel_dppl_slack": 0.010,
+                                  "kl_mean_slack": 0.005},
+                "quant_ref": {"q8_0": {"rel_dppl": -0.001},
+                              "q4_k_m": {"rel_dppl": 0.022}},
+                "results": {"q8_0": {"status": "OK", "pass": True, "rel_dppl": 0.001},
+                            "q4_k_m": {"status": "OK", "pass": False, "rel_dppl": 0.04}},
+            }
+            (aug / "aug1.gguf.json").write_text(json.dumps(probe))
+            scan = {"id": "aug1", "families": {"q_proj": {"q4_block_mse": 0.02}},
+                    "total": {"q4_block_mse": 0.02}}
+            (aug / "aug1.scan.json").write_text(json.dumps(scan))
+            (root / "labels.jsonl").write_text(json.dumps({"artifact": "aug1",
+                "flag": "quant.q8_0", "outcome": "pass", "status": "measured"}) + "\n")
+            frames = loader.load_all(loader.Inputs(root=str(root)))
+            self.assertEqual(len([r for r in frames["labels"] if r["artifact"] == "aug1"]), 2)
+            self.assertEqual(len([r for r in frames["scans"]["total"] if r["artifact"] == "aug1"]), 1)
+            self.assertEqual(len({(r["artifact"], r["flag"]) for r in frames["labels"]}), 2)
+            bad = dict(probe)
+            bad["tag"] = "bad-env"
+            bad["backend"] = {"device": "vulkan", "ngl": "99"}
+            (aug / "bad-env.gguf.json").write_text(json.dumps(bad))
+            frames2 = loader.load_all(loader.Inputs(root=str(root)))
+            self.assertFalse(any(r["artifact"] == "bad-env" for r in frames2["labels"]))
+        finally:
+            rm(root)
 
     def test_harvest_manifest_synth_edges(self):
         root = make_tmp()
@@ -238,10 +275,10 @@ class TestThresholds(unittest.TestCase):
             res, contracts_dir = thresholds.compute(inp)
             path = thresholds.emit(res, contracts_dir)
             self.assertIsNotNone(path)
-            self.assertTrue(path.name.startswith("contract-3"))
+            self.assertTrue(path.name.startswith("contract-4"))
             doc = json.loads(Path(path).read_text())
-            self.assertEqual(doc["version"], 3)
-            self.assertEqual(doc["prev_version"], 2)
+            self.assertEqual(doc["version"], 4)
+            self.assertEqual(doc["prev_version"], 3)
             ex = doc["flags"]["export.f16"]
             self.assertGreaterEqual(ex["n"], 20)
             self.assertAlmostEqual(ex["quality"] if "quality" in ex else ex["precision"], 1.0,
@@ -291,13 +328,15 @@ class TestThresholds(unittest.TestCase):
             inp = loader.Inputs(root=str(root))
             res, contracts_dir = thresholds.compute(inp)
             p1 = thresholds.emit(res, contracts_dir)
-            self.assertEqual(Path(p1).name, "contract-3.json")
+            self.assertEqual(Path(p1).name, "contract-4.json")
             before = Path(p1).read_text()
-            # a second run writes v4; v3 is untouched byte-for-byte
+            # Identical evidence reuses v4 byte-for-byte; no duplicate version is emitted.
             res2, contracts_dir2 = thresholds.compute(inp)
             p2 = thresholds.emit(res2, contracts_dir2)
             self.assertEqual(Path(p2).name, "contract-4.json")
+            self.assertTrue(res2.get("reused"))
             self.assertEqual(Path(p1).read_text(), before)
+            self.assertFalse((Path(contracts_dir2) / "contract-5.json").exists())
         finally:
             rm(root)
 

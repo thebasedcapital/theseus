@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-from risk_flags import (FLAG_DEFS, CONTRACT_V2, flag_ranks, artifact_fires_eval)
+from risk_flags import (FLAG_DEFS, CONTRACT_VERSION, flag_ranks, artifact_fires_eval)
 from loader import Inputs, load_all
 from baserates import (family_rows_by_artifact, total_rows_by_artifact, _confusion,
                        all_labels, measured_labels)
@@ -146,7 +146,7 @@ def fit_flag(flag, labels, fam_rows, total_rows, table=False):
 
 
 def next_version(contracts_dir):
-    cur = CONTRACT_V2
+    cur = CONTRACT_VERSION
     if Path(contracts_dir).is_dir():
         for p in Path(contracts_dir).glob("contract-*.json"):
             m = CONTRACT_RE.match(p.name)
@@ -166,8 +166,8 @@ def _stored_verdict(flag, scan_doc):
 
 
 def invalidation_set(flag, chosen_c, fam_rows, total_rows, scan_ctx):
-    """Prior verdicts (scan-time stored, else recomputed under contract v2) that flip under the
-    new threshold. Nothing is rewritten: this list ships inside the new contract file."""
+    """Prior verdicts under the active contract that flip under the new threshold. Nothing is
+    rewritten: this list ships inside the new contract file."""
     total_by = total_rows_by_artifact(total_rows)
     fam_by = family_rows_by_artifact(fam_rows)
     spec = dict(FLAG_DEFS[flag])
@@ -228,6 +228,26 @@ def compute(inputs):
     res = {"version": version, "emitted": any_emitted, "flags": flags_out}
     return res, contracts_dir
 
+def _latest_contract(contracts_dir):
+    found = []
+    if Path(contracts_dir).is_dir():
+        for p in Path(contracts_dir).glob("contract-*.json"):
+            m = CONTRACT_RE.match(p.name)
+            if m:
+                found.append((int(m.group(1)), p))
+    if not found:
+        return None, None
+    _, path = max(found)
+    try:
+        return path, json.loads(path.read_text())
+    except (OSError, ValueError):
+        return path, None
+
+def _flag_core(flags):
+    keep = ("n", "threshold", "precision", "recall", "specificity", "f1")
+    return {name: {k: spec.get(k) for k in keep} for name, spec in (flags or {}).items()}
+
+
 
 def emit(res, contracts_dir):
     if not res["emitted"]:
@@ -237,6 +257,12 @@ def emit(res, contracts_dir):
     for flag, d in res["flags"].items():
         if d.get("emitted"):
             flags_clean[flag] = {k: v for k, v in d.items() if k != "candidates"}
+    invalidates = [inv for f in res["flags"].values() for inv in f.get("invalidates", [])]
+    latest_path, latest = _latest_contract(contracts_dir)
+    if latest and _flag_core(latest.get("flags")) == _flag_core(flags_clean):
+        res["version"] = latest["version"]
+        res["reused"] = True
+        return latest_path
     doc = {
         "kind": "thresholds.contract",
         "version": res["version"],
@@ -249,7 +275,7 @@ def emit(res, contracts_dir):
                          f"reach precision >= {BEAT_RATE_MULTIPLE:g}x the flag's fail base rate "
                          "or it is not emitted (else the flag is a rumor, not a predictor)."},
         "flags": flags_clean,
-        "invalidates": [inv for f in res["flags"].values() for inv in f.get("invalidates", [])],
+        "invalidates": invalidates,
         "invariants": [
             "history is never rewritten: a new version is a new file; prior verdicts it "
             "invalidates are listed, not edited",
@@ -262,10 +288,10 @@ def emit(res, contracts_dir):
     path.write_text(json.dumps(doc, indent=1) + "\n")
     return path
 
-
 def format_report(res, contracts_path):
     lines = []
-    lines.append(f"contract next version: v{res['version']}")
+    lines.append((f"active contract: v{res['version']} (identical evidence reused)"
+                  if res.get("reused") else f"contract next version: v{res['version']}"))
     for flag in flag_ranks():
         d = res["flags"][flag]
         lines.append("")
@@ -294,7 +320,8 @@ def format_report(res, contracts_path):
             lines.append(f"    {i['artifact']}: {i['old_verdict']} -> {i['new_verdict']} "
                          f"({i['source']})")
     if res["emitted"]:
-        lines.append(f"\ncontract v{res['version']} written to {contracts_path}")
+        action = "reused" if res.get("reused") else "written"
+        lines.append(f"\ncontract v{res['version']} {action} at {contracts_path}")
     else:
         lines.append("\ncontract unchanged: no flag met the emission gate; "
                      "no new contract version was written.")

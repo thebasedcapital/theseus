@@ -112,10 +112,10 @@ The scheduler also refuses to hold state in an agent's memory: the answer to "wh
 Four stores grow monotonically and are consulted by every later claim:
 
 1. **Cell ledger** (§SCHEMA) — every measurement, forever, with conditions attached.
-2. **Family baseline** — the distribution of static features and measured damage across
-   artifacts of an architecture family. M1 produced the first points (base J 0.01123, dense-family
-   1.5× risk line 0.0168). The *thresholds in the inspector* should come from here, not from a
-   constant I hand-wrote after n=2 — and the record must say which.
+2. **Threshold contracts.** Q8 contract v3 is fitted on 20 measured artifacts and stored at
+   `analysis/data/evidence/contracts/contract-3.json`; both Rust scanners cite and use it. Q4,
+   export and adaptation remain provisional because their gates did not pass. Threshold versions
+   are immutable and identical evidence reuses the current version.
 3. **Incident store** — machine-readable, auto-appended by the driver when a cell fails twice, a
    lease is stolen, or a view refuses to render (I4/I5/I3 violation attempts). `RUNBOOK.md` is
    generated from it. This is the difference between a project with lessons and a project that

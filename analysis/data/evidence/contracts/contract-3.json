@@ -1,0 +1,144 @@
+{
+ "kind": "thresholds.contract",
+ "version": 3,
+ "prev_version": 2,
+ "emitted_utc": "2026-08-31T16:18:28+00:00",
+ "gate": {
+  "min_labelled": 20,
+  "recall_floor": 0.95,
+  "beat_rate_multiple": 1.25,
+  "note": "PLAN section 5 / K-6 refuter: no predictor learned before the ledger has >=20 labelled cells; a cut must catch >=95% of true fails and reach precision >= 1.25x the flag's fail base rate or it is not emitted (else the flag is a rumor, not a predictor)."
+ },
+ "flags": {
+  "quant.q8_0": {
+   "n": 20,
+   "gate": "emitted",
+   "emitted": true,
+   "threshold": 0.01282348,
+   "precision": 0.4,
+   "recall": 1.0,
+   "specificity": 0.8333333333333334,
+   "f1": 0.5714285714285715,
+   "invalidates": [
+    {
+     "artifact": "bad_all_rep",
+     "flag": "quant.q8_0",
+     "old_verdict": "OK",
+     "new_verdict": "AT_RISK",
+     "source": "recomputed"
+    },
+    {
+     "artifact": "bad_all_s2_rep",
+     "flag": "quant.q8_0",
+     "old_verdict": "OK",
+     "new_verdict": "AT_RISK",
+     "source": "recomputed"
+    },
+    {
+     "artifact": "bad_all_s3_rep",
+     "flag": "quant.q8_0",
+     "old_verdict": "OK",
+     "new_verdict": "AT_RISK",
+     "source": "recomputed"
+    },
+    {
+     "artifact": "g3_pow2_rep",
+     "flag": "quant.q8_0",
+     "old_verdict": "OK",
+     "new_verdict": "AT_RISK",
+     "source": "recomputed"
+    },
+    {
+     "artifact": "g3_pow2_rep_raw",
+     "flag": "quant.q8_0",
+     "old_verdict": "OK",
+     "new_verdict": "AT_RISK",
+     "source": "recomputed"
+    },
+    {
+     "artifact": "prep_base",
+     "flag": "quant.q8_0",
+     "old_verdict": "OK",
+     "new_verdict": "AT_RISK",
+     "source": "recomputed"
+    },
+    {
+     "artifact": "g1_svd",
+     "flag": "quant.q8_0",
+     "old_verdict": "OK",
+     "new_verdict": "AT_RISK",
+     "source": "recomputed"
+    },
+    {
+     "artifact": "g3_smooth",
+     "flag": "quant.q8_0",
+     "old_verdict": "OK",
+     "new_verdict": "AT_RISK",
+     "source": "recomputed"
+    }
+   ]
+  }
+ },
+ "invalidates": [
+  {
+   "artifact": "bad_all_rep",
+   "flag": "quant.q8_0",
+   "old_verdict": "OK",
+   "new_verdict": "AT_RISK",
+   "source": "recomputed"
+  },
+  {
+   "artifact": "bad_all_s2_rep",
+   "flag": "quant.q8_0",
+   "old_verdict": "OK",
+   "new_verdict": "AT_RISK",
+   "source": "recomputed"
+  },
+  {
+   "artifact": "bad_all_s3_rep",
+   "flag": "quant.q8_0",
+   "old_verdict": "OK",
+   "new_verdict": "AT_RISK",
+   "source": "recomputed"
+  },
+  {
+   "artifact": "g3_pow2_rep",
+   "flag": "quant.q8_0",
+   "old_verdict": "OK",
+   "new_verdict": "AT_RISK",
+   "source": "recomputed"
+  },
+  {
+   "artifact": "g3_pow2_rep_raw",
+   "flag": "quant.q8_0",
+   "old_verdict": "OK",
+   "new_verdict": "AT_RISK",
+   "source": "recomputed"
+  },
+  {
+   "artifact": "prep_base",
+   "flag": "quant.q8_0",
+   "old_verdict": "OK",
+   "new_verdict": "AT_RISK",
+   "source": "recomputed"
+  },
+  {
+   "artifact": "g1_svd",
+   "flag": "quant.q8_0",
+   "old_verdict": "OK",
+   "new_verdict": "AT_RISK",
+   "source": "recomputed"
+  },
+  {
+   "artifact": "g3_smooth",
+   "flag": "quant.q8_0",
+   "old_verdict": "OK",
+   "new_verdict": "AT_RISK",
+   "source": "recomputed"
+  }
+ ],
+ "invariants": [
+  "history is never rewritten: a new version is a new file; prior verdicts it invalidates are listed, not edited",
+  "feature conventions never change within a version: q4_block_mse is the mean of per-tensor ratios and q4_block_mse_pooled is the ratio of sums \u2014 they differ by up to 5.7% and must never be mixed in one threshold"
+ ]
+}

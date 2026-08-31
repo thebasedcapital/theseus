@@ -28,47 +28,27 @@ architecture is the census question this file answers.
 
 ---
 
-## 0. The two load-bearing answers (read this first)
+## 0. MoE keying status
 
-**R1 — MoE expert naming DOES break per-family aggregation. CONFIRMED.**
-The inspector keys families by substring containment (`family_of`, I main.rs:414-426:
-`if name.contains(f)`), and tensors whose family is not matched are silently dropped from the
-census (`None => continue`, I main.rs:537-547), while 3-D and 1-D tensors are skipped
-(I main.rs:553-557). Concretely:
+**The original silent-keying bug is fixed in both Rust scanners.** Classification now matches
+exact dot-separated components:
 
-* DeepSeek V1/V2/V3 and Qwen2/3-MoE ship per-expert 2-D tensors named
-  `mlp.experts.<e>.{gate,up,down}_proj.weight` (the converters consume exactly those keys:
-  L conversion/deepseek.py:386-411, L conversion/qwen.py:110-139). Each of those names
-  `contains` `gate_proj`/`up_proj`/`down_proj`, so **every routed-expert matrix is merged into
-  the dense `gate_proj`/`up_proj`/`down_proj` family aggregate and inflates `weights`/`total`**.
-  The mixed-scale family then reports wrong `q4_block_mse`, `dyn_range_log10` and
-  `frac_below_f16_normal`. Probe verdict, reproduced on a synthetic DeepSeek-V3 header:
-  `[ERR] … expert tensor … matches family substring …` + FAIL CLOSED.
-* Mixtral ships experts as `block_sparse_moe.experts.<e>.{w1,w2,w3}.weight`
-  (L conversion/llama.py:250-276 (w1/w2/w3 merge), :340-344 (residual check)). None of `w1/w2/w3` matches a family substring, so the expert
-  weights are **dropped silently from the census, no UNAVAILABLE flag, ~half the parameters
-  gone from `weights`/`total`**.
-* transformers 5.16 also stores a fused regime (`gate_up_proj:[n,2·ff,hidden]`,
-  `down_proj:[n,hidden,ff]` — T qwen2_moe/modeling_qwen2_moe.py:287-288, mixtral:65-66).
-  `gate_up_proj` contains `up_proj` but not `gate_proj` (files gate into `up_proj` only; if
-  rank-3 it is skipped as rank!=2). Probe detects all three regimes; all fail closed.
+- dense `q_proj` through `down_proj` remain the original seven families;
+- 2-D `experts.<e>.gate_proj/up_proj/down_proj` map to
+  `expert_gate/expert_up/expert_down`;
+- Mixtral `w1/w2/w3` map to expert gate/down/up semantics;
+- llama.cpp per-expert `ffn_gate.<e>/ffn_down.<e>/ffn_up.<e>` map to expert families;
+- fused rank-3 HF tensors and GGUF `ffn_*_exps` stacks are explicit `UNAVAILABLE`, never merged
+  into dense families or silently dropped;
+- dense fused QKV remains `UNAVAILABLE`.
 
-**R2 — which architectures get silently wrong dyn_range / census numbers TODAY.**
-* Any MoE whose experts are named `gate/up/down_proj` (DeepSeek V1/V2/V3, Qwen2/3-MoE) — the
-  dense gate/up/down families and `total` are **currently corrupted** the moment the inspector
-  reads such an artifact. This is a live bug, in the shipped Rust code, not a hypothetical.
-* Gemma / Gemma-2 / Gemma-3 and other 1+w-norm archs do **not** corrupt today's output (the
-  inspector skips rank-1 norms), **but** any probe or census that ever meters `norm.weight`
-  bytes will silently compare an offset (w, stored) with a scale (all other archs) — wrong by
-  construction. The `+1` happens on GGUF import (L conversion/gemma.py:62-66, :112-116), so the
-  HF bytes and the GGUF bytes differ for every norm; only the projections are safe to compare.
-* Hybrids (Qwen3Next, Jamba) mix SSM and attention layers on a schedule — layer-uniform family
-  census is wrong until the layer-type mapping is declared (L conversion/qwen.py:296-303 (A_log/dt_bias/conv1d/norm+1), :305-337 (in_proj_qkvz),
-  jamba.py:106-112).
-* GPT-2-class checkpoints (`c_attn`/`c_proj` naming, LayerNorm, no RoPE, no GLU): none of the
-  seven families exists by name — the inspector naturally reports nothing, and gauging is
-  N/A, but this is *silent*: nothing says "this is not a gaugable decoder". Fail closed means a
-  preflight must say so (probe does).
+Trusted 2-D expert tensors enter expert-family and total statistics. Quant/export preflight uses
+the worst trusted dense or expert family. Adaptation remains unavailable on MoE until an
+operation-specific calibration exists.
+
+Remaining limits: fused expert stacks are visible but unmetered; Gemma `1+w` norm storage still
+needs an explicit convention if norms enter the census; hybrids need a layer schedule; GPT-2 and
+Mamba have no compatible seven-family surface and fail closed.
 
 ---
 
@@ -88,9 +68,9 @@ adapter · `n/a` not applicable. "import" = weight transform applied by `convert
 | **qwen2** (Qwen2ForCausalLM) | full / SwiGLU | E | E | E | E* | E | **NONE (identity)** — the M1 reference | scale | – (the baseline) |
 | **qwen3** (Qwen3ForCausalLM) | full / SwiGLU | E | E | E | E* | E | **NONE** | scale | – (qk-norm present, gauge-neutral) |
 | **phi-3** (Phi3ForCausalLM) | full / SwiGLU | E | **P** | E | E | E | none (rope_dim = rot_pct of head dim; longrope factor tensors) | scale | G2 band caveat |
-| **deepseek v2/v3** (DeepseekV2/3ForCausalLM) | MLA / MoE | **U** (MLA) | E† | E | E | E‡ | kv_b split+transposed; experts merged to 3D | scale | **experts corrupt gate/up/down** |
-| **qwen2moe / qwen3moe** | full / MoE | E | E | E | E | E‡ | experts merged to 3D | scale | **experts corrupt gate/up/down** |
-| **mixtral** (MixtralForCausalLM) | full / MoE(w1w2w3) | E | E | E | E | **U‡** | experts w1/w2/w3 merged to 3D; q/k permuted | scale | **experts silently dropped** |
+| **deepseek v2/v3** (DeepseekV2/3ForCausalLM) | MLA / MoE | **U** (MLA) | E† | E | E | E‡ | kv_b split+transposed; experts merged to 3D | scale | 2-D experts separated; fused stacks unavailable |
+| **qwen2moe / qwen3moe** | full / MoE | E | E | E | E | E‡ | experts merged to 3D | scale | 2-D experts separated; fused stacks unavailable |
+| **mixtral** (MixtralForCausalLM) | full / MoE(w1w2w3) | E | E | E | E | **U‡** | experts w1/w2/w3 merged to 3D; q/k permuted | scale | w1/w2/w3 separated; merged stacks unavailable |
 | **mamba / mamba2** | SSM / SSM | U | U | E(n/t) | E | U | A_log→A, conv1d squeeze, dt_bias rename | scale | no families at all |
 | **qwen3next / jamba** (Qwen3NextForCausalLM, JambaForCausalLM) | hybrid / hybrid | U‡ | E† | E | E* | E‡ | in_proj_qkvz re-split, A_log→A, norm+1 (lognorm) | scale (+1+w lognorm) | **census wrong until layer-type map** |
 | **gpt2** (GPT2LMHeadModel) | full / LN-MLP | U | U | **U** (LayerNorm) | **P** | U | none (c_attn fused) | LayerNorm | no qwen families by name |
@@ -217,10 +197,9 @@ the 32-element unit matches:
 - Q8_0: `block_q8_0` QK8_0=32, int8 quants (:241-246)
 - Q4_K: super-block QK_K=256 split as "8 blocks of 32 elements each" (:89, :313-328)
 - Q5_K: 8×32 (comment :330-331, struct :333-346); Q3_K: 16×16 (:305-311); Q6_K: 16×16 (:352-358)
-So the proxy's block granularity is arch-independent (it rides the in-dimension, which is the
-contiguous last axis of the HF matrix). It is corrupted not by architecture but by **keying**
-(wrong family, R1) and by **3-D/1-D skips** (I main.rs:553-557) — an MoE's 3-D experts simply
-vanish from the census.
+The proxy block granularity is architecture-independent. Recognized 2-D expert layouts are now
+keyed and metered separately. Fused rank-3 MoE storage remains explicit `UNAVAILABLE` because the
+row scanner cannot deaggregate the expert stack.
 
 ---
 
@@ -232,10 +211,10 @@ architecture?
 | Claim | Qwen2-only dependency | Breaks if you point it at… |
 |---|---|---|
 | K-1 (>= five exact gauges) | **Qwen2 is the rare arch with NO import transform**, so gauge↔quant reasoning never crossed a q/k permute or a `1+w` norm shift | llama/mistral/mixtral/deepseek (q/k permute; gauges exact in HF frame, numbers still exact through the identical import — safe if the pipeline never reads GGUF rows); gemma (norm offset — gauges fine, any norm census wrong); deepseek (G1 vanishes — MLA). The five-gauge *set* is not universal: Mamba has two; GPT-2 has none by name. |
-| K-2 (export format is an op; census predicts f16 damage) | is calibrated on families whose keys are clean and whose norms are scales | **any MoE artifact: `frac_below_f16_normal`/`dyn_range` for gate/up/down and `total` are wrong today (R1)**; gemma norms are offsets so a norm-inclusive census is wrong; everything else (projections) transfers. |
-| K-4 (quantization reserve differs by gauge state) | thresholds `T_QUANT_ABS=0.0165`, `T_QUANT_TOTAL_ABS=0.0168`, `T_EXPORT_FRAC`, `T_ADAPT_DYN`, `T_ADAPT_ROW` are n=2, Qwen2-only provisional numbers (I main.rs:45-48) | base rates differ per family/arch — the thresholds must be re-fit on the M3 ledger per architecture family (this is the BaseRates slice's job; the audits here say *which* families each arch even has). |
-| K-6 (static L0 features predict risk) | directionality was measured for qwen2 projections | for MoE the predictor's denominator (clean per-family aggregates) does not exist yet; predictions on MoE artifacts are silent garbage (R1). |
-| K-5 / K-10 (artifact-only canonicalizer restores reserve) | canonicalizers key families by q_proj/gate_proj… and assume `nb` norms are scales | G3/G7/G1 canonicalizers are arch-valid for llama/mistral/gemma-family/qwen3/phi3 (RMSNorm), but on gemma the norm weights must not be *read* as scales; on MoE the gate/up/down canonicalizer would touch routed experts (G7) where the keying adapter must land first. |
+| K-2 (export format is an op; census predicts f16 damage) | calibrated on dense Qwen | trusted 2-D MoE expert families are now included; fused stacks remain unavailable; Gemma norm-inclusive census still needs a storage-convention adapter. |
+| K-4 (quantization reserve differs by gauge state) | Q8 uses fitted v3 at n=20; Q4 remains v2 provisional | base rates and thresholds still need per-architecture evidence. |
+| K-6 (static preflight) | Q8 v3 is in-sample Qwen calibration | MoE adaptation is unavailable until separately calibrated; quant/export can use trusted expert families. |
+| K-5 / K-10 (canonicalizer) | Qwen family keys and scale norms | MoE gauge transforms still require an architecture adapter even though scan keying is fixed. |
 | G2 maximality | distinct per-pair frequencies | phi-3 (partial rotary) and mRoPE VLM archs: the "maximal commutant" and pair indices are wrong beyond the rotated band. |
 
 Bottom line: **every result that is "the pipeline is exact end-to-end" transfers only to dense,
@@ -248,31 +227,19 @@ generalize.
 
 ---
 
-## 5. Prioritized adapter list (highest value / lowest risk first)
+## 5. Prioritized remaining adapters
 
-1. **MoE-aware family keying (the R1 fix) — highest value, lowest risk.** Replace the substring
-   `contains` keying (I main.rs:414-426) with a boundary-aware match that separates
-   `mlp.experts.<e>.*` and `block_sparse_moe.experts.<e>.*` into a dedicated `experts` census
-   bucket (per-expert stats or a single pooled expert family), never into dense `gate/up/down`.
-   Handle all three on-disk regimes (per-expert 2-D, fused 3-D `gate_up_proj`/`down_proj`,
-   mixtral `w1/w2/w3`). Pure read-side change: no physics, no runtime, immediate correctness.
-   `probe.py` already flags it and fails closed; the adapter is the fix.
-2. **Norm-storage convention field.** Record for each artifact whether norms are `w`-scales or
-   `1+w`-offsets (gemma family; Qwen3Next hybrid lognorm layers) so no downstream census or
-   base-rate fit ever mixes offsets with scales. Zero-cost, additive.
-3. **G2 pairing-convention pinning.** Assert in the gauge runner that the artifact's rope is
-   rotate-half with full-rotary (or carry `partial_rotary_factor`/`mrope_section`), and apply
-   rotations only inside the rotated band. Blocks silent misuse on phi-3/mRoPE.
-4. **q/k import row-reorder declaration.** For llama/mistral-HF/deepseek-v1/plamo archs, stamp
-   the artifact record with "q/k rows reordered on GGUF import"; keep static features on the HF
-   frame (unchanged, correct) and forbid GGUF-row readback without restoring the frame. Low
-   value alone, trivial cost.
-5. **Hybrid layer-schedule census** (Qwen3Next/Jamba): slice families by attention-vs-SSM layer
-   before aggregating; fail closed until mapped (probe already does).
+1. **Fused MoE stack metering.** Add exact rank-3 `ffn_*_exps` / `gate_up_proj` handling without
+   pretending a fused gate/up tensor is separable when its layout does not prove the split.
+2. **Norm-storage convention field.** Stamp true-scale versus `1+w` offset for Gemma and hybrid
+   lognorm layers.
+3. **G2 pairing pin.** Carry partial rotary and mRoPE section metadata and restrict rotations to
+   the validated band.
+4. **q/k import row-order declaration.** Stamp llama/mistral/deepseek-v1/plamo reorder behavior.
+5. **Hybrid layer schedule.** Aggregate attention and SSM blocks separately.
 
-Adapter 1 is the single highest-value/lowest-risk item: it converts a silently-wrong number on
-every exported MoE checkpoint into a correct one, is purely read-side, and the probe now proves
-whether its artefact is affected before any download.
+The old highest-priority keying bug is closed. Fused expert metering is now the first missing
+adapter because the scanners expose it explicitly rather than returning a plausible wrong total.
 
 ---
 
