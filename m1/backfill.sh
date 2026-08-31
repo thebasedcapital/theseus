@@ -6,7 +6,7 @@ set -uo pipefail
 cd /home/admin/theseus
 PY=/home/admin/counterpoint/.venv/bin/python
 export TSX_THREADS=4 OMP_NUM_THREADS=4 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-while pgrep -f "queue_final.sh|queue_extra.sh|queue_fix.sh" >/dev/null; do sleep 30; done
+while pgrep -f "queue_final.sh|queue_extra.sh|queue_fix.sh|queue_panel.sh|merge_probe.py" >/dev/null; do sleep 30; done
 REF=~/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987
 VARS=$($PY -c "
 import sys; sys.path.insert(0,'m1'); import json, os

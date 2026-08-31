@@ -1,1 +1,1 @@
-pid=2790945 start=2026-08-31 00:30:24 cmd=/home/admin/theseus/m1/merge_probe.py --model-dir /home/admin/theseus/m1/work/g1_haar
+pid=2821233 start=2026-08-31 00:42:09 cmd=/home/admin/theseus/m1/adapt_probe.py --model-dir /home/admin/theseus/m1/work/g2_rand
