@@ -3,6 +3,15 @@
 > Belief state with obligations and refuters lives in [`CLAIMS.md`](CLAIMS.md) (K-1…K-9); this
 > file is the evidence narrative for milestone 1. Numbers here are cited by the claim register.
 
+> **RESULT INVALIDATION (2026-08-31):** Every adaptation and merge number produced before commit
+> `true-LoRA-fix` is invalid. The probes froze target Linear weights but accidentally left
+> embeddings, RMSNorm weights, and the LM head trainable; those runs were full-model updates at
+> LoRA learning rates, not LoRA. Twenty-one cells were moved to
+> `m1/work/invalidated/full_model_training/`, calibration caches and the specialist were deleted,
+> and both probes now freeze the entire base before installing adapters. Do **not** cite the old
+> capture/collateral/merge numbers below; they remain only as an incident record. Equivalence,
+> export, static-feature and quantization measurements are unaffected. Corrected cells are in flight.
+
 Subject: `Qwen/Qwen2.5-0.5B` (base, bf16, tied), surgery executed by real tools (llama.cpp
 `b9851` GGUF K-quants, hand-written AdamW LoRA, task-vector merges). Nothing here is
 model-judged or simulated; every number comes from a persisted JSON under `m1/work/` and the
@@ -208,9 +217,11 @@ quantizing. Audited against the actual artifacts (`m1/check_gguf_layout.py`, lay
   pairs my `G2` gauge rotates are the same pairs the quantizer sees, and the `G2` row needs no
   caveat.
 
-## 5. Measured result: the same function, a broken future
+## 5. Invalidated adaptation pilot (retained as an incident, not evidence)
 
-Bounded LoRA r16 (deterministic reversal task, 80 steps, batch 2 × seq 128, lr chosen from
+The table in this section came from the invalidated probe semantics above. It remains auditable, but every row has status `INVALIDATED` and satisfies no claim obligation. Corrected true-LoRA cells globally freeze the base.
+
+Invalidated configuration: nominal LoRA r16 (deterministic reversal task, 80 steps, batch 2 × seq 128, lr chosen from
 {3e-4, 3e-3}, seed 1729, identical data order, CUDA, `peak_memory_allocated_gb` recorded). Every
 row below is measured on an artifact whose logits are **bit-identical** to base or whose mean KL is
 ≤ 2e-4 nats:

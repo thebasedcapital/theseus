@@ -30,18 +30,15 @@ Qwen2.5-0.5B, exact architecture-valid gauges verified to logit equivalence, sur
 
 | checkpoint | max\|Δlogit\| vs base | Q4_K_M KLD (× base) | LoRA r16 capture | verdict |
 |---|---:|---:|---:|---|
-| `base` | 0 | 0.0319 (1.00×) | 0.973 | pass |
+| `base` | 0 | 0.0319 (1.00×) | re-measuring | quant pass |
 | `g3_pow2` — RMSNorm diagonal, `2^k` scales | **0.00e+00** | KLD undefined; **Q8_0 alone: 10.69** | **0.156** | **fail** |
 | `g3_pow2_rep` — artifact-only repair | 0.00e+00 | 0.0350 (1.10×) | 0.983 | pass |
 | `g7_rand` — SwiGLU up-branch diagonal | 3.1e-01 | KL undefined | **0.060** | fail |
-| `g7_rand_rep` | 4.8e-01 | 0.0314 (0.98×) | 0.841 | pass |
+| `g7_rand_rep` | 4.8e-01 | 0.0314 (0.98×) | re-measuring | quant pass |
 | `g1_haar` — value-subspace O(64) per GQA group | 1.8e-01 | 0.0320 (1.00×) | 0.965 | pass (ΔPPL over limit) |
 | `g4_perm` — permutation control | 1.3e-04 | 0.0319 (1.00×) | — | pass |
 
-Same function — for `g3_pow2` the logits agree to the last bit and pre-adaptation perplexity is
-identical to four decimals — and an 80-step LoRA that base survives turns it into a 4.3-million
-perplexity model that learns 16 % of the task. A canonicalizer that never sees the original
-checkpoint gives it back. Two corollaries worth stealing:
+Same function — for `g3_pow2` the logits agree to the last bit — and radically different quantization futures (Q8_0 KLD 10.69 vs base 0.00094), restored by a canonicalizer that never sees the original. Adaptation futures are being re-measured after the original probe was invalidated. Two corollaries worth stealing:
 
 * **export dtype is an operation.** The same artifact exports to bf16 GGUF at ppl 12.1351 (base:
   12.1399) and to f16/f32 GGUF at 177 — before any quantizer runs. `theseus preflight` must meter
