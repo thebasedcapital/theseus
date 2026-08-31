@@ -202,13 +202,31 @@ fn q8_v3_threshold_is_operation_specific() {
         ops.iter().find(|x| x.0 == "quantize.gguf.q8_0").unwrap().1,
         "AT_RISK"
     );
-    assert_eq!(
-        ops.iter()
-            .find(|x| x.0 == "quantize.gguf.q4_k_m")
-            .unwrap()
-            .1,
-        "OK"
+    // Q4 has no admissible threshold: its fitted cut was refused (recall-preserving precision
+    // 0.278 < the required 0.3125). Reporting OK here would assert the very verdict the
+    // calibration declined to issue, and a bare OK reads as a clearance.
+    let q4 = ops.iter().find(|x| x.0 == "quantize.gguf.q4_k_m").unwrap();
+    assert_eq!(q4.1, "UNKNOWN");
+    assert!(
+        q4.2.contains("refused") && q4.2.contains("0.278"),
+        "UNKNOWN must state why, not just that: {}",
+        q4.2
     );
+    // Q5 is judged, but by a provisional constant, and must say so on its own line.
+    let q5 = ops.iter().find(|x| x.0 == "quantize.gguf.q5_k_m").unwrap();
+    assert!(
+        q5.2.contains("provisional"),
+        "provisional thresholds must be labelled: {}",
+        q5.2
+    );
+    // Rows with no threshold at all are never silently OK.
+    for name in ["merge.linear", "merge.ties", "quantize.awlora"] {
+        assert_eq!(
+            ops.iter().find(|x| x.0 == name).unwrap().1,
+            "UNAVAILABLE",
+            "{name} must not report a verdict it cannot support"
+        );
+    }
 }
 // ---- synthetic GGUF builder (in-test write side of the format) ----
 struct Gb {
