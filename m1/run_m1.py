@@ -126,22 +126,46 @@ def main():
     results = common.rjson(Path(a.out)) if Path(a.out).exists() else {}
     arch = common.read_arch(common.REF_MODEL)
     for v in names:
-        if v in results and results[v].get("equiv") == "EQUIVALENT" and results[v].get("ops"):
-            log(f"skip {v} (already probed)")
+        # Admission is derived from what exists on disk, not from a run log: a variant is only
+        # skipped when every requested cell already has a usable result. Re-running after a
+        # partial crash therefore fills holes instead of re-doing work or skipping a variant
+        # because a stale tally said it was done (RUNBOOK triage: "summary disagrees with cells").
+        pending_ops = []
+        for op in ops:
+            f = OPS_DIR / f"{v}.{op}.json"
+            if f.exists():
+                try:
+                    d0 = json.loads(f.read_text())
+                except Exception:                                     # noqa: BLE001
+                    pending_ops.append(op)
+                    continue
+                if d0.get("results") and not d0.get("error"):
+                    continue
+                pending_ops.append(op)
+            else:
+                pending_ops.append(op)
+        if not pending_ops:
+            log(f"skip {v} (all {len(ops)} cells present)")
             continue
+        ops_for_v = pending_ops
         eq = equivalence(v)
         if v != "base" and (eq is None or not eq.get("distributional_pass",
                                                      eq.get("verdict") == "EQUIVALENT")):
-            log(f"SKIP {v}: equivalence gate not passed ({'missing json' if eq is None else eq.get('verdict')})")
+            log(f"SKIP {v}: equivalence gate not passed "
+                f"({'missing json' if eq is None else eq.get('verdict')})")
             results[v] = {"variant": v, "equiv": "MISSING" if eq is None else eq["verdict"],
-                          "ops": {}, "passes": [], "fails": [], "unavailable": ops, "omega0": 0.0}
+                          "ops": {}, "passes": [], "fails": [], "unavailable": ops_for_v,
+                          "omega0": 0.0}
             common.wjson(Path(a.out), results)
             continue
         d = common.REF_MODEL if v == "base" else common.WORK / v
         if v != "base" and not (d / "model.safetensors").exists():
             subprocess.run([PY, str(common.M1 / "make_variants.py"), "--only", v],
                            cwd=str(common.REPO), check=True)
-        probes = {op: run_probe(op, d, v, []) for op in ops}
+        probes = {op: run_probe(op, d, v, []) for op in ops_for_v}
+        # keep any previously recorded cells for this variant
+        prior = (results.get(v) or {}).get("ops") or {}
+        probes = {**{k: {"status": "REUSED"} for k in prior if k not in probes}, **probes}
         results[v] = summarize(v, eq or {"verdict": "EQUIVALENT", "metrics": {}, "cond_b": {}},
                                probes)
         common.wjson(Path(a.out), results)
