@@ -665,9 +665,9 @@ def write_population(lines, edges, dangling, drops):
       "those first. `quant`-kind rows therefore describe a few base distributions repeatedly — "
       "great for matched chains, weak for a general quant-vs-base claim.")
     w("3. **Resolvable-parent fraction is deliberately inflated.** Declared parents are injected "
-      "into the manifest regardless of popularity, so ~90%+ of declared parents resolve. That is "
-      "a design guarantee for the matched-pairs use case, NOT an independent estimate of how "
-      "often HF publishers declare lineage.")
+      f"into the manifest regardless of popularity, so {frac:.1f}% of parent-declaring records "
+      "resolve in this generated population. That is a design choice for matched pairs, not an "
+      "independent estimate of how often HF publishers declare lineage.")
     w("4. **instruct vs finetune is a name heuristic.** HF tags both as `base_model:finetune:`. "
       "We label `instruct` only when the repo name matches instruct|chat|it\\b; e.g. "
       "'OpenHermes' or 'Zephyr' (instruction-tuned) land in `finetune`. Splits on that boundary "

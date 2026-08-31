@@ -1,4 +1,4 @@
-# Theseus 🧬 — model optionality / checkpoint lifecycle diagnostics
+# Theseus: model optionality / checkpoint lifecycle diagnostics
 
 > Two checkpoints can compute the same function and have very different futures. Theseus
 > measures the difference, per operation, and then repairs it without changing the function.
@@ -28,28 +28,29 @@ session that loses its working tree loses nothing.
 Qwen2.5-0.5B, exact architecture-valid gauges verified to logit equivalence, surgery executed by
 `llama.cpp b9851` and hand-written AdamW LoRA / task-vector merges:
 
-| checkpoint | max\|Δlogit\| vs base | Q4_K_M KLD (× base) | LoRA r16 capture | verdict |
+| checkpoint | max\|Δlogit\| vs base | Q4_K_M KLD | true-LoRA mean capture | merge |
 |---|---:|---:|---:|---|
-| `base` | 0 | 0.0319 (1.00×) | re-measuring | quant pass |
-| `g3_pow2` — RMSNorm diagonal, `2^k` scales | **0.00e+00** | KLD undefined; **Q8_0 alone: 10.69** | **0.156** | **fail** |
-| `g3_pow2_rep` — artifact-only repair | 0.00e+00 | 0.0350 (1.10×) | 0.983 | pass |
-| `g7_rand` — SwiGLU up-branch diagonal | 3.1e-01 | KL undefined | **0.060** | fail |
-| `g7_rand_rep` | 4.8e-01 | 0.0314 (0.98×) | re-measuring | quant pass |
-| `g1_haar` — value-subspace O(64) per GQA group | 1.8e-01 | 0.0320 (1.00×) | 0.965 | pass (ΔPPL over limit) |
-| `g4_perm` — permutation control | 1.3e-04 | 0.0319 (1.00×) | — | pass |
+| `base` | 0 | 0.0319 | 0.9705 | linear + TIES pass |
+| `g3_pow2` | **0.00e+00** | undefined; Q8 KLD **10.69** | **0.0989** | both fail |
+| `g3_pow2_rep` | 0.00e+00 | 0.0350 | **0.9753** | both fail |
+| `g7_rand` | 3.1e-01 | undefined | **0.1931** | both fail |
+| `g7_rand_rep` | 4.8e-01 | 0.0314 | **0.9359** | both fail |
+| `g5_c8` | 1.7e-01 | 0.0325 | 0.9813 | linear passes, TIES fails |
+| `prep_base_exact` | EQUIVALENT | 0.0316 | 0.9900 (one seed) | both fail |
 
-Same function — for `g3_pow2` the logits agree to the last bit — and radically different quantization futures (Q8_0 KLD 10.69 vs base 0.00094), restored by a canonicalizer that never sees the original. Adaptation futures are being re-measured after the original probe was invalidated. Two corollaries worth stealing:
+For G3, logits agree to the last bit in fp32 and bf16 compute, yet mean adaptation capture falls
+from 0.9705 to 0.0989 and Q8 KLD jumps from 0.00094 to 10.69. Artifact-only lattice repair returns
+adaptation to 0.9753 and Q4 close to base. G7 repeats the adaptation result under fp32-equivalent,
+bf16-sensitive arithmetic. Both effects survive a conservative three-seed, 3σ gate.
 
-* **export dtype is an operation.** The same artifact exports to bf16 GGUF at ppl 12.1351 (base:
-  12.1399) and to f16/f32 GGUF at 177 — before any quantizer runs. `theseus preflight` must meter
-  the export, not just the quant.
-* **there is no single reserve score.** The repaired `g7` artifact is quantization-pristine
-  (0.98× base KLD) and still 13 points short of base on adaptation capture. Different operations
-  read different features of the same bytes.
+There is no single reserve score. `prep_base_exact` improves Q4 relative ΔPPL from +2.195 % to
++2.010 % while causing both merge operators to fail. And the provisional static threshold is
+refuted by Q4 false negatives, so preflight prints its n and refuses to learn a replacement below
+20 labelled cells.
 
-`theseus-inspect preflight` prints that matrix with an exit code: 0 flags for the pristine
-checkpoint, 5 flags for `g3_pow2`, and every flag landed on an operation that actually failed.
-UNAVAILABLE is a first-class verdict there, not a blank.
+`theseus-inspect preflight` prints the provisional operation matrix and the calibration count.
+It localizes G3/G7 stress correctly, but Q4 has measured false negatives, so the current thresholds
+are diagnostic hints rather than a validated predictor. UNAVAILABLE remains a first-class verdict.
 
 `inspect/` is a zero-dependency Rust implementation of the static half: it parses the safetensors
 container itself and prints per-family 4-bit conditioning, dynamic range, row-energy imbalance and

@@ -52,7 +52,13 @@ def main():
                 continue
             res = d.get("results") or {}
             verdicts = {}
-            for k, v in res.items():
+            items = res.items()
+            if op == "adapt":
+                v = res.get("variant") or res.get("sanity_reference")
+                items = [("variant", v)] if isinstance(v, dict) else []
+            elif op == "merge":
+                items = [(k, res.get(k)) for k in ("linear", "ties")]
+            for k, v in items:
                 if not isinstance(v, dict):
                     continue
                 if v.get("pass") is True or (v.get("pass") is None

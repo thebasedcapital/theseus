@@ -18,56 +18,52 @@ A 98.22 %-accurate ReLU classifier, an exact positive-homogeneity gauge (max log
 | same-function / bad-gauge | fail | fail | fail | fail | 0/4 |
 | gauge-fixed | pass | pass | pass | pass | 4/4 |
 
-**M1 real-Transformer proof: phase 1 complete, phase 2 executing.** See `M1_RESULTS.md`
-(claims + evidence), `M1_NOTES.md` (symmetry derivations and frozen protocol),
-`M1_TABLE.md` (per-checkpoint surgery panel, regenerated as results land),
-`m1/PRIOR_ART.md` (novelty boundary).
+**M1 real-Transformer proof: complete for constructed gauges.** See `M1_RESULTS.md`,
+`M1_TABLE.md` and `CLAIMS.md`.
 
-Established on `Qwen2.5-0.5B`, measured with fp32 forwards over the stored bf16 artifacts:
+On `Qwen2.5-0.5B`:
 
-* five architecture-valid gauges are the same model to `1e-5…2e-4` nats mean KL, 99.5–99.9 %
-  teacher-forced greedy agreement and unchanged perplexity — value/output basis change per GQA
-  group, the full RoPE-compatible q/k commutant, RMSNorm scale absorption, the SwiGLU up-branch
-  diagonal, and residual-stream scaling (the last needs the embedding tie broken and the config
-  edit `ε → c²ε` to be exact);
-* two permutation controls land at `1.6e-4` max logit difference, proving the harness is not
-  flagging byte changes as behaviour changes;
-* 13 property tests pass on a tiny Qwen2, including canonicity of every artifact-only
-  canonicalizer and a permanent sensitivity control that fails the suite if a forgotten attention
-  bias (Qwen2.5 ships `|b_q| = 79`, `|b_k| = 130`) ever goes undetected;
-* a precision-floor control separates algebra error from bf16 re-storage (`9.4e-05` vs `2.69`) and
-  motivated a lossless exponent-lattice gauge (`G3:pow2` + `canon_g3(snap_pow2=True)`);
-* surgery calibration on the untouched checkpoint: llama.cpp `Q4_K_M` costs the *pristine* model
-  `+2.27 %` PPL and `0.0319` nats mean KLD, and bounded LoRA r16 captures 97.3 % of the reference
-  task gain at `+2.96` PPL collateral — so both operation contracts were rewritten to be
-  reference-relative before any variant was measured;
-* a static, artifact-only conditioning statistic (32-block max-abs proxy) was snapshotted into
-  `m1/work/PREDICTIONS.json` *before* the surgery panel ran; it forecasts `Q4` damage for `G3`
-  (debt `+0.0185`) and `G7` (`+0.0037`) and neutrality for the value-subspace and RoPE-plane
-  gauges.
+- five architecture-valid gauges pass the fp32 equivalence contract; exponent-lattice G3 is
+  bit-identical in fp32 and bf16 compute;
+- real native-dtype GGUF quantization separates base from G3: Q8 KLD 0.00094 → 10.69;
+- corrected true-LoRA, three seeds per artifact, separates base mean capture 0.9705 from G3
+  0.0989 and G7 0.1931. Both exceed the conservative 3σ gate;
+- artifact-only lattice repair returns G3 to 0.9753 and G7 to 0.9359 mean capture;
+- calibrated merge passes on base. Eleven gauged/prepared representatives fail both operators;
+  G5 passes linear at α=0.4 but fails TIES-trim;
+- pristine lattice prepare improves Q4 relative ΔPPL from +2.195 % to +2.010 %, but both merge
+  operators fail. Reserve is operation-specific, not scalar;
+- the provisional static thresholds are REFUTED as a predictor because Q4 has two false negatives
+  in ten labelled artifacts. Threshold fitting now refuses to emit below n=20.
+
+The first adaptation/merge panel remains archived and invalidated. The replacement probes globally
+freeze the base before adapter insertion; their contract is
+`adapt-v2-true-lora-base-frozen`.
+
+## Product and corpus status
+
+- `scan/`: zero-dependency Rust scanner for safetensors, PEFT adapters and GGUF Q8/Q4_K/Q5_K/Q6_K.
+  Eleven offline tests pass; Qwen reference J matches within 4.65e-6.
+- `ledger/`: append-only evidence store with calibration/environment admission rules, invalidation
+  edges and claim explainers. Twelve invariant tests pass; live M1 imports 179 admission-clean cells.
+- `analysis/`: Wilson base rates, guarded threshold fitting and matched-lineage null tests. Twenty-one
+  tests pass. Current 617 lineage relations produce zero feature-matched measured pairs.
+- `harvest/`: 390 public HF artifacts across seven kinds, 264 resolved edges, 88 dangling edges;
+  offline reruns are byte-identical.
+- `m1/rescue.py`: exact lattice prepare ships only after a power-of-two proof and equivalence gate.
+  Full non-lattice mode is diagnostic-only and always REFUSED.
+- `ARCHITECTURES.md` / `archcheck/`: 14-architecture audit. Current substring keying silently
+  corrupts or drops MoE expert statistics; the probe fails closed on those artifacts.
 
 ## What this does not demonstrate yet
 
-* The surgery panel over the stressed/repaired pairs is still running; no variant-vs-variant
-  damage claim is made until those JSONs exist.
-* Natural heterogeneous histories (`SFT → merge → Q4` vs `merge → SFT → Q4`) are untouched — that
-  is `ROADMAP.md` A5/M3, and it is the difference between a symmetry curiosity and a lifecycle
-  result.
-* One checkpoint, one scale, base (non-instruct) weights only.
-* The merge demo is deliberately constructed (a gauged candidate merged with a specialist derived
-  from the ungauge base); real independently-trained finetunes drift in basis too, but ours is a
-  worst case.
-* No CLI/package yet — Track B is intentionally behind Track A.
+- Natural heterogeneous histories (`SFT → merge → Q4` vs `merge → SFT → Q4`) remain untouched.
+  K-8 is UNSUPPORTED; the harvested lineage population is selection infrastructure, not evidence.
+- One checkpoint family, one scale, one calibration corpus.
+- The merge experiment is constructed against a specialist derived from the ungauged base.
+- Static preflight thresholds are not validated predictors yet.
 
-## Known deviations worth flagging to a reader
+## Known deviations
 
-* New code is Python, not the machine convention of Rust for new work: M1 must drive
-  `torch`/`transformers`/`llama.cpp` and continue `prototype.py`; the Rust plan applies to the
-  Track-B CLI (`theseus inspect/preflight/prepare/verify`).
-* The equivalence verdict was amended mid-flight on control evidence (max-|Δlogit| demoted from a
-  hard gate to a flag, distributional criteria unchanged); see the comment block in
-  `m1/verify_equiv.py` and §1 of `M1_RESULTS.md`.
-
-## Result invalidation in progress
-
-The first adaptation/merge panel was invalidated on 2026-08-31: adapter insertion froze target Linear weights but not embeddings/norms/lm_head, so those runs were full-model training, not LoRA. Twenty-one cells were archived; corrected true-LoRA cells globally freeze the base and are running. Quantization/equivalence/export/static evidence is unaffected.
+M1 remains Python because it directly drives torch, transformers and llama.cpp. New standalone
+tools are Rust (`scan/`, `inspect/`).

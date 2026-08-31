@@ -144,20 +144,19 @@ $ theseus gauge --family norm_diag --mode pow2 --seed 1 --out /work/g1
   static: J 0.02955 (+163%)  dyn 14.34  frac<f16n 0.0987 → flags: export.f16, quant.q8/q5/q4, adapt
   equivalence c3d1…: fp32 compute dlogit 0.00e+00, KL 0, top1 1.00000
                    bf16 compute dlogit 0.00e+00          ← conditions recorded, both dtypes
-  claim K-3 (same function, different future) → PRELIMINARY
-    missing obligations: reference-calibration quant.q4_k_m (c exists ✓),
-                         control.identity-roundtrip (✓), replication n=1 → needs ≥2
+  claim K-3 (same function, different future) → CONTROLLED
+    obligations: true-LoRA base calibration ✓, identity control ✓,
+                 3 seeds each for base/G3/G3-repair/G7/G7-repair ✓
 
 $ theseus plan --claim K-3 --budget 20gpu-min
-  1  quant.q8_0     4 gpu-min   0.72 belief  (cheapest discriminator; ladder-stop armed)
-  2  adapt.lora.r16 6 gpu-min   0.68 belief  (escalate→seed2 iff |gap|<3sd)
-  3  merge.linear   2 gpu-min   0.31 belief  (needs second artifact — blocked, not skipped)
-  refused: quant.q5_k_m — q8 verdict already decisive + debt>10× baseline; +3 gpu-min for no move
+  complete: G3/G7 capture gaps exceed 3·max within-variant SD
+  next: K-8 matched natural histories; threshold refit only after n≥20 per flag
 
-$ theseus run 1 2
 $ theseus explain K-3
-  CONTROLLED (not CONFIRMED: 1 replication of 2; refuter: capture gap < 3·sd across seeds → c77e…)
-  evidence: c3d1 (equivalence), 9b02 (q8 KLD 10.69 vs 0.00094 base), 41aa (capture 0.156 vs 0.973)
+  CONTROLLED (not CONFIRMED: one checkpoint family)
+  evidence: bit-identical G3 equivalence; Q8 KLD 10.69 vs 0.00094 base;
+            capture mean 0.0989 vs 0.9705 base; repaired 0.9753
+  refuter: G3/G7 gaps fall below 3σ on a fresh seed panel
   generated views updated: CLAIMS.md, K3.md, passport 7c31…
 ```
 

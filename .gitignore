@@ -10,3 +10,8 @@ m1/work/
 *.bin
 
 m1/rescue_out/
+
+# Graphify persistent index: commit graph/report/manifest, ignore local caches and snapshots.
+graphify-out/cache/
+graphify-out/20*/
+graphify-out/.graphify_*

@@ -1,16 +1,14 @@
 # M1 — can two function-equivalent real Transformers have different futures?
 
-> Belief state with obligations and refuters lives in [`CLAIMS.md`](CLAIMS.md) (K-1…K-9); this
+> Belief state with obligations and refuters lives in [`CLAIMS.md`](CLAIMS.md) (K-1…K-10). This
 > file is the evidence narrative for milestone 1. Numbers here are cited by the claim register.
 
-> **RESULT INVALIDATION (2026-08-31):** Every adaptation and merge number produced before commit
-> `true-LoRA-fix` is invalid. The probes froze target Linear weights but accidentally left
-> embeddings, RMSNorm weights, and the LM head trainable; those runs were full-model updates at
-> LoRA learning rates, not LoRA. Twenty-one cells were moved to
-> `m1/work/invalidated/full_model_training/`, calibration caches and the specialist were deleted,
-> and both probes now freeze the entire base before installing adapters. Do **not** cite the old
-> capture/collateral/merge numbers below; they remain only as an incident record. Equivalence,
-> export, static-feature and quantization measurements are unaffected. Corrected cells are in flight.
+> **RESULT INVALIDATION CLOSED (2026-08-31):** The first adaptation/merge panel was full-model
+> training at LoRA learning rates because embeddings, norms and the LM head remained trainable.
+> Twenty-one cells are archived under `m1/work/invalidated/full_model_training/` and count toward
+> no claim. The corrected probes freeze the whole base before adapters; the replacement panel and
+> three-seed adaptation replication are complete. Equivalence, export, static and quantization
+> measurements were unaffected.
 
 Subject: `Qwen/Qwen2.5-0.5B` (base, bf16, tied), surgery executed by real tools (llama.cpp
 `b9851` GGUF K-quants, hand-written AdamW LoRA, task-vector merges). Nothing here is
@@ -194,12 +192,12 @@ Reference-relative contracts, fixed on base *before* any variant was measured:
   with greedy prefix retention `≥ base − 0.10`. Exact 32-token equality was also abandoned as a
   statistic: base Q4 scores `0.00` on it because one divergent token zero-codes a whole prompt —
   the probe now reports mean shared greedy prefix length.
-* **bounded LoRA r16 on pristine base** (deterministic synthetic rule: reverse a 10-digit
-  identifier; 512 train / 128 held-out, 80 steps, batch 2 × seq 128, lr chosen from {3e-4, 3e-3}):
-  task loss `2.7228 → 0.0733`, capture `0.9731`, selected lr `3e-4`, and protected WikiText PPL
-  `16.9918 → 19.9516` (**+2.96**). Again the absolute cap was wrong: honest LoRA costs general-PPL
-  collateral at this budget, so the contract is reference-relative
-  (`capture ≥ 0.75 × capture_ref` and `protected_dppl ≤ dppl_ref + 0.02`).
+- **bounded true-LoRA r16 on pristine base** (reverse a 10-digit identifier; 512 train / 128
+  held-out, 80 steps, batch 2 × seq 128, lr chosen from {3e-4, 3e-3}): seed 1729 captures
+  **0.9860** of the available task-loss reduction and moves protected WikiText PPL by **+1.224**.
+  Across seeds 1729/23/44, mean capture is **0.9705**, range 0.9509–0.9860, SD 0.0146. The
+  reference-relative pass contract is `capture ≥ 0.75 × capture_ref` and
+  `protected_dppl ≤ dppl_ref + 0.02`.
 
 ## 4b. Importer audit: the GGUF sees the coordinates we wrote
 
@@ -217,69 +215,39 @@ quantizing. Audited against the actual artifacts (`m1/check_gguf_layout.py`, lay
   pairs my `G2` gauge rotates are the same pairs the quantizer sees, and the `G2` row needs no
   caveat.
 
-## 5. Invalidated adaptation pilot (retained as an incident, not evidence)
+## 5. Corrected true-LoRA adaptation: replicated gauge effects
 
-The table in this section came from the invalidated probe semantics above. It remains auditable, but every row has status `INVALIDATED` and satisfies no claim obligation. Corrected true-LoRA cells globally freeze the base.
+The corrected probe globally freezes embeddings, norms, LM head and all base Linear weights before
+installing rank-16 adapters. Every artifact uses the same data order, 80 steps, two-learning-rate
+grid and three optimizer seeds. The registered effect gate is deliberately conservative: a gap
+must exceed three times the largest within-variant SD in the panel.
 
-Invalidated configuration: nominal LoRA r16 (deterministic reversal task, 80 steps, batch 2 × seq 128, lr chosen from
-{3e-4, 3e-3}, seed 1729, identical data order, CUDA, `peak_memory_allocated_gb` recorded). Every
-row below is measured on an artifact whose logits are **bit-identical** to base or whose mean KL is
-≤ 2e-4 nats:
+| checkpoint | mean capture | range | SD | gap vs base | 3σ result |
+|---|---:|---:|---:|---:|---|
+| `base` | 0.9705 | 0.9509–0.9860 | 0.0146 | — | reference |
+| `g1_haar` | 0.9141 | 0.8876–0.9336 | 0.0194 | −5.6 pp | below 3σ |
+| `g1_haar_rep` | 0.8839 | 0.7300–0.9628 | 0.1088 | −8.7 pp | below 3σ |
+| `g2_rand` | 0.9058 | 0.8794–0.9551 | 0.0349 | −6.5 pp | below 3σ |
+| **`g3_pow2`** | **0.0989** | 0.0400–0.1988 | 0.0710 | **−87.2 pp** | **effect** |
+| `g3_pow2_rep` | **0.9753** | 0.9639–0.9876 | 0.0097 | +0.5 pp | restored |
+| `g4_perm` | 0.8827 | 0.7788–0.9839 | 0.0837 | −8.8 pp | below 3σ |
+| `g5_c8` | 0.9813 | 0.9722–0.9860 | 0.0065 | +1.1 pp | below 3σ |
+| **`g7_rand`** | **0.1931** | 0.1537–0.2226 | 0.0290 | **−77.7 pp** | **effect** |
+| `g7_rand_rep` | **0.9359** | 0.8853–0.9806 | 0.0391 | −3.5 pp | restored |
 
-| checkpoint | task loss before → after | capture | Δ capture vs base | protected PPL before → after | verdict |
-|---|---|---:|---:|---|---|
-| `base` | 2.7228 → 0.0733 | 0.9731 | — | 16.9918 → 19.9516 (+2.96) | pass |
-| `g1_haar` | → 0.1014 | 0.9648 | −0.83 pp | +2.73 | pass |
-| `g1_haar_rep` | → 0.0714 | 0.9736 | +0.06 pp | +2.79 | pass |
-| `g2_rand` | → 0.1644 | 0.9520 | −2.11 pp | +2.54 | pass |
-| **`g3_pow2`** | 2.7228 → **2.2983** | **0.1559** | **−81.7 pp** | 16.9918 → **4,316,272** | **FAIL** |
-| **`g3_pow2_rep`** | → 0.0477 | **0.9829** | +0.98 pp | +2.46 | pass |
-| **`g7_rand`** (SwiGLU up diagonal) | 2.7228 → **2.5594** | **0.0600** | **−91.3 pp** | 16.9918 → **55,656,380** | **FAIL** |
-| **`g7_rand_rep`** | → 0.4354 | 0.8407 | −13.2 pp | +2.30 | pass |
+Only G3 and G7 clear the 3σ bar. The smaller G1/G2/permutation differences do not survive
+optimizer variance and are not claims. `g3_pow2` is the strongest case: its stored artifact is
+bit-identical in logits and PPL to base in both fp32 and bf16 compute, yet its mean adaptation
+capture falls from 0.9705 to 0.0989. Artifact-only lattice repair returns it to 0.9753.
 
-`g3_pow2` is the exponent-lattice RMSNorm-diagonal gauge whose verification row reads
-`max|Δlogit| 0.00e+00, KL 0.00e+00, top-1 1.00000, PPL 17.7102` — the *same number* as base — and
-whose pre-adaptation protected perplexity is `16.9918`, again identical to base to four decimals.
-Nothing about the checkpoint's present differs from base. After the identical 80-step adaptation
-its perplexity is 4.3 million and it has learned 16 % of what base learned. Both learning rates
-fail (0.0003 → 2.298, 0.003 → 2.910), so this is not a hyperparameter accident.
+G7 tells the same story with a weaker equivalence condition. It is exact in fp32 arithmetic but
+not bit-identical under bf16 compute; mean capture falls to 0.1931 and repair returns it to 0.9359.
+The evidence therefore supports adaptation reserve as a property of artifact coordinates plus
+runtime arithmetic, not of the realized fp32 function alone.
 
-The artifact-only canonicalizer — which has never seen base, and which here only equalizes consumer
-column energy on the exponent lattice — takes it to capture **0.9829** (slightly above base) with
-+2.46 collateral. That is the avoidable-lifecycle-debt quantity of `math.md §6`, measured on a real
-language model: same orbit, same function, reserve destroyed and then restored by a
-function-preserving re-expression.
-
-**Equivalence is runtime-conditional, and one family shows it.** `m1/compute_dtype_check.py`
-re-ran the pairs in both compute dtypes on 2,048 tokens:
-
-| pair | compute | max\|Δlogit\| | mean KL | top-1 | ppl base → this |
-|---|---|---:|---:|---:|---|
-| base vs `g3_pow2` | fp32 | 0.00e+00 | 0.00e+00 | 1.00000 | 16.9471 → 16.9471 |
-| base vs `g3_pow2` | bf16 | **0.00e+00** | **0.00e+00** | **1.00000** | 16.9889 → 16.9889 |
-| base vs `g7_rand` | fp32 | 3.15e-01 | 2.05e-05 | 0.99805 | 16.9471 → 16.9379 |
-| base vs `g7_rand` | bf16 | **2.69e+00** | **1.09e-03** | **0.98096** | 16.9889 → 16.9861 |
-
-The exponent-lattice gauge is bit-identical in *both* compute dtypes — that is the strong form of
-the claim, and it is what §5's headline rests on. The `g7` up-branch diagonal is not: it passes the
-gate in fp32 (its home) and then, under the bf16 arithmetic a 0.5B is actually served in, 1.9 % of
-greedy positions disagree. Two consequences, both uncomfortable and both kept in:
-
-* my equivalence gate measures fp32 forwards of the stored artifact, so for wide-dynamic-range
-  gauges it *overstates* sameness. The honest object is equivalence per (artifact, compute dtype),
-  and `theseus verify` should be required to name the dtype;
-* it is the same lesson as the export finding, from the other side: the gauge orbit is exact in
-  real arithmetic and only approximately quotitioned by finite formats. A lifecycle tool that
-  ignores that will hand a user a "prepared" checkpoint that is not the model they had.
-
-Mechanism, stated as a hypothesis the data supports rather than a proof: the gauge spreads a
-14-orders-of-magnitude dynamic range across the input coordinates of q/k/v/gate/up (weights down to
-1.8e-11 against norm weights up to 6.7e3). AdamW's per-coordinate second-moment normalization is
-not rotation- or scale-equivariant (arXiv:2410.19964, arXiv:2410.20625), so the low-magnitude
-coordinates dominate the update geometry, and bf16 activation products in that frame lose
-mantissa. Rank-16 LoRA is *mathematically* frame-independent; the optimizer and the storage format
-are not.
-
+One negative result matters: `bad_all_exact` clears every static flag but still fails the
+single-seed adaptation contract. Lattice repair is not a universal cure; it repairs G3/G7
+adaptation in the tested orbits, not every composed gauge state.
 ## 5b. Quantization rows: measured under a corrected export
 
 The first quantization pass was invalidated by a confound I found mid-run and fixed
@@ -334,57 +302,46 @@ Readings that matter:
 | `g7_rand` | +0.00371 | — | (KL undefined: distributions no longer overlap) | — | **FAIL** |
 | `g7_rand_rep` | +0.00000 | 12.1 | 0.03137 (**0.98×**) | +2.14 % | pass |
 
-* The static debt predicted the direction for every gauged row measured so far (7/7), and missed
-  none of the catastrophic ones. `g4_perm`, the permutation control, is indistinguishable from
-  base (1.00× KLD) — the panel has its negative control.
-* **Adaptation and quantization need different features.** `g7_rand_rep` has zero conditioning
-  debt and restored quantization health (0.98× base KLD, best-in-class ΔPPL), yet its LoRA capture
-  is 0.8407 against base's 0.9731 — a 13 pp deficit the quantization statistic does not see. So a
-  single "reserve score" is provably the wrong object, which is the point `ROADMAP.md` makes when
-  it forbids "a single mysterious health score", now with data behind it.
+* The frozen static debt gets the catastrophic G3 direction right, but the provisional threshold
+  is not a working predictor. On the frozen measured slice, Q4 has TP=1 and FN=2 at n=10. K-6 is
+  therefore REFUTED until a new contract is fit on at least 20 labelled cells.
+* G3/G7 repair restores adaptation across three seeds and restores quantization where measured,
+  but `bad_all_exact` shows that clearing static flags does not guarantee every operation passes.
 
 ### Pre-registered prediction ledger
 
-| checkpoint | predicted (debt) | measured Q4 | verdict |
+| checkpoint | frozen debt prediction | measured Q4 | verdict |
 |---|---|---|---|
-| `base` | neutral (0) | reference | held |
-| `g2_rand` | neutral (+1e-5) | 1.02× KLD | held |
-| `g1_haar` | neutral (−9e-5) | 1.00× KLD but ΔPPL over limit | **partly held** — neutral on distribution, not on perplexity |
-| `g3_pow2` | damage (+0.0183) | KLD 335× base, ΔPPL 2.6e4× | held |
-| `g3_pow2_rep` | neutral (+0.00025) | 1.10× KLD, ΔPPL better than base | held |
+| `base` | neutral | reference | held |
+| `g2_rand` | neutral | 1.02× base KLD | held |
+| `g1_haar` | neutral | 1.00× KLD but ΔPPL over limit | false negative on contract verdict |
+| `g3_pow2` | damage | Q8 KLD 10.69, Q4 ΔPPL +2.6M % | held |
+| `g3_pow2_rep` | neutral | 1.10× KLD, ΔPPL better than base | held |
 
-## 5d. Reserve vectors (the passport view) and two surprises
+## 5d. Merge reserve and the vector result
 
-`m1/passport.py` emits one lifecycle record per checkpoint (`theseus.passport/0.1`): identity
-hash, gauge provenance (family, mode, seed, tie broken, `rms_norm_eps` rewritten), current-behaviour
-evidence, static features, and a per-operation reserve entry whose status is `MEASURED`,
-`PREDICTED` or `UNAVAILABLE` — never silently absent (ROADMAP B7, B8).
+The corrected specialist is true LoRA, validated after saving, and calibrated so the untouched
+base passes linear merge at α=0.3 and TIES-trim at α=0.4. The merge contract requires
+PPL ratio ≤1.05 and retained specialist rule quality ≤0.75 of the specialist loss.
 
-| checkpoint | static debt | Q8_0 KLD | Q4_K_M KLD (ok) | LoRA capture (ok) | Ω₀ |
-|---|---:|---:|---|---|---:|
-| `g1_haar` | −8.7e-05 | 0.000908 | 0.032001 **✗** (rel ΔPPL 3.97 %) | 0.9648 ✓ | 0.75 |
-| `g1_haar_rep` | −9.8e-05 | 0.000927 | 0.030409 ✓ | 0.9736 ✓ | 1.00 |
-| `g2_rand` | +1.2e-05 | 0.001015 | 0.032564 ✓ | 0.9520 ✓ | 1.00 |
-| `g3_pow2` | **+0.018314** | **10.690** | undefined **✗** | **0.1559 ✗** | **0.00** |
-| `g3_pow2_rep` | +0.000251 | 0.001065 | 0.035008 ✓ | 0.9829 ✓ | 1.00 |
-| `g4_perm` | 0 | 0.000946 | 0.031943 ✓ | **0.9088 ✓(−6.4 pp)** | 1.00 |
-| `g5_c8` | 0 | 0.000889 | 0.032523 ✓ | pending | 1.00 |
-| `g7_rand` | +0.003713 | pending | pending | **0.0600 ✗** | 0.00 |
-| `g7_rand_rep` | +2e-06 | 0.000884 | 0.031374 ✓ | 0.8407 ✓ | 1.00 |
+| checkpoint | linear | TIES-trim | note |
+|---|---|---|---|
+| `base` | pass α=0.3 | pass α=0.4 | reference |
+| `g1_haar`, `g1_haar_rep`, `g2_rand`, `g3_pow2`, `g3_pow2_rep` | fail | fail | same present function, incompatible coordinates |
+| `g4_perm` | fail | fail | whole-head permutation is not a merge control |
+| `g5_c8` | **pass α=0.4** | fail | merge algorithm matters |
+| `g7_rand`, `g7_rand_rep` | fail | fail | stress and repair both incompatible with this specialist |
+| `bad_all`, `bad_all_exact` | fail | fail | clearing static flags does not repair merge reserve |
+| `prep_base_exact` | fail | fail | pristine prepare improves Q4 but hurts merge |
 
-Two results I did not predict and have not papered over:
+G5 initially raised `KeyError: lm_head.weight` because its untied artifact stores an explicit head
+while the tied specialist omits it. `common.merge_sd` now materializes the tied head from the
+embedding on either side and rejects every other key mismatch; the rerun above is the corrected
+cell.
 
-* **Head permutation is a quantization control, not an adaptation control.** `g4_perm` moves no
-  perplexity or KL under any of the three k-quants (1.00× base — exactly what §3 predicted, since
-  whole rows move and 32-element blocks are contiguous along the input axis), yet it costs 6.4 pp
-  of LoRA capture (0.9088 vs 0.9731). Reordering which head an adapter is attached to is invisible
-  to a per-block weight quantizer and very visible to a rank-16 update with per-coordinate moments.
-  My own §3 wording called G4/G6 "controls" without qualifying the operation; they are controls for
-  quantization only.
-* **Residual scaling is quantization-neutral and that is a prediction, not a post-hoc story.**
-  `g5_c8` (embed/o/down ×8, tie broken) sits at 0.000889 Q8_0 KLD and 0.032523 Q4_K_M KLD, both
-  within noise of base, because per-tensor max-abs quantization is invariant to a global scale on
-  a tensor. Its damage channel is the fp16 runtime and merges, which the panel is measuring.
+`prep_base_exact` proves the vector claim cleanly. It is equivalent to base, improves Q4 relative
+ΔPPL from +2.195 % to +2.010 %, passes its single-seed true-LoRA row, and fails both merge
+operators. No scalar checkpoint-health ordering can preserve those operation-specific outcomes.
 
 ## 6. What is already established, independent of the panel
 
@@ -440,12 +397,12 @@ provisional in the binary's own output:
 
 | artifact | total J | dyn range | frac below f16 normal | flags raised | measured surgery outcome |
 |---|---:|---:|---:|---:|---|
-| `base` | 0.01123 | 8.83 | 0.00282 | 0 | capture 0.973, Q4 KLD 0.0319 |
-| `g3_pow2` | 0.02955 | 14.6 | 0.0987 | 15 (quant+export+adapt on q,k,v,gate,up) | capture **0.156**, Q8_0 KLD **10.69**, f16 export 177 ppl |
-| `g3_pow2_rep` | 0.01148 | 8.76 | 0.00281 | **0** | capture 0.983, Q4 KLD 0.0350 |
-| `bad_all` (4 families) | 0.03315 | **18.81** | **0.15486** | 20 (adds down_proj from the SwiGLU diagonal) | pending |
-| `bad_all_exact` (lattice repair) | 0.01159 | 9.99 | 0.00279 | **0** | pending |
-| `prep_base_exact` (repair on pristine) | 0.01144 | 9.01 | 0.00280 | **0** | pending |
+| `base` | 0.01123 | 8.83 | 0.00282 | 0 | capture mean 0.9705; Q4 KLD 0.0319 |
+| `g3_pow2` | 0.02955 | 14.6 | 0.0987 | 15 | capture mean **0.0989**; Q8 KLD **10.69**; f16 export 177 ppl |
+| `g3_pow2_rep` | 0.01148 | 8.76 | 0.00281 | **0** | capture mean **0.9753**; Q4 KLD 0.0350 |
+| `bad_all` | 0.03315 | **18.81** | **0.15486** | 20 | adaptation and both merges fail |
+| `bad_all_exact` | 0.01159 | 9.99 | 0.00279 | **0** | adaptation and both merges still fail |
+| `prep_base_exact` | 0.01144 | 9.01 | 0.00280 | **0** | Q4 improves; adaptation passes once; both merges fail |
 
 Two things to take from this. The flags are **specific**: `g3_pow2` raises nothing on
 `o_proj`/`down_proj`, which are exactly the two families the norm-diagonal gauge does not touch,

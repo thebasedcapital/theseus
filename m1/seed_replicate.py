@@ -84,16 +84,17 @@ def main():
                 shutil.rmtree(d, ignore_errors=True)
 
     base = out.get("base", {}).get("capture_mean")
+    measured = sorted(v for v, e in out.items()
+                      if not v.startswith("_") and isinstance(e, dict) and "capture_mean" in e)
     print("\nseed replication summary (capture mean [min,max]):")
-    for v in variants:
-        e = out.get(v) or {}
-        if "capture_mean" not in e:
-            continue
+    for v in measured:
+        e = out[v]
         gap = None if base is None else e["capture_mean"] - base
-        print(f"  {v:14s} {e['capture_mean']:.4f} {e['capture_spread']} sd={e['capture_stdev']} "
-              f"gap vs base={gap:+.4f}" if gap is not None else "")
+        suffix = f" gap vs base={gap:+.4f}" if gap is not None else ""
+        print(f"  {v:14s} {e['capture_mean']:.4f} {e['capture_spread']} "
+              f"sd={e['capture_stdev']}{suffix}")
     gaps = [(v, out[v]["capture_mean"] - base, out[v]["capture_stdev"])
-            for v in variants if v in out and base is not None and "capture_mean" in out[v]]
+            for v in measured if base is not None]
     spread = max([s for _, _, s in gaps if s] or [0.0])
     real = [(v, g) for v, g, _ in gaps if abs(g) > 3 * max(spread, 1e-4)]
     print(f"\nlargest within-variant sd = {spread:.4f}; "

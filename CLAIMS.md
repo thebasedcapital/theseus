@@ -56,15 +56,22 @@ this artifact in 2 s and exit 1, before anyone downloads 400 MB of noise.
 
 ## K-3 — Function-equivalent checkpoints have materially different adaptation reserve
 
-**State: UNSUPPORTED (corrected true-LoRA cells in flight).**
+**State: CONTROLLED.** The corrected probe freezes every base parameter before installing
+rank-16 adapters. Three optimizer seeds per artifact establish the effect:
 
-The first adaptation panel is **INVALIDATED**: the probe froze target Linear weights and left
-embeddings, norms and lm_head trainable, so it was full-model training at LoRA learning rates.
-Twenty-one cells are archived under `m1/work/invalidated/full_model_training/`; they do not count
-toward any obligation. The corrected probe globally freezes the base before installing adapters.
+| checkpoint | mean capture | range | SD | gap vs base |
+|---|---:|---:|---:|---:|
+| `base` | 0.9705 | 0.9509–0.9860 | 0.0146 | — |
+| **`g3_pow2`** | **0.0989** | 0.0400–0.1988 | 0.0710 | **−87.2 pp** |
+| `g3_pow2_rep` | 0.9753 | 0.9639–0.9876 | 0.0097 | +0.5 pp |
+| **`g7_rand`** | **0.1931** | 0.1537–0.2226 | 0.0290 | **−77.7 pp** |
+| `g7_rand_rep` | 0.9359 | 0.8853–0.9806 | 0.0391 | −3.5 pp |
 
-**Obligations open:** corrected base calibration; stressed/repaired pairs; three probe seeds for
-gaps smaller than 3 sd. **Refuter:** |gap| < 3·sd across corrected seeds.
+The registered gate is conservative: a gap must exceed three times the largest within-variant SD
+across the panel. Only G3 and G7 pass it. G1, G2 and the head-permutation control do not.
+`m1/work/seed_replicate.json` carries the contract and all per-seed grids.
+
+**Refuter:** G3 and G7 fall below the 3σ bar on a fresh three-seed panel.
 
 ## K-4 — …and different quantization reserve at the same bit-width
 
@@ -76,8 +83,8 @@ bf16 reference; base calibration cell present).
 | `base` | 0.00094 | 0.03191 (1.00×) | +2.20 % | reference |
 | `g3_pow2` | **10.690** | undefined (no overlap) | +2.62e6 % | fail |
 | `g3_pow2_rep` | 0.00106 | 0.03501 (1.10×) | +1.84 % | pass |
-| `bad_all` (4 families) | pending | pending | pending | capture 0.0906 |
-| `bad_all_exact` | 0.00102 | 0.03095 (0.97×) | +3.27 % | pass, capture 0.9482 |
+| `bad_all` (4 families) | unavailable | unavailable | unavailable | adaptation + both merges fail |
+| `bad_all_exact` | 0.00102 | 0.03095 (0.97×) | +3.27 % | Q4, adaptation and both merges fail |
 | `g7_rand_rep` | 0.00088 | 0.03137 (0.98×) | +2.14 % | pass |
 | `g1_haar` | 0.00091 | 0.03200 (1.00×) | **+3.97 %** | **fail on ΔPPL, neutral on KL** |
 | `g4_perm` | 0.00095 | 0.03194 (1.00×) | +2.29 % | pass |
@@ -91,71 +98,56 @@ which would mean the effect is corpus sampling variance, not gauge state.
 
 ---
 
-## K-5 — An artifact-only canonicalizer restores the reserve without seeing the original
+## K-5 — An artifact-only lattice canonicalizer restores G3/G7 adaptation reserve
 
-**State: CONTROLLED for quantization; adaptation restoration is UNAVAILABLE pending corrected true-LoRA cells.**
+**State: CONTROLLED.** The repair sees only the stressed artifact. It applies the exact
+power-of-two G5/G3/G7 path, then the same three-seed true-LoRA probe:
 
-* `g5_c8_rep` reproduced the pristine file **byte-for-byte** (`sha256` equal to the HF blob hash,
-  0/290 tensors differing) — a true section of that orbit.
-* `g3_pow2_rep`: Q4 KLD 1.10× base, static debt +0.018314 → +0.000251. Adaptation numbers invalidated.
-* `g7_rand_rep`: quantization fully restored (0.98× base KLD). Adaptation numbers invalidated.
-* `bad_all_exact`, `prep_base_exact`: 0 inspector flags, total J within 2 % of pristine.
+- `g3_pow2`: 0.0989 mean capture → `g3_pow2_rep`: **0.9753**;
+- `g7_rand`: 0.1931 → `g7_rand_rep`: **0.9359**;
+- all four repaired/stressed artifacts pass the fp32 equivalence gate; G3 is bit-identical in
+  bf16 compute too.
 
-**Counter-obligation (kept in your face):** the *full* canonicalizer, which includes the
-value-subspace Hadamard, **fails the equivalence gate by itself** (`prep_base` top-1 0.99487,
-`bad_all_rep` 0.99170) because a wide-mixing rotation re-rounds every entry it touches in bf16.
-`prepare` must therefore emit higher precision, restrict itself to lattice-exact families, or
-refuse past a declared drift budget. This is a documented defect of my tool, not of the idea.
+This is operation-specific. `bad_all_exact` clears every static flag but still fails adaptation
+and both merge operators. The full non-lattice canonicalizer is diagnostic-only: `m1/rescue.py`
+refuses to ship it even when a finite token probe happens to return `EQUIVALENT`.
 
-**Refuter:** a repaired artifact that beats base on one axis while its static debt stays > 1e-3 —
-would mean the "debt" statistic is not what the repair is actually doing.
+**Refuter:** either repaired G3/G7 mean remains more than 3σ below base.
 
----
+## K-6 — The current provisional static thresholds predict operation risk
 
-## K-6 — Static L0 features predict which operations are at risk
+**State: REFUTED.** The static features remain useful measurements, but the current n=2 thresholds
+are not a predictor. On the frozen measured slice, Q4 has TP=1, FN=2 at n=10. A preflight tool
+cannot tolerate those false negatives. `analysis/thresholds.py` prints candidate cuts but refuses
+to emit a replacement until each flag has at least 20 labelled cells and precision reaches 1.25×
+the failure base rate.
 
-**State: PRELIMINARY (7/7 directional; n too small; refuter armed).** Predictions were frozen in
-`m1/work/PREDICTIONS.json` / `PREDICTIONS_new.json` / `debts_lattice.json` before the surgery cells
-they are graded against existed, and `m1/analyze.py` scores them (currently `held: 7, broken: 0`).
-Thresholds in `inspect/src/main.rs` are labelled provisional with their n in the source and in every
-invocation's output.
-
-**Refuter:** any artifact where flags say OK and a measured cell fails (false negative is the only
-direction that hurts a preflight tool), or ≥ 20 labelled cells with Spearman ρ < 0.3.
+The honest surviving statement is narrower: G3/G7 stress raises the expected conditioning and
+their lattice repairs remove it. That does not license the current thresholds for new artifacts.
 
 ## K-7 — Reserve is a vector; no scalar summarizes it
 
-**State: PRELIMINARY.** Quantization-axis evidence is valid; adaptation-axis examples are being re-measured after invalidation. `g7_rand_rep` is quantization-pristine (0.98×) and adaptation-deficient
-(−13 pp). `g1_haar` is KL-neutral and ΔPPL-failing. `g4_perm` is quantization-inert and costs
-6.4 pp of capture — which also forced the wording fix that "control" must always name its
-operation. The schema has no scalar field for health, and `render` rejects one.
+**State: CONTROLLED.** `prep_base_exact` is the clean counterexample to a scalar health ordering.
+It is equivalent to base and improves Q4 relative ΔPPL from +2.195 % to +2.010 %, yet it fails
+both calibrated merge operators. Its single-seed true-LoRA row passes. One coordinate change can
+improve one future operation and reduce another, so the schema rejects scalar `health` fields.
 
-## K-10 — `prepare` improves reserve on a checkpoint nobody stressed  ← strongest practical claim
+## K-10 — Lattice prepare helps Q4 on a pristine checkpoint but hurts merge reserve
 
-**State: PRELIMINARY.** Equivalence and quantization improvement are valid; the reported adaptation gain is INVALIDATED and being re-measured.
+**State: CONTROLLED.** `prep_base_exact` applies the exact lattice path to untouched
+Qwen2.5-0.5B. It never sees a stressed ancestor.
 
-Running the lattice-only canonicalizer (`{G5, G3, G7}` with `snap_pow2`, bf16-lossless) on the
-**pristine** Qwen2.5-0.5B, compared against the pristine checkpoint measured through the identical
-bf16 export path:
+| artifact | equivalence | Q4 rel ΔPPL | true-LoRA capture | linear merge | TIES-trim |
+|---|---|---:|---:|---|---|
+| `base` | reference | +2.195 % | 0.9860 | pass at α=0.3 | pass at α=0.4 |
+| `prep_base_exact` | EQUIVALENT | **+2.010 %** | 0.9900 | fail | fail |
 
-| | equivalence vs base | LoRA capture | Q8_0 KLD | Q4_K_M KLD | Q4 rel ΔPPL | flags |
-|---|---|---:|---:|---:|---:|---:|
-| `base` | reference | INVALIDATED | 0.000940 | 0.031914 | +2.195 % | 0 |
-| `prep_base` (full canonicalizer) | **top-1 0.99487 → NOT equivalent** | — | — | — | — | 0 |
-| **`prep_base_exact`** (lattice-only) | **EQUIVALENT** | re-measuring | 0.001017 | 0.031624 | **+2.010 %** | 0 |
+The Q4 gain is real but small and measured on one corpus. The merge loss is large enough to cross
+both calibrated contracts. `prepare` therefore needs an operation target; “make the model
+healthier” is not a valid command.
 
-Same dtype, same corpus, same tools, verified-equivalent model: **+1.9 pp adaptation capture** and
-**8 % less 4-bit perplexity damage**, bought by changing nothing but the coordinates. That is the
-product — not a diagnosis, a treatment — and it comes from the family of transforms that is
-representable in the format people actually ship.
-
-The combined-stress contrast keeps it honest: `bad_all` (4 families) certifies equivalent with
-capture **0.0906**; `bad_all_exact` recovers to **0.9482** with Q4 KLD 0.97× base and ΔPPL +3.27 % —
-recovered, with a 2.5 pp residue. Repair quality is a continuum and the register says where each
-artifact sits on it.
-
-**Refuter:** a second architecture family where lattice-prepare does not reduce Q4 ΔPPL; or the
-bf16-compute equivalence cell for `prep_base_exact` (not yet run — cheap, and it is the honest gap).
+**Refuter:** a repeated Q4 corpus where the prepared artifact no longer beats base, or a prepared
+merge cell that passes under the same contract.
 
 ## K-8 — Natural histories, not constructed gauges, produce divergent reserves
 
@@ -167,8 +159,13 @@ excellent evidence".
 
 ## K-9 — Merge compatibility is gauge-dependent
 
-**State: BLOCKED, honestly.** Cells are running; the probe's first specialist was broken (ppl 40,694,
-rule loss 9.22) and its fail-closed gate correctly refused to emit a matrix rather than produce
-garbage that would have looked like a result. The inspector answers `merge.linear: UNAVAILABLE`
-for any artifact, because coordinates cannot be compared without a second checkpoint — that blank
-is load-bearing.
+**State: CONTROLLED.** The corrected specialist is true LoRA, saved-artifact verified and
+calibrated so base passes linear merge at α=0.3 and TIES-trim at α=0.4. Eleven gauged/prepared
+representatives fail both operators; G5 is the exception, passing linear at α=0.4 while failing
+TIES-trim. The result depends on coordinates and on the merge algorithm.
+
+The tied-head storage bug found on G5 is fixed in `common.merge_sd`: tied checkpoints materialize
+`lm_head.weight` from the embedding before key comparison; every other key mismatch fails closed.
+
+**Refuter:** the base reference fails on rerun, or two independent gauged representatives pass
+both operators under the same calibrated contract.

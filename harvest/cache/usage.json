@@ -1,10 +1,10 @@
 {
  "budget_bytes": 1073741824,
- "cache_bytes": 7407736,
+ "cache_bytes": 7407758,
  "df": {
-  "avail_bytes": 9321938944,
+  "avail_bytes": 10941280256,
   "total_bytes": 501809635328,
-  "used_bytes": 466921893888
+  "used_bytes": 465302552576
  },
  "last_fetch": {
   "at": "2026-08-31T11:59:28Z",
@@ -17,6 +17,6 @@
  },
  "manifest_records": 390,
  "schema": 1,
- "updated_at": "2026-08-31T12:05:16Z",
+ "updated_at": "2026-08-31T14:36:02Z",
  "w_bytes": 0
 }
