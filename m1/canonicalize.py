@@ -197,7 +197,7 @@ def canon_g1(sd: dict, arch: Arch, method: str = "coherence") -> tuple[dict, dic
 
 # --- G7 ------------------------------------------------------------------------------------
 
-def canon_g7(sd: dict, arch: Arch) -> tuple[dict, dict]:
+def canon_g7(sd: dict, arch: Arch, snap_pow2: bool = False) -> tuple[dict, dict]:
     """Balance the SwiGLU up-branch diagonal: c_j = sqrt(B_j / A_j) where A_j = ||up_j: || and
     B_j = ||down_:,j|| are NORMS (not energies — V0 §7 states it the same way), so both sides
     meet at sqrt(A_j B_j) regardless of which point of the orbit was handed in.
@@ -218,6 +218,9 @@ def canon_g7(sd: dict, arch: Arch) -> tuple[dict, dict]:
         B = d.pow(2).sum(0).clamp(min=0).sqrt()          # column norms of down_proj
         c = (B / A.clamp(min=1e-30)).sqrt()
         c = c / torch.exp(torch.log(c).mean())          # keep the global scale neutral
+        if snap_pow2:
+            # lossless in bf16: only exponent moves cost nothing to store (see canon_g3 note)
+            c = torch.pow(torch.tensor(2.0, dtype=F64), torch.log2(c).round())
         spans.append(float((c.max() / c.min()).item()))
         out[ukey] = (c[:, None] * u).to(out[ukey].dtype)
         if ubkey in out:
@@ -263,8 +266,9 @@ def canon_g5(sd: dict, arch: Arch) -> tuple[dict, dict]:
 # --- combined --------------------------------------------------------------------------------
 
 
-def run(sd: dict, arch: Arch, fams, g1_method: str = "coherence",
-        g2_method: str = "balance", g3_snap: bool = False) -> tuple[dict, dict]:
+def run(sd: dict, arch: Arch, fams, g1_method: str = "coherence", g2_method: str = "balance",
+        g3_snap: bool = False, g7_snap: bool = False) -> tuple[dict, dict]:
+    """fams is a subset of {G1,G2,G3,G5,G7}; "exact" = only families whose repair is bf16-lossless."""
     out, man = sd, []
     for f in fams:
         if f == "G5":
@@ -274,7 +278,7 @@ def run(sd: dict, arch: Arch, fams, g1_method: str = "coherence",
         elif f == "G2":
             out, m = canon_g2(out, arch, g2_method)
         elif f == "G7":
-            out, m = canon_g7(out, arch)
+            out, m = canon_g7(out, arch, snap_pow2=g7_snap)
         elif f == "G1":
             out, m = canon_g1(out, arch, g1_method)
         else:

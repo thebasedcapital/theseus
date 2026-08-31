@@ -77,6 +77,9 @@ _v("bad_all_s3_rep", "G3:pow2:3+G1:haar:3+G2:random:3+G7:random:3", "all", "repl
 
 # --- `prepare` on a model nobody stressed (does canonicalization buy reserve on its own?) --
 _v("prep_base",    None, "all",  "canonicalizer applied to the pristine base")
+_v("bad_all_exact", "G3:pow2:1+G1:haar:1+G2:random:1+G7:pow2:1", "exact",
+   "4-family stress (G7 on the lattice too), repaired by the lattice-only canonicalizer")
+_v("prep_base_exact", None, "exact", "lossless prepare on the pristine base")
 
 
 def sha(p: Path) -> str:
@@ -88,8 +91,13 @@ def sha(p: Path) -> str:
 
 
 # canonicalize -> the exact-family repairs to run
-CANS = {"g1": ("G1",), "g2": ("G2",), "g3": ("G3",), "g3s": ("G3",), "g5": ("G5",), "g7": ("G7",),
-        "all": ("G5", "G3", "G2", "G7", "G1")}
+# "exact" = only families whose repair is representable in bf16 without re-rounding (verified:
+# g3_pow2_rep lands at max|dlogit| = 0.00e+00). The full "all" set additionally applies the
+# value-subspace Hadamard and RoPE-plane rotations, which rewrite every touched entry and cost
+# 0.5-1.1 logit units of drift — measured, reported, and the reason `prepare` must emit f32 or
+# restrict itself to these families.
+CANS = {"g1": ("G1",), "g2": ("G2",), "g3": ("G3",), "g3s": ("G3",), "g5": ("G5",),
+        "g7": ("G7",), "exact": ("G5", "G3", "G7"), "all": ("G5", "G3", "G2", "G7", "G1")}
 
 
 def build(name: str, arch: common.Arch, base_sd: dict, out_root: Path,
@@ -104,7 +112,8 @@ def build(name: str, arch: common.Arch, base_sd: dict, out_root: Path,
         man["gauge"] = m
         cfg_patch.update(m.get("config_patch") or {})
     if cmethod:
-        sd, ms = canon.run(sd, arch, CANS[cmethod], g3_snap=(cmethod in ("g3s", "all")))
+        sd, ms = canon.run(sd, arch, CANS[cmethod], g3_snap=(cmethod in ("g3s", "all", "exact")),
+                           g7_snap=(cmethod in ("exact", "all")))
         man["canon"] = ms
         if "G5" in CANS[cmethod] and "rms_norm_eps" in cfg_patch:
             # the tied representative is the c=1 point, where the original eps belongs
