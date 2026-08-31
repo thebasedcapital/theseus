@@ -6,8 +6,18 @@
   "reproduced": [
     {
       "claim": "g3_pow2 is bit-identical to base (REPORT 5, M1_RESULTS 0, K-1)",
-      "recorded": {"max_dlogit": 0.0, "kl_mean_nats": 0.0, "top1_agree": 1.0, "ppl_a": 17.71019172668457},
-      "rederived": {"max_dlogit": 0.0, "kl_mean_nats": 0.0, "top1_agree": 1.0, "ppl_a": 17.710643768310547},
+      "recorded": {
+        "max_dlogit": 0.0,
+        "kl_mean_nats": 0.0,
+        "top1_agree": 1.0,
+        "ppl_a": 17.71019172668457
+      },
+      "rederived": {
+        "max_dlogit": 0.0,
+        "kl_mean_nats": 0.0,
+        "top1_agree": 1.0,
+        "ppl_a": 17.710643768310547
+      },
       "verdict": "CONFIRMED",
       "note": "equivalence is exact and unaffected; the ppl_a delta is the base-reference drift recorded under base_reference_drift below"
     },
@@ -25,8 +35,14 @@
     },
     {
       "claim": "g3_pow2 collapses under 8-bit quantization: Q8_0 KLD 10.69 (REPORT 1, 5)",
-      "recorded": {"kl_mean": 10.690304, "ppl": 633431.0375},
-      "rederived": {"kl_mean": 10.690189, "ppl": 633431.0375},
+      "recorded": {
+        "kl_mean": 10.690304,
+        "ppl": 633431.0375
+      },
+      "rederived": {
+        "kl_mean": 10.690189,
+        "ppl": 633431.0375
+      },
       "verdict": "CONFIRMED",
       "note": "ppl identical to 7 significant digits; kl differs by 1.15e-4 (0.001% relative), which is the recorded cell's Vulkan backend versus this run's CPU backend. The 4-digit headline value 10.69 is unaffected."
     },
@@ -40,15 +56,46 @@
   ],
   "base_reference_drift": {
     "finding": "verify_equiv's base-reference perplexity is deterministic within a commit but NOT invariant across this repo's own history. Four cells recorded on cuda, with identical corpus snapshot (060db6499f32), ntokens 4096, seqlen 512, positions 4096 and gate, carry two different ppl_a values: 17.71019172668457 (git 6503f8c1, 9684e7e0) and 17.710643768310547 (git fcc4c67b, 0d580345). Three repeats at HEAD give 17.710643768310547 with spread 0.000e+00, so this is measurement-code drift, not hardware nondeterminism.",
-    "magnitude": {"abs": 0.000452, "rel": 2.55e-05},
+    "magnitude": {
+      "abs": 0.000452,
+      "rel": 2.55e-05
+    },
     "impact_on_verdicts": "none observed: the equivalence gate is rel_ppl_max 2e-3, roughly 78x this drift, and every reproduced verdict above is unchanged. Cross-commit comparisons at the 4th decimal are unsafe.",
     "consequence": "I3's environment digest and the per-cell git_head are load-bearing, not ceremony. Claims of the form 'perplexity unchanged to four decimals' must be read within a single commit.",
     "open": true
   },
   "cleanup": "the rebuilt g3_pow2 artifact (988 MB) was deleted after measurement; disk on this host is the binding constraint (6.4 GB free, shared with ~49 other agents). Re-derive with make_variants + the commands in REPORT 13.",
   "not_yet_reproduced": [
-    "LoRA capture panel 0.9705 -> 0.0989 -> 0.9753 (needs the 3-seed rerun; artifact rebuilt and deleted, ~25-35 min GPU)",
+    "LoRA capture panel 0.9705 -> 0.0989 -> 0.9753: partially re-derived. Direction and magnitude of the effect confirmed (gaps -0.789 / -0.761 vs a 0.326 bar), but the 7-seed extension is contaminated by mixed provenance and needs a homogeneous rerun at one commit",
     "merge panel and K-10 second-corpus numbers",
     "m3/results.json: NOT to be reproduced - voided under incident #18, see ledger/quarantine.json"
-  ]
+  ],
+  "seed_extension_attempt": {
+    "date": "2026-08-31",
+    "what": "extended the K-3 adaptation panel from 3 to 7 seeds for base, g3_pow2, g3_pow2_rep, g7_rand, g7_rand_rep (~17 min, 20 runs)",
+    "headline_effect_survives": {
+      "g3_pow2_gap_vs_base": -0.78882,
+      "g7_rand_gap_vs_base": -0.76084,
+      "three_sigma_bar": 0.3264,
+      "verdict": "K-3 holds: both gaps exceed 3x the largest within-variant SD by a wide margin"
+    },
+    "but": {
+      "base_mean_moved": {
+        "from_3_seed": 0.97047,
+        "at_7_seed": 0.9516
+      },
+      "base_sd_tripled": {
+        "from_3_seed": 0.01462,
+        "at_7_seed": 0.04606
+      },
+      "g3_pow2_mean_moved": {
+        "from_3_seed": 0.09891,
+        "at_7_seed": 0.1628
+      },
+      "bimodality": "the 4 new g3_pow2 seeds cluster at 0.2086-0.2160 while the 3 cached ones span 0.03998-0.1988; the cached seeds were produced under earlier commits",
+      "conclusion": "the 7-seed mean mixes measurements taken under different code (incident #20) and was therefore NOT adopted. The published 3-seed panel was restored unchanged and the 7-seed data kept aside as m1/work/seed_replicate.mixed-n.2026-08-31.json."
+    },
+    "open_item": "a homogeneous 7-seed panel needs all 10 variants re-run from scratch at one commit (~2 h GPU). Until then the honest statement is that K-3's effect is large and replicated in direction, but its magnitude is commit-dependent and the base variance was understated by the 3-seed panel.",
+    "guard_added": "seed_replicate.py now stamps git_head per seed and refuses to treat a cross-commit mixture as comparable; m1/test_seed_provenance.py covers it (7 checks), including the case where unstamped seeds must count as their own provenance class rather than a wildcard."
+  }
 }

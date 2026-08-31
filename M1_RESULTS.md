@@ -235,7 +235,7 @@ must exceed three times the largest within-variant SD in the panel.
 | **`g7_rand`** | **0.1931** | 0.1537–0.2226 | 0.0290 | **−77.7 pp** | **effect** |
 | `g7_rand_rep` | **0.9359** | 0.8853–0.9806 | 0.0391 | −3.5 pp | restored |
 
-Only G3 and G7 clear the 3σ bar. The smaller G1/G2/permutation differences do not survive
+Only G3 and G7 clear the 3σ bar. Later a 7-seed extension was attempted and **not adopted**: the added seeds ran under a different commit than the cached three, incident #20 shows that changes capture by points, so the combined mean mixes measurements of two experiments. Direction and size of the effect survived (gaps −0.789 and −0.761 against a 0.326 bar), but the base SD tripled from 0.0146 to 0.0461 across 7 seeds, which means the 3-seed panel understated its own variance. A homogeneous rerun at a single commit is open work; see `analysis/data/reverification.json`. The smaller G1/G2/permutation differences do not survive
 optimizer variance and are not claims. `g3_pow2` is the strongest case: its stored artifact is
 bit-identical in logits and PPL to base in both fp32 and bf16 compute, yet its mean adaptation
 capture falls from 0.9705 to 0.0989. Artifact-only lattice repair returns it to 0.9753.
