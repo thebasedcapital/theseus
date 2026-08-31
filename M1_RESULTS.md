@@ -220,6 +220,8 @@ row below is measured on an artifact whose logits are **bit-identical** to base 
 | `g2_rand` | → 0.1644 | 0.9520 | −2.11 pp | +2.54 | pass |
 | **`g3_pow2`** | 2.7228 → **2.2983** | **0.1559** | **−81.7 pp** | 16.9918 → **4,316,272** | **FAIL** |
 | **`g3_pow2_rep`** | → 0.0477 | **0.9829** | +0.98 pp | +2.46 | pass |
+| **`g7_rand`** (SwiGLU up diagonal) | 2.7228 → **2.5594** | **0.0600** | **−91.3 pp** | 16.9918 → **55,656,380** | **FAIL** |
+| **`g7_rand_rep`** | → 0.4354 | 0.8407 | −13.2 pp | +2.30 | pass |
 
 `g3_pow2` is the exponent-lattice RMSNorm-diagonal gauge whose verification row reads
 `max|Δlogit| 0.00e+00, KL 0.00e+00, top-1 1.00000, PPL 17.7102` — the *same number* as base — and
@@ -292,11 +294,20 @@ Readings that matter:
   crosses the contract limit. Two damage statistics disagree, so the reserve vector must stay a
   vector — collapsing it to one score is exactly the mistake `ROADMAP.md` warns against ("a single
   mysterious health score").
-* The static debt predicted the direction for 4 of 5 gauged rows, and missed none of the
-  catastrophic ones. Coverage is small (n=5), so this is evidence for the M6 predictor, not a
-  claim of prediction.
+| `g4_perm` (control) | 0 | 12.1 | 0.03194 (**1.00×**) | +2.29 % | pass |
+| `g7_rand` | +0.00371 | — | (KL undefined: distributions no longer overlap) | — | **FAIL** |
+| `g7_rand_rep` | +0.00000 | 12.1 | 0.03137 (**0.98×**) | +2.14 % | pass |
 
-### Pre-registered prediction ledger (final for this pass)
+* The static debt predicted the direction for every gauged row measured so far (7/7), and missed
+  none of the catastrophic ones. `g4_perm`, the permutation control, is indistinguishable from
+  base (1.00× KLD) — the panel has its negative control.
+* **Adaptation and quantization need different features.** `g7_rand_rep` has zero conditioning
+  debt and restored quantization health (0.98× base KLD, best-in-class ΔPPL), yet its LoRA capture
+  is 0.8407 against base's 0.9731 — a 13 pp deficit the quantization statistic does not see. So a
+  single "reserve score" is provably the wrong object, which is the point `ROADMAP.md` makes when
+  it forbids "a single mysterious health score", now with data behind it.
+
+### Pre-registered prediction ledger
 
 | checkpoint | predicted (debt) | measured Q4 | verdict |
 |---|---|---|---|
