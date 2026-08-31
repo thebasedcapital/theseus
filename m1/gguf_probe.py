@@ -39,6 +39,11 @@ LLAMA = Path("/home/admin/tools/llama.cpp-vulkan/llama-b9851")
 QUANTIZE, PERPLEXITY, COMPLETION = (LLAMA / x for x in
                                     ("llama-quantize", "llama-perplexity", "llama-completion"))
 CONVERTER = Path("/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py")
+# Export dtype matters more than the quantizer for gauged artifacts. Measured on g3_pow2
+# (bit-identical logits in fp32 torch): bf16 export ppl 12.1351 vs base 12.1399, while f16 and
+# f32 exports both give ~177 and Q4_K_M from that source gives 3.2e5. bf16 is also the artifact's
+# native dtype, so it is the honest reference for "damage caused by quantizing".
+OUTTYPE = os.environ.get("TSX_OUTTYPE", "bf16")
 EXTRA_SITE = Path("/home/admin/laps/benchmarks/swebench/.venv/lib/python3.12/site-packages")
 SEED = 0
 PPL_BYTES = 32768
@@ -152,7 +157,7 @@ def convert(model_dir: Path, f16: Path, cmds: list, notes: list) -> bool:
     env = dict(os.environ)
     if EXTRA_SITE.exists():
         env["PYTHONPATH"] = str(EXTRA_SITE) + os.pathsep + env.get("PYTHONPATH", "")
-    cmd = [sys.executable, CONVERTER, "--outfile", f16, "--outtype", "f16", model_dir]
+    cmd = [sys.executable, CONVERTER, "--outfile", f16, "--outtype", OUTTYPE, model_dir]
     rc, out = run(cmd, env=env, timeout=1200)
     cmds.append(q(cmd))
     if rc or not f16.exists():
@@ -279,6 +284,10 @@ def main():
     payload = {"script": "gguf_probe.py", "tag": tag, "model_dir": str(model_dir),
                "git_head": git_head(), "torch": __import__("torch").__version__,
                "versions": {"llama_cpp": llama_version(), "python": sys.version.split()[0]},
+               "export": {"outtype": OUTTYPE,
+                          "note": "reference is the same weights exported to the artifact's "
+                                  "native dtype; f16/f32 export damage is measured by "
+                                  "m1/export_damage.py and is a separate operation"},
                "corpus": {"ppl_bytes": PPL_BYTES, "kl_bytes": KL_BYTES, "prompts": N_PROMPTS,
                           "prompt_tokens": N_TOKENS, "source": str(common.EVAL_TEXT)},
                "pass_contract": PASS_CONTRACT, "quant_ref": (common.rjson(REF_FILE)
