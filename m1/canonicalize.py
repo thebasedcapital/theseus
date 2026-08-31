@@ -35,7 +35,7 @@ PI = torch.pi
 
 # --- G3 ------------------------------------------------------------------------------------
 
-def canon_g3(sd: dict, arch: Arch) -> tuple[dict, dict]:
+def canon_g3(sd: dict, arch: Arch, snap_pow2: bool = False) -> tuple[dict, dict]:
     """Move along the norm-diagonal gauge so every consumer input column has equal L2 energy."""
     out = {k: v.clone() for k, v in sd.items()}
     spans = []
@@ -49,6 +49,11 @@ def canon_g3(sd: dict, arch: Arch) -> tuple[dict, dict]:
                 e = col if e is None else e + col
             r = e.sqrt()
             d = r / torch.exp(torch.log(r).mean())         # geometric-mean-normalised
+            if snap_pow2:
+                # A bf16 artifact can only move along the exponent lattice for free: rounding
+                # the gauge parameter to 2^k makes the repair itself lossless, so the whole
+                # stress+repair pair stays exactly function-preserving in storage.
+                d = torch.pow(torch.tensor(2.0, dtype=F64), torch.log2(d).round())
             spans.append(float((d.max() / d.min()).item()))
             w = gauge._req(out, f"model.layers.{l}.{nk}")
             w.copy_((w.to(F64) * d).to(w.dtype))
@@ -259,13 +264,13 @@ def canon_g5(sd: dict, arch: Arch) -> tuple[dict, dict]:
 
 
 def run(sd: dict, arch: Arch, fams, g1_method: str = "coherence",
-        g2_method: str = "balance") -> tuple[dict, dict]:
+        g2_method: str = "balance", g3_snap: bool = False) -> tuple[dict, dict]:
     out, man = sd, []
     for f in fams:
         if f == "G5":
             out, m = canon_g5(out, arch)
         elif f == "G3":
-            out, m = canon_g3(out, arch)
+            out, m = canon_g3(out, arch, snap_pow2=g3_snap)
         elif f == "G2":
             out, m = canon_g2(out, arch, g2_method)
         elif f == "G7":

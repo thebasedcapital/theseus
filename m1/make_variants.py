@@ -52,7 +52,8 @@ _v("g2_rand",      "G2:random:1", None, "random RoPE-pair rotations of q/k (maxi
 _v("g2_rand_rep",  "G2:random:1", "g2", "stress + paired-row energy equalization")
 _v("g3_rand",      "G3:random:1", None, "RMSNorm scale absorption, log-uniform +-3 decades per column")
 _v("g3_pow2",      "G3:pow2:1",   None, "same family with bf16-EXACT scales (d = 2^k, k in [-512,512]) so the gauge itself costs no representation noise")
-_v("g3_pow2_rep",  "G3:pow2:1",   "g3", "exact-storage stress + consumer column-energy equalization")
+_v("g3_pow2_rep",  "G3:pow2:1",   "g3s", "exact-storage stress + exponent-lattice repair (lossless end to end)")
+_v("g3_pow2_rep_raw", "G3:pow2:1", "g3", "same stress + continuous (non-lattice) repair: costs bf16 re-rounding")
 _v("g3_rand_rep",  "G3:random:1", "g3", "stress + consumer column-energy equalization")
 _v("g3_smooth",    "G3:smooth:1", None, "same family, block-constant d (a 32-block quantizer can absorb it)")
 _v("g3_smooth_rep", "G3:smooth:1", "g3", "control stress + repair")
@@ -87,7 +88,7 @@ def sha(p: Path) -> str:
 
 
 # canonicalize -> the exact-family repairs to run
-CANS = {"g1": ("G1",), "g2": ("G2",), "g3": ("G3",), "g5": ("G5",), "g7": ("G7",),
+CANS = {"g1": ("G1",), "g2": ("G2",), "g3": ("G3",), "g3s": ("G3",), "g5": ("G5",), "g7": ("G7",),
         "all": ("G5", "G3", "G2", "G7", "G1")}
 
 
@@ -103,7 +104,7 @@ def build(name: str, arch: common.Arch, base_sd: dict, out_root: Path,
         man["gauge"] = m
         cfg_patch.update(m.get("config_patch") or {})
     if cmethod:
-        sd, ms = canon.run(sd, arch, CANS[cmethod])
+        sd, ms = canon.run(sd, arch, CANS[cmethod], g3_snap=(cmethod == "g3s"))
         man["canon"] = ms
         if "G5" in CANS[cmethod] and "rms_norm_eps" in cfg_patch:
             # the tied representative is the c=1 point, where the original eps belongs

@@ -69,8 +69,8 @@ def main():
                "gauge_debt": (None if not j_var or not j_base else round(j_var - j_base, 4)),
                "q4_kl_mean": num.get("q4_k_m_kl_mean"), "q4_rel_dppl": num.get("q4_k_m_rel_dppl"),
                "q4_agree": num.get("q4_k_m_tokagree"), "q8_kl_mean": num.get("q8_0_kl_mean"),
-               "lora_capture": num.get("lora_r16_capture", num.get("r16_capture")),
-               "lora_pass": num.get("lora_r16_pass", num.get("r16_pass")),
+               "lora_capture": num.get("lora_capture"), "lora_pass": num.get("lora_pass"),
+               "lora_dppl": num.get("lora_protected_dppl"),
                "merge_linear_pass": num.get("linear_pass"), "merge_ties_pass": num.get("ties_pass")}
         rows.append(row)
         if row["J_var"] is not None:

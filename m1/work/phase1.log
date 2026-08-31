@@ -17,3 +17,13 @@ g3_rand          rc=2 dlogit=1.12e+00 kl=8.76e-05 top1=0.99609 ppl=17.6928 (base
 == verify g3_rand_rep
 g3_rand_rep      rc=2 dlogit=1.91e+00 kl=1.86e-04 top1=0.99536 ppl=17.6792 (base 17.7102) dev=cpu NOT_EQUIVALENT
 == verify g3_smooth
+g3_smooth        rc=0 dlogit=4.20e-01 kl=5.97e-05 top1=0.99609 ppl=17.7063 (base 17.7102) dev=cpu EQUIVALENT
+== verify g3_smooth_rep
+g3_smooth_rep    rc=2 dlogit=1.50e+00 kl=1.55e-04 top1=0.99512 ppl=17.7059 (base 17.7102) dev=cpu NOT_EQUIVALENT
+== verify g7_rand
+g7_rand          rc=0 dlogit=3.15e-01 kl=1.95e-05 top1=0.99683 ppl=17.7083 (base 17.7106) dev=cuda EQUIVALENT
+== verify g7_rand_rep
+g7_rand_rep      rc=0 dlogit=4.83e-01 kl=3.71e-05 top1=0.99609 ppl=17.7093 (base 17.7102) dev=cpu EQUIVALENT
+== verify g7_few
+g7_few           rc=0 dlogit=8.11e-03 kl=1.07e-08 top1=1.00000 ppl=17.7101 (base 17.7102) dev=cpu EQUIVALENT
+== verify g4_perm

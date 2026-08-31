@@ -1,1 +1,1 @@
-pid=2696771 start=2026-08-30 23:39:28 cmd=m1/merge_probe.py --model-dir /home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987
+pid=2703148 start=2026-08-30 23:43:27 cmd=m1/merge_probe.py --model-dir /home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987

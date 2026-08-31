@@ -37,7 +37,8 @@ EQ_DIR = common.WORK / "equiv"
 
 # op name -> (script, extra args, json path inside result["results"] that holds pass/bool)
 OPS = {
-    "gguf": ("gguf_probe.py", [], None),
+    "gguf": ("gguf_probe.py",
+             ["--tags", os.environ.get("TSX_QUANT_TAGS", "q8_0,q5_k_m,q4_k_m")], None),
     "adapt": ("adapt_probe.py", [], None),
     "merge": ("merge_probe.py", [], None),
 }
@@ -47,8 +48,10 @@ def run_probe(op: str, model_dir: Path, variant: str, extra: list[str]) -> dict:
     script, default_args, _ = OPS[op]
     out = OPS_DIR / f"{variant}.{op}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    cmd = [PY, str(common.M1 / script), "--model-dir", str(model_dir), "--out", str(out),
-           "--tag", variant] + default_args + extra
+    cmd = [PY, str(common.M1 / script), "--model-dir", str(model_dir), "--out", str(out)]
+    if op == "gguf":                       # only the GGUF probe takes an explicit tag
+        cmd += ["--tag", variant]
+    cmd += default_args + extra
     env = dict(os.environ, PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True",
                HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1")
     t0 = time.time()
@@ -89,8 +92,14 @@ def summarize(variant: str, eq: dict | None, probes: dict) -> dict:
             continue
         verdicts = {}
         for k, v in (res.get("results") or {}).items():
-            if isinstance(v, dict) and "pass" in v:
+            if not isinstance(v, dict):
+                continue
+            if "pass" in v:
                 verdicts[k] = bool(v["pass"])
+            elif "smallest_passing_alpha" in v:          # merge matrix shape
+                verdicts[k] = v["smallest_passing_alpha"] is not None
+            elif isinstance(v.get("matrix"), list):
+                verdicts[k] = any(r.get("pass") for r in v["matrix"] if isinstance(r, dict))
         row["ops"][op] = {"results": res.get("results"), "pass_contract": res.get("pass_contract"),
                           "cmds": res.get("cmds")}
         if not verdicts:

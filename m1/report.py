@@ -86,6 +86,12 @@ def adapt_cells(variant: str) -> tuple[str, dict]:
                 s += " ✅" if v["pass"] else " ❌"
                 num[f"{k}_pass"] = bool(v["pass"])
             num[f"{k}_capture"] = v["capture"]
+            if k != "sanity_reference":                   # canonical aliases for analyze.py
+                num.setdefault("lora_capture", v["capture"])
+                if "pass" in v:
+                    num.setdefault("lora_pass", bool(v["pass"]))
+                if isinstance(v.get("protected_dppl"), (int, float)):
+                    num.setdefault("lora_protected_dppl", v["protected_dppl"])
             rows.append(s)
     return " · ".join(rows) or "UNAVAILABLE", num
 
@@ -95,15 +101,26 @@ def merge_cells(variant: str) -> tuple[str, dict]:
     if not d:
         return "UNAVAILABLE", num
     rows = []
-    for k, v in (d.get("results") or {}).items():
+    res = d.get("results") or {}
+    # merge_probe emits {"linear": {"matrix": [{alpha, eval_ppl, specialist_rule_loss, pass}],
+    #                              "smallest_passing_alpha": a|None}, "ties": {...}}
+    for k in ("linear", "ties"):
+        v = res.get(k)
         if not isinstance(v, dict):
             continue
-        if "pass" in v:
-            best = v.get("best_alpha", v.get("alpha"))
-            rows.append(f"{k}: {'pass@' + format(best, '.2f') if v['pass'] and best is not None else ('pass' if v['pass'] else 'fail')}")
-            num[f"{k}_pass"] = bool(v["pass"])
-            if best is not None:
-                num[f"{k}_best_alpha"] = best
+        best = v.get("smallest_passing_alpha")
+        ok = best is not None if "smallest_passing_alpha" in v else bool(v.get("pass"))
+        rows.append(f"{k}: " + (f"pass@a={best:.2f}" if ok and best is not None
+                                else ("pass" if ok else "fail")))
+        num[f"merge_{k}_pass"] = bool(ok)
+        if best is not None:
+            num[f"merge_{k}_best_alpha"] = best
+    for k, v in res.items():                      # flat {op: {pass: bool}} fallback
+        if isinstance(v, dict) and "pass" in v and k not in ("linear", "ties"):
+            rows.append(f"{k}: {'pass' if v['pass'] else 'fail'}")
+            num[f"merge_{k}_pass"] = bool(v["pass"])
+    if isinstance(res.get("candidate_ppl"), (int, float)):
+        num["merge_candidate_ppl"] = res["candidate_ppl"]
     return " · ".join(rows) or "UNAVAILABLE", num
 
 
