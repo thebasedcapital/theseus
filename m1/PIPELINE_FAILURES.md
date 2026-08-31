@@ -24,10 +24,13 @@ invalid numbers that would have been reported as results if the checks had not c
 | 15 | K-8 contract named Q4 as the final history op, but the first harness revision matched bf16 parents and left future probes as placeholders | a plausible unavailable result did not actually exercise the declared graph | lead read the code after agent completion | Acceptance follows executed edges, not labels. Mock the matched branch and assert every declared operation produces a real cell |
 | 16 | Identical threshold evidence emitted duplicate contract v4 after v3 | history grew without a semantic change | independent rerun and byte diff | Contract emission is content-idempotent; include calibration n in identity and reuse the latest byte-for-byte |
 | 17 | K-8 metric path had a 510/511 alignment bug, a missing `return`, and failed to parse llama.cpp `Same top p` | three expensive reruns before a trustworthy present-match verdict | fail-closed exceptions plus command-log review | Persist failed attempts as non-evidence; parse every registered gate from the tool output and test the real branch boundary |
+| 18 | The K-8 harness that "produced" `m3/results.json` could not execute at all: `train_lora_state` called `opt.step()` but no optimizer was ever constructed, and `CONTRACT.adapt.lr` was declared and never consumed | `git show 462bd00:m3/history_pair.py \| grep 'AdamW'` is empty, so no committed revision could run it; `m3/results.json` records `adapt` dicts without the `capture`/`task_loss_before`/`task_loss_after` keys that function always returns | I only found it because an exploratory alpha-screen crashed on its first statement — `selfcheck.py` had been reporting PASS throughout by replacing `train_lora_state` with a lambda, so "future-path-mock" certified a code path that had never executed | A mock that substitutes the function under test cannot certify that function. `selfcheck` now runs the **real** `train_lora_state` body with only its environment stubbed, and is verified to fail when the optimizer line is deleted. Recorded evidence must be reproducible from the generator that claims to have produced it, or it is quarantined |
 
 Invariant map: #13 → I6 (one scheduler, typed leases, admission from state) · #3,#8 → I6 ·
 #4 → I4 · #5,#6 → I3+I5 · #7,#9,#10,#11,#14,#16 → I1+I7 · #12 → K-7 ·
-#15,#17 → I2+I5 (the executed operation graph and all claim gates must match the frozen contract).
+#15,#17 → I2+I5 (the executed operation graph and all claim gates must match the frozen contract) ·
+#18 → I2+I5+I10 (a number must cite the cell that produced it, and that cell must be reproducible
+from the generator named in the record; a mock may stub the world, never the unit under assertion).
 `RUNBOOK.md` §3 is this table from the driver's side.
 
 Cross-cutting: the panel records everything to per-cell JSON files (`m1/work/ops/<variant>.<op>.json`)

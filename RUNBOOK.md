@@ -55,7 +55,8 @@ agent driving it.
    desktop: two concurrent torch jobs plus a Vulkan context is how M1 lost cells to OOM.
 5. `explain` the claim you are about to write about, and copy the verdict state verbatim. Do not
    upgrade "CONTROLLED" to "CONFIRMED" in prose.
-6. `render` at the end. Never edit a `views/` file; the banner is enforced.
+6. `render` at the end. Never edit a `views/` file: it is a rendering and the next `render`
+   overwrites you. There is no CI, so nothing will warn you first (I9).
 
 ## 3. Triage table (each row is an incident that actually happened)
 

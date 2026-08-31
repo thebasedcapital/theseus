@@ -54,23 +54,28 @@ freeze the base before adapter insertion; their contract is
 
 - `scan/` and `inspect/`: dense safetensors/GGUF behavior preserved; boundary-aware MoE keying
   separates trusted 2-D expert families and makes fused rank-3 stacks explicitly unavailable.
-  Q8 uses contract v3; Q4/export/adaptation remain v2 provisional.
-- `ledger/`: append-only evidence store now imports 182 admission-clean cells, including Q8 v3,
-  second-corpus K-10 replication and the failed K-8 history attempt.
+  Q8 uses contract v3; Q4/export/adaptation remain v2 provisional. Two independent Rust suites pass
+  (13 scanner + 9 inspector) and `cargo fmt --check` is clean.
+- `ledger/`: append-only evidence store now imports 182 admission-clean cells, including Q8 v3 and
+  the second-corpus K-10 replication. The K-8 history attempt is carried as a quarantined
+  failed-attempt record, not as citable evidence (incident #18).
 - `analysis/`: 22 tests pass. Nine CPU/native-bf16 augmentation probes bring Q8/Q4 to n=20;
   contract v3 is idempotent and Q4 emission is refused.
 - `harvest/`: 390 public HF artifacts across seven kinds, 264 resolved edges, 88 dangling edges;
   offline reruns are byte-identical.
 - `m1/corpus_replication/`: disjoint second slice `[65536,98304)`, sha `c2cc1b4175c60879`;
   base/prepared equivalence is exact and prepared Q4 damage improves by 0.478 pp.
-- `m3/`: first real ordered-history attempt built Q4 artifacts for `adapt→merge→Q4` and
-  `merge→adapt→Q4`. Present-match failed at KL 0.032311 and top-1 0.88235, so future probes stopped.
+- `m3/`: the first recorded ordered-history attempt (`adapt→merge→Q4` vs `merge→adapt→Q4`) is
+  **quarantined, not evidence**: its committed generator cannot run (`train_lora_state` referenced an
+  optimizer that was never constructed; incident #18), and its `adapt` dicts lack keys that function
+  always returns. The harness is fixed and now executes; K-8 itself is still untested.
 - `m1/rescue.py`: exact lattice prepare ships only after a power-of-two proof and equivalence gate.
 
 ## What this does not demonstrate yet
 
-- Natural histories remain UNSUPPORTED. One real pair was constructed, but it failed the required
-  current-behavior match before future reserve measurement.
+- **Natural histories have never been tested.** The one recorded attempt is quarantined: its
+  generator could not execute (incident #18), so neither its failure nor any inference from it
+  stands. K-8 must be re-run under the fixed `m3/` harness.
 - One checkpoint family and scale; K-10 now has two corpora, not a second architecture.
 - The merge experiment is constructed against a specialist derived from the ungauged base.
 - Q8 v3 is in-sample calibration; Q4/export/adaptation still lack validated thresholds.

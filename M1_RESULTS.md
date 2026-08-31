@@ -345,17 +345,27 @@ cell.
 The second-slice fp32 outputs are exactly equal (KL 0, top-1 1.0, max Δlogit 0). Yet both merge
 operators fail. No scalar checkpoint-health ordering can preserve those operation-specific outcomes.
 
-## 5e. First natural-history attempt: pair construction failed the present-match gate
+## 5e. First natural-history attempt: quarantined, because its generator could not run
 
-The harness executed two ordinary histories through final Q4 artifacts:
+This section originally reported that the harness had executed two ordinary histories through final
+Q4 artifacts (A: true-LoRA adaptation → linear merge → Q4_K_M; B: linear merge → the same adaptation
+→ Q4_K_M) and that the pair failed the present-match gate at mean KL 0.032311 / top-1 0.88235 while
+matching perplexity within 0.054 %.
 
-- A: true-LoRA adaptation → linear merge → Q4_K_M;
-- B: linear merge → the same adaptation → Q4_K_M.
+**That claim is withdrawn.** No committed revision of `m3/history_pair.py` can produce it:
+`train_lora_state` called `opt.step()` but no optimizer was ever constructed, `CONTRACT.adapt.lr` was
+declared and never consumed, and the `adapt` dicts stored in `m3/results.json` lack the `capture` and
+`task_loss_before/after` keys that function always returns. `m3/selfcheck.py` reported PASS the whole
+time by swapping `train_lora_state` for a lambda, which is exactly the failure mode incident #15 was
+written to prevent. See incident #18 and `CLAIMS.md` K-8.
 
-The final artifacts match static features at tolerance 0.05 and PPL within 0.054 %, but mean KL
-is 0.032311 and teacher-forced top-1 agreement is 0.88235. They are not the same current model.
-The harness therefore stopped before fresh adaptation, re-quantization reserve and the shuffled
-null. K-8 remains unsupported; `m3/results.json` is a failed-attempt cell, not positive evidence.
+`m3/results.json` is retained as a failed-attempt record and cited as nothing else. The one
+methodological point that does survive, and that came out of the numbers rather than depending on
+them: a pair can sit **9.3× inside** the perplexity tolerance while landing **16.2× outside** the
+distributional one. Perplexity is a scalar over a distribution; two checkpoints can agree on it and
+disagree everywhere else. That is the same failure mode this project measures from the other side,
+showing up in the instrument used to build the pair. K-8 is untested and awaits a re-run under the
+fixed harness.
 
 ## 6. What is already established, independent of the panel
 

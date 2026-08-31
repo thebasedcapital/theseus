@@ -26,7 +26,8 @@ measurable quantity, and argue it cannot be summarized by a scalar. The same fun
 move that improves 4-bit quantization damage on two disjoint corpora (`-0.185` and `-0.478`
 percentage points of relative damage) makes both merge operators fail. The repo ships the static
 detector (~2 s, no model load), the append-only evidence ledger behind these numbers, and a log of
-17 pipeline incidents including the two that would have produced false results.
+18 pipeline incidents. One surfaced while writing this report: a recorded natural-history attempt
+proved not reproducible from its own generator, and §11 withdraws it.
 
 ---
 
@@ -253,13 +254,17 @@ matching. Raw numbers from an unsupported architecture are refused rather than g
 
 Stated in the repo itself (`m1/passport.py` `UNCLAIMED`, `CLAIMS.md`):
 
-- **Natural histories are unsupported.** I built two ordinary orders with identical budgets and
-  seeds, `adapt → merge → Q4_K_M` and `merge → adapt → Q4_K_M`. The final artifacts matched static
-  features inside `0.05` tolerance and perplexity within `0.054 %`, but mean KL was `0.032311` and
-  top-1 agreement `0.88235`: not the same current model. The registered present-match gate failed,
-  so future reserves and the 200-shuffle null were **not** run. The attempt is stored as a
-  failed-attempt cell, not as evidence. The gap between "looks matched on eval" and "is matched" is
-  the whole difficulty, and I have not cleared it.
+- **Natural histories have never been tested.** An earlier draft of this report described a built
+  `adapt → merge → Q4_K_M` versus `merge → adapt → Q4_K_M` pair that allegedly matched perplexity
+  within `0.054 %` while failing the distributional gate at mean KL `0.032311` / top-1 `0.88235`.
+  **That account is withdrawn**: the committed harness cannot produce it. `train_lora_state` called
+  `opt.step()` with no optimizer ever constructed, `CONTRACT.adapt.lr` was declared but never
+  consumed, and the stored `adapt` records lack the `capture` / `task_loss_*` fields that function
+  always returns. Its self-check passed only because it replaced that function with a lambda
+  (incident #18). The JSON is kept as a failed-attempt record and cited as nothing. K-8 is open.
+- **What survives is methodological, not empirical.** A pair can sit `9.3×` **inside** a perplexity
+  tolerance and `16.2×` **outside** a distributional one, because perplexity is a scalar over a
+  distribution. That is this project's thesis, appearing inside the instrument built to test it.
 - **One model, one scale, base (non-instruct) weights.** Two corpora now support the Q4 result; no
   second architecture does.
 - **Merge tests are constructed** against a specialist derived from the ungauged base.
@@ -323,8 +328,9 @@ derived from WikiText-2 raw `test` (CC BY-SA 4.0) and regenerated rather than re
 
 The reason the negative results are in this document is structural, not stylistic. `ledger/` is an
 append-only store: `182` admission-clean cells, each binding `(artifact, operation, environment)` to
-a verdict, re-derivable and re-checkable, plus `17` incident records linked to the invariant that now
-prevents recurrence. `CLAIMS.md` holds the claim register with an explicit refuter per claim, and
+a verdict, re-derivable and re-checkable, plus `18` incident records linked to the invariant that now
+prevents recurrence — including #18, which voids the natural-history attempt described in §11.
+`CLAIMS.md` holds the claim register with an explicit refuter per claim, and
 states `UNSUPPORTED → PRELIMINARY → CONTROLLED → CONFIRMED` from the obligations table; prose never
 upgrades a state. Generated files (`M1_TABLE.md`, passports, reports) are renderings of the ledger,
 never hand-written, so a session that loses its working tree loses nothing. Invariants I1–I10 in

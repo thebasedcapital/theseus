@@ -124,6 +124,9 @@ def train_lora_state(start_sd: dict, tok, seed: int, device: str):
     x, y, mask = make_data(tok, ids[:CONTRACT["adapt"]["train_examples"]])
     held = make_data(tok, ids[CONTRACT["adapt"]["train_examples"]:])
     task_before = adapt_probe.task_loss(model, held, device)
+    # The optimizer is part of the operation being measured: CONTRACT.adapt.lr was declared but
+    # never consumed here, which made this function raise UnboundLocalError at step 0.
+    opt = torch.optim.AdamW(params, lr=CONTRACT["adapt"]["lr"])
     model.train()
     t0 = time.perf_counter()
     for step in range(CONTRACT["adapt"]["steps"]):
