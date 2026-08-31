@@ -165,3 +165,18 @@ We should not claim novelty for the individual ingredients:
 - CellFill derives a finite plasticity lifetime under its bounded in-cell update rule (`arXiv:2608.20873`).
 
 The still-interesting object is the **heterogeneous lifecycle surface**: whether one checkpoint remains learnable, alignable, mergeable, editable, unlearnable, prunable, quantizable, distillable, and repairable after mixed histories of those operations.
+## Data and license
+
+The third-party eval corpus is **not** redistributed here. Regenerate the pinned slice
+byte-identically before running the M1 probes:
+
+```bash
+cd m1 && python prep_data.py     # -> m1/data/eval_wikitext.txt
+```
+
+Expected: 401,943 chars / 94,099 Qwen tokens, sha256
+`f58687faad11242aac5876010246b033b73a632932cd3956129281348de38af8`. Source, license (CC BY-SA 4.0)
+and the selection rule are recorded in [`m1/data/PROVENANCE.json`](m1/data/PROVENANCE.json).
+
+Code and documentation in this repository are released under the [MIT License](LICENSE).
+Third-party data keeps its own license and is fetched, not shipped.

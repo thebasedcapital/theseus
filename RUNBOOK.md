@@ -5,8 +5,10 @@ Written to be read once and relied on under time pressure. The design rationale 
 
 ## 0. Standing
 
-Theseus is its own project: own GitLab repo, own history, no import of any sibling checkout's code,
-history, or data. Choose the interpreter once per machine with `THESEUS_PY` (needs torch ≥2.13,
+Theseus is its own project: own history, no import of any sibling checkout's code, history, or data.
+`origin` is the private GitLab repo (canonical); `github` is the public MIT mirror. Commit to `origin`
+first, then `git push github main` so the two never diverge.
+Choose the interpreter once per machine with `THESEUS_PY` (needs torch ≥2.13,
 transformers ≥5.16, safetensors; see `requirements.txt`); the scripts default to a suitable
 environment that already exists on this workstation rather than duplicating a 6 GB CUDA venv.
 `m1/drive.sh` is the only scheduler — never reintroduce parallel driver scripts (incident #13: two
