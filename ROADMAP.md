@@ -512,6 +512,14 @@ Optional community sharing should upload only explicit, inspectable telemetry; n
 
 **Exit condition:** function-equivalent real Transformer checkpoints show materially different outcome under at least one real operation, with exact transformation verification and multi-seed replication.
 
+**Status: exit condition met for the adaptation and quantization operations (2026-08-31).**
+`g3_pow2` — RMSNorm-diagonal gauge on the bf16 exponent lattice, so its logits are *exactly*
+identical to base in both fp32 and bf16 compute — loses bounded LoRA capture (0.9731 → 0.1559) and
+turns Q8_0 into a 10.7-nat divergence, while an artifact-only canonicalizer returns capture 0.9829
+and Q4_K_M at 1.10x base KL divergence. Stress seeds 2 and 3 replicate the stress; the *probe*
+seed is replicated separately (`m1/seed_replicate.py`) so the smaller gaps carry error bars.
+Merge cells and the natural-history test (A5) are the outstanding items; see `M1_RESULTS.md`.
+
 ## M2 — Local preflight alpha
 
 Commands:
