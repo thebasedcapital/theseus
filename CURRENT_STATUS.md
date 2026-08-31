@@ -2,9 +2,19 @@
 
 ## Where this repo lives
 
-Standalone GitLab project `thebasedcapital/theseus` (private), split out of
-`thebasedcapital/counterpoint` branch `theseus-v0` by `git subtree split --prefix=experiments/theseus`,
-so the 15 V0 commits came along. The counterpoint branch is untouched history.
+Two remotes, full shared history on both:
+
+- **GitHub (public):** `https://github.com/thebasedcapital/theseus` — the public face, MIT licensed.
+- **GitLab (private, canonical):** `https://gitlab.com/thebasedcapital/theseus` — `origin`; still where work lands first.
+
+The project was split out of `thebasedcapital/counterpoint` branch `theseus-v0` by
+`git subtree split --prefix=experiments/theseus`, so the 15 V0 commits came along. The
+counterpoint branch is untouched history.
+
+The third-party eval corpus is **not** redistributed (`m1/data/eval_wikitext.txt` is gitignored);
+`cd m1 && python prep_data.py` regenerates it byte-identically, sha256
+`f58687faad11242aac5876010246b033b73a632932cd3956129281348de38af8`. Rust `target/` build
+artifacts and generated `m1/work/` slices are likewise untracked.
 
 ## Research status
 
