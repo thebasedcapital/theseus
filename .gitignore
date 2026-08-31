@@ -9,6 +9,12 @@ m1/work/
 *Logits
 *.bin
 
+# Rust build artifacts (Cargo target dirs, object files) are never source.
+target/
+*.o
+*.rlib
+*.rmeta
+
 m1/rescue_out/
 
 # Graphify persistent index: commit graph/report/manifest, ignore local caches and snapshots.
