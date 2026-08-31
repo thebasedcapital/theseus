@@ -1,0 +1,94 @@
+{
+  "kind": "EXPLORATORY_screen_not_evidence",
+  "gate": {
+    "relative_ppl_max": 0.005,
+    "mean_kl_max": 0.002,
+    "top1_min": 0.995,
+    "static_tolerances": [
+      0.05,
+      0.1,
+      0.2,
+      0.4,
+      0.8
+    ]
+  },
+  "device": "cuda",
+  "results": [
+    {
+      "alpha": 0.3,
+      "gate_pass": false,
+      "mean_kl": 0.047975,
+      "top1": 0.88235,
+      "relative_ppl": 0.03434588538390093,
+      "feature_gap": {
+        "q4_block_mse": null,
+        "dyn_range_log10": null,
+        "row_energy_imbalance": null,
+        "frac_below_f16_normal": null
+      },
+      "adapt_capture": {
+        "A": 0.9298416775283879,
+        "B": 0.9364109197816681
+      },
+      "wall_s": 98.7,
+      "commands": 8
+    },
+    {
+      "alpha": 0.15,
+      "gate_pass": false,
+      "mean_kl": 0.037317,
+      "top1": 0.88235,
+      "relative_ppl": 0.008525572895559917,
+      "feature_gap": {
+        "q4_block_mse": null,
+        "dyn_range_log10": null,
+        "row_energy_imbalance": null,
+        "frac_below_f16_normal": null
+      },
+      "adapt_capture": {
+        "A": 0.9298416775283879,
+        "B": 0.9512932823155242
+      },
+      "wall_s": 95.9,
+      "commands": 8
+    },
+    {
+      "alpha": 0.06,
+      "gate_pass": false,
+      "mean_kl": 0.029418,
+      "top1": 0.90196,
+      "relative_ppl": 0.013748213036469236,
+      "feature_gap": {
+        "q4_block_mse": null,
+        "dyn_range_log10": null,
+        "row_energy_imbalance": null,
+        "frac_below_f16_normal": null
+      },
+      "adapt_capture": {
+        "A": 0.9298416775283879,
+        "B": 0.9544060256389806
+      },
+      "wall_s": 97.5,
+      "commands": 8
+    },
+    {
+      "alpha": 0.02,
+      "gate_pass": false,
+      "mean_kl": 0.031228,
+      "top1": 0.8980400000000001,
+      "relative_ppl": 0.00691462538775389,
+      "feature_gap": {
+        "q4_block_mse": null,
+        "dyn_range_log10": null,
+        "row_energy_imbalance": null,
+        "frac_below_f16_normal": null
+      },
+      "adapt_capture": {
+        "A": 0.9298416775283879,
+        "B": 0.9786695591872593
+      },
+      "wall_s": 97.4,
+      "commands": 8
+    }
+  ]
+}

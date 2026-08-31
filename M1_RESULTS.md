@@ -359,13 +359,21 @@ declared and never consumed, and the `adapt` dicts stored in `m3/results.json` l
 time by swapping `train_lora_state` for a lambda, which is exactly the failure mode incident #15 was
 written to prevent. See incident #18 and `CLAIMS.md` K-8.
 
-`m3/results.json` is retained as a failed-attempt record and cited as nothing else. The one
-methodological point that does survive, and that came out of the numbers rather than depending on
-them: a pair can sit **9.3× inside** the perplexity tolerance while landing **16.2× outside** the
-distributional one. Perplexity is a scalar over a distribution; two checkpoints can agree on it and
-disagree everywhere else. That is the same failure mode this project measures from the other side,
-showing up in the instrument used to build the pair. K-8 is untested and awaits a re-run under the
-fixed harness.
+`m3/results.json` is retained as a failed-attempt record and cited as nothing else. An earlier
+draft of this section claimed one point survived the withdrawal: that the pair sat **9.3× inside**
+the perplexity tolerance while landing **16.2× outside** the distributional one. That was wrong in
+the obvious way - a conclusion drawn from voided numbers is itself void - and the re-run contradicts
+it directly.
+
+The repaired harness was then screened exploratively (`m3/screens/`, never admitted to the ledger),
+sweeping merge alpha `0.30 → 0.02`. Every configuration fails the gate on **both** statistics
+(mean KL `0.029-0.048` against a `2e-3` limit; relative ΔPPL `0.0069-0.0343` against `0.005`), and KL
+is non-monotone in alpha, so weakening the merge does not close the gap. Two orders that adapt from
+different coordinates stay distributionally distinct. That is the current, reproducible state of
+K-8: **untested as a claim, and its easiest construction route measured closed.** The screening does
+leave one specific lead worth a proper run - the orders are indistinguishable in the features that
+drive quantization reserve (gaps `<= 2e-3`) while `row_energy_imbalance`, the feature tied to
+adaptation capture here, differs by `0.017-0.094`.
 
 ## 6. What is already established, independent of the panel
 
