@@ -320,3 +320,34 @@ Readings that matter:
    surgery — the pre-registration in §3.
 4. V0's ReLU scaling gauge survives into a GLU transformer (G7) in the multiplicative branch — a
    correction our own prior-art pass caught before it went into a claim.
+
+## Appendix — the diagnostic is cross-validated by two independent implementations
+
+`inspect/` is a zero-dependency Rust binary that parses the safetensors container itself
+(8-byte header length, JSON header, tensor data after it) and streams bf16/f16/f32 weights
+without ever loading a model: 357,826,560 weights metered in **2.0 s**. Its `q4_block_mse` is an
+independent implementation of the same 32-block max-abs statistic that
+`canonicalize.quant_condition` computes in torch fp64, and on the pristine checkpoint and two
+gauged artifacts the two agree per tensor family to `<= 4.4e-09`:
+
+| family | python J | rust J | g3_pow2_rep_raw | g7_rand_rep |
+|---|---|---|---|---|
+| q_proj | 0.01132 | 0.01132 | 0.01079 | 0.01132 |
+| k_proj | 0.01176 | 0.01176 | 0.01219 | 0.01176 |
+| v_proj | 0.01282 | 0.01282 | 0.01428 | 0.01282 |
+| o_proj | 0.01018 | 0.01018 | 0.01018 | 0.01018 |
+| gate_proj | 0.01076 | 0.01076 | 0.01081 | 0.01076 |
+| up_proj | 0.01069 | 0.01069 | 0.01077 | 0.01069 |
+| down_proj | 0.01110 | 0.01110 | 0.01110 | 0.01111 |
+
+Getting this right mattered: the first version pooled block statistics across tensors
+(ratio-of-sums) while the registered predictions used the mean of per-tensor ratios, and the two
+disagreed by up to 5.7 % on q/k/v. Both conventions are now emitted explicitly
+(`q4_block_mse` = mean of per-tensor ratios, as registered; `q4_block_mse_pooled` = ratio of
+sums), so a number in this project always carries its definition.
+
+The inspector also reports the two features that the LoRA collapse in §5 should depend on and the
+quantization statistic does not: `dyn_range_log10` (how much exponent the family spans — the f16
+export killer) and `row_energy_imbalance` (how unequal the optimizer's per-coordinate geometry is
+— the AdamW-capture killer), plus `frac_below_f16_normal` which is exactly the
+`--fail-above` preflight gate for the export path.
