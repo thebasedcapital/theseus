@@ -1,0 +1,14 @@
+{
+  "q4_k_m": {
+    "kl_mean": 0.091089,
+    "prefix_agree": 0.0,
+    "rel_dppl": 0.087904,
+    "tag": "base"
+  },
+  "q8_0": {
+    "kl_mean": 0.001491,
+    "prefix_agree": null,
+    "rel_dppl": -0.000958,
+    "tag": "base"
+  }
+}

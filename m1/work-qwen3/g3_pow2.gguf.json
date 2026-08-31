@@ -1,0 +1,129 @@
+{
+  "backend": {
+    "device": "cpu",
+    "llama_dir": "/home/admin/tools/llama.cpp-vulkan/llama-b9851",
+    "lock_wait_s": 0.0,
+    "ngl": "0"
+  },
+  "cmds": [
+    "/home/admin/counterpoint/.venv/bin/python /home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py --outfile /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-f16.gguf --outtype bf16 /home/admin/theseus/m1/work-qwen3/g3_pow2",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-f16.gguf -f /home/admin/theseus/m1/work-qwen3/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-f16.gguf -f /home/admin/theseus/m1/work-qwen3/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4 --save-all-logits /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/f16-logits.bin",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-f16.gguf /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q8_0.gguf Q8_0 8",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q8_0.gguf -f /home/admin/theseus/m1/work-qwen3/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q8_0.gguf -f /home/admin/theseus/m1/work-qwen3/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/f16-logits.bin",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-quantize /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-f16.gguf /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q4_k_m.gguf Q4_K_M 8",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q4_k_m.gguf -f /home/admin/theseus/m1/work-qwen3/gguf/eval_ppl_32768.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 4",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-perplexity -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q4_k_m.gguf -f /home/admin/theseus/m1/work-qwen3/gguf/eval_kl_8192.txt -c 512 --temp 0 --seed 0 -ngl 0 --chunks 1 --kl-divergence --kl-divergence-base /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/f16-logits.bin",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-f16.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt --no-conversation",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q4_k_m.gguf -p 'Robert Boulter is an English film , television and theatre actor . He had a guest @-@ starring role on the television series The' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt --no-conversation",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-f16.gguf -p 'g a work , a practice which Burton Watson attributes to \" the close links that traditional Chinese thought posits between art an' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt --no-conversation",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q4_k_m.gguf -p 'g a work , a practice which Burton Watson attributes to \" the close links that traditional Chinese thought posits between art an' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt --no-conversation",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-f16.gguf -p 'He was granted leave to visit his family in September , but he soon rejoined the court and on December 8 , 757 , he returned to ' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt --no-conversation",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q4_k_m.gguf -p 'He was granted leave to visit his family in September , but he soon rejoined the court and on December 8 , 757 , he returned to ' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt --no-conversation",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-f16.gguf -p 'on poetics and painting than any other writer of his time . He wrote eighteen poems on painting alone , more than any other Tang' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt --no-conversation",
+    "/home/admin/tools/llama.cpp-vulkan/llama-b9851/llama-completion -m /home/admin/theseus/m1/work-qwen3/gguf/g3_pow2/model-q4_k_m.gguf -p 'on poetics and painting than any other writer of his time . He wrote eighteen poems on painting alone , more than any other Tang' -n 32 --temp 0 --seed 0 -ngl 0 --no-display-prompt --no-conversation"
+  ],
+  "corpus": {
+    "kl_bytes": 8192,
+    "ppl_bytes": 32768,
+    "prompt_tokens": 32,
+    "prompts": 4,
+    "source": "/home/admin/theseus/m1/data/eval_wikitext.txt"
+  },
+  "duration_s": 70.2,
+  "export": {
+    "note": "reference is the same weights exported to the artifact's native dtype; f16/f32 export damage is measured by m1/export_damage.py and is a separate operation",
+    "outtype": "bf16"
+  },
+  "git_head": "4eeddc56d08eee764f0797db7ce801fc0f4fb542",
+  "model_dir": "/home/admin/theseus/m1/work-qwen3/g3_pow2",
+  "notes": [
+    "q8_0 kl unavailable: \n\n====== Token probability statistics ======\nMean    \u0394p:   -nan \u00b1 0.000 %\nMaximum \u0394p:  0.000%\n99.9%   \u0394p:  0.000%\n99.0%   \u0394p: -0.001%\n95.0%   \u0394p: -0.019%\n90.0%   \u0394p: -0.111%\n75.0%   \u0394p: -3.112%\nMedian"
+  ],
+  "pass_contract": {
+    "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+    "kl_mean_slack": 0.005,
+    "mode": "reference-relative",
+    "prefix_agree_slack": 0.1,
+    "rel_dppl_slack": 0.01
+  },
+  "quant_ref": {
+    "q4_k_m": {
+      "kl_mean": 0.091089,
+      "prefix_agree": 0.0,
+      "rel_dppl": 0.087904,
+      "tag": "base"
+    },
+    "q8_0": {
+      "kl_mean": 0.001491,
+      "prefix_agree": null,
+      "rel_dppl": -0.000958,
+      "tag": "base"
+    }
+  },
+  "results": {
+    "f16": {
+      "backend": "cpu",
+      "error": "",
+      "ppl": 12.004,
+      "size_mb": 1142.7,
+      "status": "OK",
+      "throughput_Bps": null
+    },
+    "q4_k_m": {
+      "dppl": 1262674072.039,
+      "exact_agree": 0.0,
+      "kl_max": 29.096575,
+      "kl_mean": 18.826614,
+      "kl_median": 18.590517,
+      "kl_p90": 24.310017,
+      "kl_p95": 25.130253,
+      "kl_p99": 26.532658,
+      "kl_p999": 28.668915,
+      "limits": {
+        "kl_mean": 0.09608900000000001,
+        "prefix_agree": -0.1,
+        "rel_dppl": 0.09790399999999999
+      },
+      "pass": false,
+      "ppl": 1262674084.043,
+      "ppl_f16": 12.004,
+      "prefix_agree": 0.0,
+      "prefix_agree_uninformative": true,
+      "prompt_tokens": 32,
+      "prompts": 4,
+      "reference_tag": "base",
+      "rel_dppl": 105187776.744335,
+      "size_mb": 378.3,
+      "status": "OK"
+    },
+    "q8_0": {
+      "dppl": 1204611892.6646,
+      "kl_mean": null,
+      "limits": {
+        "kl_mean": 0.006491,
+        "rel_dppl": 0.009042
+      },
+      "pass": false,
+      "ppl": 1204611904.6686,
+      "ppl_f16": 12.004,
+      "prefix_agree_uninformative": true,
+      "reference_tag": "base",
+      "rel_dppl": 100350874.097351,
+      "size_mb": 609.8,
+      "status": "OK"
+    }
+  },
+  "script": "gguf_probe.py",
+  "status": "OK",
+  "tag": "g3_pow2",
+  "torch": "2.13.0+cu130",
+  "versions": {
+    "llama_cpp": [
+      "version: 9851 (0eca4d490)",
+      "built with GNU 11.4.0 for Linux x86_64"
+    ],
+    "python": "3.12.3"
+  }
+}

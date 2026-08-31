@@ -92,7 +92,8 @@ claims. Full derivation in `m1/PRIOR_ART.md` and `M1_NOTES.md`.
 | **G7** | SwiGLU **up-branch** diagonal, `V_j → c_jV_j`, `W₂[:,j] → W₂[:,j]/c_j` | **new to me**: my prior-art pass refuted my original assertion that a GLU admits no per-unit rescaling. The *gated* branch cannot scale (`SiLU(cg) ≠ c·SiLU(g)`); the multiplicative partner can |
 | g2 on QK-norm archs | **measured, not just derived**: building `g2_rand` on Qwen3-0.6B-Base is
   refused by `gauge.g2_rope_pairs` (56 QK-norm tensors), while `g1_haar`, `g3_pow2`, `g5_c8` and
-  `g7_rand` build and certify there (`m1/work-qwen3/equiv/`)
+  `g7_rand` build and certify there (`m1/work-qwen3/equiv/`), and `g3_pow2` also has measured
+  Q8_0/Q4_K_M damage cells (`m1/work-qwen3/*.gguf.json`)
 | bias | attention q/k/v biases | critical: Qwen2.5-0.5B ships `max|b_q| = 79`, `max|b_k| = 130`, so any row transform must transform the matching bias entries |
 
 **Important negative space.** That rotations preserving full-precision behaviour change
@@ -298,8 +299,12 @@ Stated in the repo itself (`m1/passport.py` `UNCLAIMED`, `CLAIMS.md`):
 - **Surgery is one model, one scale, base (non-instruct) weights.** Exactness now has a second
   architecture: 4 measured equivalence cells on Qwen3-0.6B-Base reproduce the bit-identical
   result (`g3_pow2`: max|Δlogit| 0.0, KL 0.0, top-1 1.00000) and G2 correctly refuses there.
-  But **no quantization, adaptation or merge cell has been run on Qwen3**, so K-3, K-4 and K-9
-  remain single-architecture claims. Two corpora support the Q4 result; no second model does.
+  Quantization reserve now replicates there too: bf16 export is ppl 12.004 on both artifacts and
+  the bit-identical twin collapses to Q8_0 ppl 1.20e9 / Q4_K_M KLD 18.83 against base 0.001491 /
+  0.091089, with the static cause transferring nearly numerically (J 0.01020→0.02886, dyn range
+  8.66→14.54, flags 0→21). **Adaptation and merge reserve have not been measured on a second
+  architecture**, so K-3 and K-9 remain single-model claims; two corpora support the Q4 result
+  but only for Qwen2.
 - **Merge tests are constructed** against a specialist derived from the ungauged base.
 - **Lattice repair is not a universal cure.** `bad_all_exact` clears every static flag and still
   fails adaptation and both merges.
@@ -361,6 +366,15 @@ lattice gauge. The pinned corpus is `m1/data/eval_wikitext.txt`, 401,943 chars /
 derived from WikiText-2 raw `test` (CC BY-SA 4.0) and regenerated rather than redistributed.
 `m1/work/` outputs and Rust `target/` are gitignored.
 
+```bash
+# second-architecture panel (Qwen3-0.6B-Base); serial + self-cleaning, ~4 min total
+export THESEUS_REF_MODEL=~/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B-Base/snapshots/da87bfb…
+export THESEUS_WORK=$PWD/m1/work-qwen3
+bash m1/run_qwen3_panel.sh                       # gauges + equivalence, G2 must refuse
+python m1/make_variants.py --only g3_pow2 --out m1/work-qwen3
+python m1/gguf_probe.py --model-dir m1/work-qwen3/g3_pow2 \
+       --out m1/work-qwen3/g3_pow2.gguf.json --tag g3_pow2 --tags q8_0,q4_k_m --backend cpu
+```
 ---
 
 ## 14. Evidence governance

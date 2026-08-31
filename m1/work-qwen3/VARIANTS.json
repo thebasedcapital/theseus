@@ -25,10 +25,10 @@
     "untied": false
   },
   "g3_pow2": {
-    "build_s": 6.4,
+    "build_s": 6.3,
     "bytes": 1192135096,
     "canonicalize": null,
-    "dir": "/home/admin/theseus/m1/work-qwen3/g3_pow2",
+    "dir": "m1/work-qwen3/g3_pow2",
     "gauge": {
       "config_patch": null,
       "spec": "G3:pow2:1",
