@@ -27,6 +27,9 @@ import argparse, json, subprocess, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Manifest paths are resolved against this, not ROOT: tests redirect ROOT to a temp repo to exercise
+# cell scanning, and the quarantine manifest describes the real checkout regardless.
+_REPO = Path(__file__).resolve().parents[1]
 # The rule follows the generator named in the cell, which is the claim being verified. A shape
 # heuristic over dict contents is fragile: an early revision classified the gguf layout audit as a
 # quantization cell and reported a false violation because `status` lives on each per-scheme entry,
@@ -43,13 +46,32 @@ KIND_BY_SCRIPT = {
     "make_variants.py": "construction",
 }
 
-# Known-bad records, kept deliberately, reported as quarantined rather than as new violations.
-QUARANTINE = {
-    "m3/results.json": "incident #18 - generator could not execute; retained as a failed-attempt record",
-    "m1/work/invalidated/full_model_training": "invalidated first adaptation panel (full-model training)",
-    "m1/work/invalidated/unversioned_true_lora_v1": "pre-contract true-LoRA cells",
-    "m1/work/M1_OPS.old-f16.json": "pre-amendment f16-export quantization cells (incident #10)",
-}
+# Voided evidence is loaded from ledger/quarantine.json so the machine-readable record lives in one
+# place. Two behaviours differ by status: voided/invalidated/superseded records are skipped
+# entirely (they must never be tallied, I8), while "usable-with-caveat" records are still audited
+# and still warn - silently skipping them would hide the reason they are caveated.
+HARD_STATUS = {"voided", "invalidated", "superseded"}
+
+
+def load_quarantine(repo: Path | None = None) -> dict:
+    """Manifest keyed by path. An absent or malformed manifest is itself a violation of the
+    integrity story, so callers get a loud empty result rather than a quiet pass."""
+    path = (repo or _REPO) / "ledger" / "quarantine.json"
+    if not path.exists():
+        return {"__error__": f"missing quarantine manifest: {_rel(path)}"}
+    try:
+        entries = json.loads(path.read_text()).get("quarantined", [])
+    except Exception as exc:
+        return {"__error__": f"unparseable quarantine manifest: {type(exc).__name__}: {exc}"}
+    return {e["path"]: e for e in entries if isinstance(e, dict) and e.get("path")}
+
+
+QUARANTINE = load_quarantine()
+
+
+def skipped_paths(man: dict) -> set:
+    return {k for k, v in man.items() if isinstance(v, dict) and v.get("status") in HARD_STATUS}
+
 
 _TREES: dict[str, set[str]] = {}
 
@@ -84,11 +106,12 @@ def script_in_tree(script: str, sha: str) -> bool:
     return bool(script) and any(p == script or p.endswith("/" + script) for p in names)
 
 
-def iter_cells(work: Path):
+def iter_cells(work: Path, skip: set | None = None):
     """Yield (relpath, kind, payload) for every persisted cell that claims a generator."""
+    _SKIP = skipped_paths(QUARANTINE) if skip is None else skip
     for p in sorted(work.rglob("*.json")):
         rel = _rel(p)
-        if any(q in rel for q in QUARANTINE):
+        if any(q in rel for q in (_SKIP or set())):
             continue
         try:
             data = json.loads(p.read_text())
@@ -193,7 +216,7 @@ def _check_adaptation(rel, sha, script, payload):
                                     "different writer produced this)", "status": "VIOLATION"})
     return viol, unv
 
-def verify(work: Path) -> dict:
+def verify(work: Path, repo: Path | None = None) -> dict:
     violations, unversioned, seen, checked = [], [], {}, 0
     for rel, kind, payload in iter_cells(work):
         checked += 1
@@ -223,6 +246,24 @@ def verify(work: Path) -> dict:
             violations.append({"file": rel, "git_head": sha[:12], "script": script, "kind": kind,
                                "problem": f"missing required fields {missing}", "status": "VIOLATION"})
 
+    # the manifest is a claim about the repo, so it gets checked like any other
+    man = QUARANTINE if repo is None else load_quarantine(repo)
+    if "__error__" in man:
+        violations.append({"file": "ledger/quarantine.json",
+                           "problem": man["__error__"], "status": "VIOLATION"})
+    for qpath, entry in man.items():
+        if qpath == "__error__":
+            continue
+        if not ((repo or _REPO) / qpath).exists():
+            violations.append({"file": "ledger/quarantine.json",
+                               "problem": f"names {qpath} which no longer exists - a "
+                                          "quarantine entry must not be quietly deleted (I1)",
+                               "status": "VIOLATION"})
+        elif not entry.get("reason"):
+            violations.append({"file": "ledger/quarantine.json",
+                               "problem": f"{qpath} has no stated reason",
+                               "status": "VIOLATION"})
+
     m3 = ROOT / "m3" / "results.json"
     quarantined = check_quarantined(m3) if m3.exists() else []
     return {"cells_checked": checked, "unique_generators": len(seen),
@@ -247,6 +288,11 @@ def main(argv=None):
         print(f"  WARNING {u['file']}: {u['problem']}")
     for q in rep["quarantined"]:
         print(f"  quarantined (known, expected): {q['file']} {q['subject']}")
+    for qpath, entry in QUARANTINE.items():
+        if qpath == "__error__":
+            continue
+        print(f"  manifest: {qpath} [{entry.get('status')}] "
+              f"incident #{entry.get('incident')} - {str(entry.get('may_be_cited_as', ''))[:64]}")
     print("verdict:", rep["verdict"])
     return 1 if rep["violations"] else 0
 

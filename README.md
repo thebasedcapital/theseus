@@ -18,8 +18,35 @@ CLAIMS.md    the live claim register with refuters               -> what is beli
 ROADMAP.md   the scientific wish-list (operations, architectures, Track B surface)
 M1_*         evidence for milestone 1: NOTES (derivations), RESULTS (measurements),
              TABLE/ANALYSIS (generated), m1/PRIOR_ART.md (novelty boundary)
-inspect/     the zero-dependency Rust static diagnostic + preflight (its own crate, its own tests)
+
+scan/        theseus-scan: Rust safetensors + GGUF static scan and preflight (13 tests)
+inspect/     theseus-inspect: deeper per-family diagnostics, --fail-above gate (9 tests)
+ledger/      append-only evidence store, claim register, session verbs (30 tests),
+             plus quarantine.json: the machine-readable record of voided evidence
+analysis/    threshold contracts, base rates, quantitative reserve vectors (37 tests)
+m1/          the M1 pipeline: gauges, canonicalizer, probes, equivalence gate, rescue
+m3/          natural-history harness (K-8), plus exploratory screens kept separate
+harvest/     public HF artifact population and lineage edges
+archcheck/   cross-architecture exactness audit; fails closed on unsupported gauges
+m1/PIPELINE_FAILURES.md   the 19 incidents and the invariant each one produced
 prototype.py V0: the deterministic ReLU smoke test
+```
+
+There is no unified `theseus` executable yet. What exists today is `python -m ledger.cli
+<verb>`, the two Rust binaries, and the scripts under `m1/` and `m3/`; `RUNBOOK.md` §1 marks
+which verbs are implemented and which are still aspirational.
+
+Checks you can actually run:
+
+```bash
+python -m ledger.cli verify                # does each cell name a generator that could have
+                                           # written it? (incidents #18/#19)
+python analysis/reserve.py                 # quantitative reserve vectors, no GPU needed
+python m1/test_gauge_math.py               # gauge algebra property tests
+python archcheck/probe.py <snapshot-dir>   # exactness audit; exit 1 = fail closed
+python archcheck/test_qknorm_g2.py <dir>   # is G2 really exact on a QK-norm architecture?
+bash archcheck/matrix_parity.sh            # do the two Rust binaries agree per operation?
+python -m unittest discover -s analysis    # 37 tests   (ledger suite: 30)
 ```
 
 The rule that keeps the tower honest: **generated files are generated** (`views/`, `M1_TABLE.md`,

@@ -41,6 +41,8 @@ ADAPT_CONTRACT = content_id({"op": "adapt.lora.r16", "contract": "reference-rela
 TORCH_M1 = "2.13.0+cu130"   # recorded torch for this run in every ops/*.json (29/30 files)
 
 # PIPELINE_FAILURES.md → invariant that now prevents it (footer map of the doc, plus SYSTEM §3
+ADAPT_V2 = "adapt-v2-true-lora-base-frozen"
+
 PF_INVARIANT = {1: "I2", 2: "I2", 3: "I6", 4: "I4", 5: "I3+I5", 6: "I3+I5",
                 7: "I1+I7", 8: "I6", 9: "I1+I7", 10: "I1+I7", 11: "I1+I7",
                 12: "K-7", 13: "I6", 14: "I1+I7", 15: "I2+I5", 16: "I1+I7",
@@ -496,16 +498,26 @@ def build_cells(w, name_to_id, ops, eq, cd_check, export_damage, pred, pred_new,
     # ---- adapt / LoRA cells (base calibration first, then variants) ----
     lora_cal_id = None
     base_var = None
+    base_ref_note = "ops/base.adapt.json"
     for fname in ("base.adapt.json", "probes/base_adapt.json"):
-        if fname in ops:
-            base_var = ((ops[fname].get("results") or {}).get("variant"))
-        if base_var:
+        var = ((ops.get(fname) or {}).get("results") or {}).get("variant") or {}
+        if var.get("contract_version") == ADAPT_V2:
+            base_var = var
+            base_ref_note = f"ops/{fname} [{ADAPT_V2}]"
             break
+        if var and base_var is None:
+            base_var = var
+            base_ref_note = (f"ops/{fname} (unversioned: no contract_version, so v2 verdicts "
+                             "calibrated against it are marked, not silently joined)")
     if base_var is None:
-        base_var = _adapt_reference(w)
+        fb = _adapt_reference(w)
+        if fb:
+            base_var = fb
+            base_ref_note = f"fallback {fb.get('base_reference_file', 'ref_capture.json')} " \
+                            f"[{fb.get('base_reference_status')}]"
     if base_var:
         body = _adapt_cell(name_to_id.get("base"), base_var, None,
-                           "K-3.calibration.lora", "ops/base.adapt.json; ref_capture.json",
+                           "K-3.calibration.lora", base_ref_note,
                            torch_v=ops.get("base.adapt.json", {}).get("torch"))
         lora_cal_id = content_id(body)
         records.append(body)
@@ -842,6 +854,7 @@ def build_cells(w, name_to_id, ops, eq, cd_check, export_damage, pred, pred_new,
 
 def _adapt_reference(w):
     """Fallback LoRA base reference (ref_capture.json / probes/base_adapt.json)."""
+    found = []
     for cand in ("ref_capture.json", "probes/base_adapt.json"):
         if not (w / cand).exists():
             continue
@@ -855,13 +868,26 @@ def _adapt_reference(w):
             if var is None and data.get("capture") is not None:
                 var = data
         if var:
-            return {"capture": var.get("capture"),
-                    "protected_dppl": var.get("protected_dppl"),
-                    "seed": var.get("seed"),
-                    "rank": var.get("rank") or var.get("lora_rank"),
-                    "steps": var.get("steps"), "device": var.get("device"),
-                    "seq_len": var.get("seq_len"),
-                    "pass_contract": var.get("pass_contract")}
+            found.append((cand, {"capture": var.get("capture"),
+                                 "protected_dppl": var.get("protected_dppl"),
+                                 "seed": var.get("seed"),
+                                 "rank": var.get("rank") or var.get("lora_rank"),
+                                 "steps": var.get("steps"), "device": var.get("device"),
+                                 "seq_len": var.get("seq_len"),
+                                 "pass_contract": var.get("pass_contract"),
+                                 "contract_version": var.get("contract_version")}))
+    # Prefer a record that declares its contract. An unversioned cell is a legitimate last resort,
+    # but using it as the yardstick for adapt-v2 verdicts is the I4 gap incident #19 exposed, so it
+    # is labelled rather than adopted silently.
+    for cand, norm in found:
+        if norm.get("contract_version") == ADAPT_V2:
+            norm["base_reference_status"] = "versioned"
+            return norm
+    if found:
+        cand, norm = found[0]
+        norm["base_reference_status"] = "unversioned-fallback"
+        norm["base_reference_file"] = cand
+        return norm
     return None
 
 
