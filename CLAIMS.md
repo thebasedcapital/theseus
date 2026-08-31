@@ -96,6 +96,8 @@ bf16 reference; base calibration cell present).
 | `g4_perm` | 0.00095 | 0.03194 (1.00×) | +2.29 % | pass |
 | `g5_c8` | 0.00089 | 0.03252 (1.02×) | — | pass (predicted neutral ✓) |
 
+**Cross-architecture replication (2026-08-31).** On Qwen3-0.6B-Base the same `g3_pow2` gauge is again bit-identical (max|Δlogit| 0.0, KL 0.0, top-1 1.00000) and quantization again destroys it: bf16-export ppl 12.004 on both artifacts, then Q8_0 ppl 1.20e9 and Q4_K_M KLD 18.83 versus base 0.001491 / 0.091089. The static cause transfers nearly numerically (J 0.01020→0.02886 vs Qwen2 0.01123→0.02955; dyn range 8.66→14.54 vs 8.83→14.6; frac below f16 normal 0.0021→0.0860 vs 0.00282→0.0987; flags 0→21 vs 0→15). Cells: `m1/work-qwen3/*.gguf.json`, `*.static.json`. Adaptation and merge reserve have NOT been measured there.
+
 `g1_haar` is the interesting one: distributionally indistinguishable, perplexity-wise over the
 limit. Recorded as a disagreement between two damage statistics rather than smoothed into one.
 
