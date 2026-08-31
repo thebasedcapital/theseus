@@ -41,6 +41,10 @@ checkpoint gives it back. Two corollaries worth stealing:
   (0.98× base KLD) and still 13 points short of base on adaptation capture. Different operations
   read different features of the same bytes.
 
+`theseus-inspect preflight` prints that matrix with an exit code: 0 flags for the pristine
+checkpoint, 5 flags for `g3_pow2`, and every flag landed on an operation that actually failed.
+UNAVAILABLE is a first-class verdict there, not a blank.
+
 `inspect/` is a zero-dependency Rust implementation of the static half: it parses the safetensors
 container itself and prints per-family 4-bit conditioning, dynamic range, row-energy imbalance and
 f16-export risk in ~2 s over 357 M weights, with flags that localize to exactly the tensor families

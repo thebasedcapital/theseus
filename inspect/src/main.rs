@@ -27,6 +27,12 @@ use std::io::{Read, Seek, SeekFrom};
 use std::process::exit;
 
 const F16_NORMAL_MIN: f32 = 6.103515625e-5; // 2^-14
+
+#[derive(PartialEq, Clone, Copy)]
+enum Mode {
+    Inspect,
+    Preflight,
+}
 const BLOCK: usize = 32;
 const QBITS: f64 = 7.0; // 2^(4-1) - 1 for symmetric 4-bit
 
@@ -437,6 +443,7 @@ fn usage() -> ! {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    let mut mode = Mode::Inspect;
     let mut path: Option<String> = None;
     let mut json_out: Option<String> = None;
     let mut fail_above: Option<f64> = None;
@@ -454,6 +461,10 @@ fn main() {
                 i += 2;
             }
             "-h" | "--help" => usage(),
+            "inspect" | "preflight" => {
+                mode = if args[i] == "preflight" { Mode::Preflight } else { Mode::Inspect };
+                i += 1;
+            }
             other => {
                 path = Some(other.to_string());
                 i += 1;
@@ -629,7 +640,11 @@ fn main() {
         }
         json.push('}');
     }
-    let tr = total.report();
+    let mut tr = total.report();
+    // A pooled max/min row energy across all tensors grows with tensor count and says nothing
+    // about conditioning; the interpretable aggregate is the worst family.
+    tr.insert("row_energy_imbalance",
+              per_family.values().map(|a| a.report()["row_energy_imbalance"]).fold(0.0f64, f64::max));
     json.push_str("\n  },\n  \"total\": {");
     let mut inner = true;
     for (k, v) in &tr {
@@ -658,6 +673,35 @@ fn main() {
         tr["weights"] as u64
     );
     println!();
+    if mode == Mode::Preflight {
+        let ops = ops_matrix(&per_family, &tr, &entries_have_bias(entries_names(&entries)));
+        println!("PREFLIGHT  operation x risk (thresholds provisional, n=2 measured contrast)");
+        println!("{:<20} {:<12} {}", "operation", "verdict", "reason");
+        let mut risky = 0usize;
+        for (op, verdict, reason) in &ops {
+            println!("{:<20} {:<12} {}", op, verdict, reason);
+            if *verdict == "AT_RISK" {
+                risky += 1;
+            }
+        }
+        json.push_str(&format!(",\n  \"preflight\": [{}\n  ]",
+            ops.iter()
+                .map(|(o, v, r)| format!("[\"{}\", \"{}\", \"{}\"]", o, v, r.replace('"', "'")))
+                .collect::<Vec<_>>()
+                .join(",\n    ")));
+        json.push('\n');
+        if let Some(o) = json_out {
+            if let Err(e) = std::fs::write(&o, json) {
+                eprintln!("error: writing {}: {}", o, e);
+                exit(1);
+            }
+        }
+        println!("\n{} of {} operations flagged; {} unknown (never counted as safe)",
+                 risky,
+                 ops.len(),
+                 ops.iter().filter(|(_, v, _)| *v == "UNAVAILABLE").count());
+        exit(if risky > 0 { 1 } else { 0 });
+    }
     println!("verdicts (thresholds provisional, calibrated on n=2 measured pairs):");
     let mut flags: Vec<String> = Vec::new();
     for (fam, acc) in &per_family {
@@ -789,6 +833,54 @@ mod tests {
         assert!((r["dyn_range_log10"] - 9.0).abs() < 0.01); // 1.0 / 1e-9
     }
 
+    fn fam(vals: &[f32], cols: usize) -> Acc {
+        let mut a = Acc::new();
+        for chunk in vals.chunks(cols) {
+            let mut row = chunk.to_vec();
+            row.resize(cols, 0.0);
+            a.feed_row(&row);
+        }
+        a.close_tensor();
+        a
+    }
+
+    #[test]
+    fn preflight_matrix_flags_the_gauged_shape_and_not_the_benign_one() {
+        let mut benign: BTreeMap<&'static str, Acc> = BTreeMap::new();
+        benign.insert("q_proj", fam(&vec![1.0f32; 32 * 64], 32));
+        benign.insert("up_proj", fam(&vec![0.5f32; 32 * 64], 32));
+        let bt = {
+            let mut a = Acc::new();
+            for v in benign.values() {
+                a.merge(v);
+            }
+            a.close_tensor();
+            a.report()
+        };
+        let ops = ops_matrix(&benign, &bt, &true);
+        assert!(ops.iter().all(|(_, v, _)| *v != "AT_RISK"), "benign shape flagged");
+        assert_eq!(ops.iter().filter(|(_, v, _)| *v == "UNAVAILABLE").count(), 3);
+
+        // a wide dynamic range across a family: 1e-11 .. 1e3 in one row
+        let mut wide = vec![1e-11f32; 32];
+        wide.extend(vec![1e3f32; 32]);
+        let mut risky: BTreeMap<&'static str, Acc> = BTreeMap::new();
+        risky.insert("up_proj", fam(&wide, 32));
+        let rt = {
+            let mut a = Acc::new();
+            a.merge(&risky["up_proj"]);
+            a.close_tensor();
+            a.report()
+        };
+        let ops2 = ops_matrix(&risky, &rt, &true);
+        let want = ["export.gguf.f16", "adapt.lora.r16"];
+        for (op, verdict, _) in &ops2 {
+            if want.contains(&op.as_str()) {
+                assert_eq!(*verdict, "AT_RISK", "{} should be flagged", op);
+            }
+        }
+    }
+
     #[test]
     fn row_energy_imbalance_ignores_all_zero_rows() {
         let mut a = Acc::new();
@@ -806,6 +898,69 @@ mod tests {
         );
         assert_eq!(r["weights"], 96.0);
     }
+}
+
+fn entries_have_bias(names: Vec<String>) -> bool {
+    names.iter().any(|n| n.ends_with(".bias"))
+}
+
+fn entries_names(entries: &[(String, Dtype, Vec<u64>, u64, u64)]) -> Vec<String> {
+    entries.iter().map(|e| e.0.clone()).collect()
+}
+
+/// The product surface: for each operation a local user would run, a verdict plus the reason,
+/// and UNAVAILABLE wherever this checkpoint's bytes cannot tell us (roadmap B8: missing evidence
+/// is never a PASS, and here it is also never a FAIL).
+fn ops_matrix(per_family: &BTreeMap<&'static str, Acc>, total: &BTreeMap<&'static str, f64>,
+              _has_bias: &bool) -> Vec<(String, &'static str, String)> {
+    let mut out: Vec<(String, &'static str, String)> = Vec::new();
+    let worst_q = per_family
+        .iter()
+        .map(|(f, a)| (*f, a.report()["q4_block_mse"]))
+        .fold(("none", 0.0f64), |acc, x| if x.1 > acc.1 { x } else { acc });
+    let worst_export = per_family
+        .iter()
+        .map(|(f, a)| (*f, a.report()["frac_below_f16_normal"]))
+        .fold(("none", 0.0f64), |acc, x| if x.1 > acc.1 { x } else { acc });
+    let worst_adapt = per_family
+        .iter()
+        .map(|(f, a)| (*f, a.report()["dyn_range_log10"]))
+        .fold(("none", 0.0f64), |acc, x| if x.1 > acc.1 { x } else { acc });
+
+    out.push((
+        "export.gguf.f16".into(),
+        if worst_export.1 > T_EXPORT_FRAC { "AT_RISK" } else { "OK" },
+        format!("{:.2}% of {} weights below the f16 normal range (limit {:.1}%)",
+                100.0 * worst_export.1, worst_export.0, 100.0 * T_EXPORT_FRAC),
+    ));
+    for op in ["quantize.gguf.q8_0", "quantize.gguf.q5_k_m", "quantize.gguf.q4_k_m"] {
+        out.push((
+            op.into(),
+            if worst_q.1 > T_QUANT_ABS || total["q4_block_mse"] > T_QUANT_TOTAL_ABS {
+                "AT_RISK"
+            } else {
+                "OK"
+            },
+            format!("worst family {} 4-bit block proxy {:.5} (limit {:.4}); total {:.5}",
+                    worst_q.0, worst_q.1, T_QUANT_ABS, total["q4_block_mse"]),
+        ));
+    }
+    out.push((
+        "adapt.lora.r16".into(),
+        if worst_adapt.1 > T_ADAPT_DYN { "AT_RISK" } else { "OK" },
+        format!("worst family {} dynamic range 1e{:.2} (limit 1e{:.1}); row-energy imbalance {:.3e}",
+                worst_adapt.0, worst_adapt.1, T_ADAPT_DYN,
+                per_family.values().map(|a| a.report()["row_energy_imbalance"]).fold(0.0f64, f64::max)),
+    ));
+    // Merge and quantization-aware adaptation are coordinate-order questions that these bytes
+    // alone cannot answer: no second parent, no reference delta, no calibration data.
+    out.push(("merge.linear".into(), "UNAVAILABLE".into(),
+              "needs a second checkpoint to compare coordinates against".into()));
+    out.push(("merge.ties".into(), "UNAVAILABLE".into(),
+              "needs task vectors against a shared base".into()));
+    out.push(("quantize.awlora".into(), "UNAVAILABLE".into(),
+              "static features do not predict adapter-on-quantized-base behaviour yet".into()));
+    out
 }
 
 fn fatal(msg: &str) -> ! {
