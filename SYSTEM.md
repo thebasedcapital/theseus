@@ -65,7 +65,7 @@ conditions. There is no "update the conclusion" step where an agent can quietly 
 | I6 | **Resource lease, typed and honest.** A cell declares `vram_bytes`, `disk_bytes`, `cpu_slots`, `wall_s`. The scheduler admits only cells that fit *now*; it never discovers 4.7 GB of free disk at 80 % through a run. Leases carry owner pid + liveness; dead leases are stolen instantly. | #3, #10 |
 | I7 | **One key vocabulary.** Cells emit from a closed enum: `pass/fail/unavailable/stale/invalidated`, `measured/predicted`, `artifact/op/claim` ids. Report code reads fields, never guesses shapes. | #8 |
 | I8 | **`unavailable ≠ false ≠ 0`.** Absent evidence is never tallied into a score, in either direction. Ω₀ denominators are made of measured cells only, and the count is printed. | #6, #9 |
-| I9 | **Docs are generated or frozen.** Any file marked `generated` is a rendering; hand edits are rejected by CI-check. Narrative docs (`SYSTEM.md`, `RUNBOOK.md`) are the only prose a human/agent writes. | the doc-drift I already have between README/ROADMAP/M1_NOTES |
+| I9 | **Docs are generated or frozen.** Any file marked `generated` is a rendering; a hand edit is overwritten by the next `render`. Enforcement today is that re-render diff — there is **no CI in this repo**, so nothing rejects a stale hand edit automatically. Narrative docs (`SYSTEM.md`, `RUNBOOK.md`) are the only prose a human/agent writes. | the doc-drift I already have between README/ROADMAP/M1_NOTES |
 | I10 | **Every number cites.** `177.3286 (cell 7f3a…)`. A number without a cell id fails validation. | #5, #6 |
 
 **The three universal controls** (I5), each near-free, each one a lesson I learned expensively:

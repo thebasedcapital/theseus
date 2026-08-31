@@ -155,14 +155,26 @@ merge cell that passes under the same contract.
 
 ## K-8 — Natural histories, not constructed gauges, produce divergent reserves
 
-**State: UNSUPPORTED.** The first ordered-history attempt was executed, not simulated:
-`adapt → merge → Q4` versus `merge → adapt → Q4`, with identical budgets and seeds. The final Q4
-artifacts match static features at tolerance 0.05 and PPL within 0.054 %, but they are not the same
-current model: mean KL is 0.032311 and teacher-forced top-1 agreement is 0.88235. The registered
-present-match gate failed, so future reserve probes and the shuffled null were correctly not run.
+**State: UNSUPPORTED, and the earlier attempt record is quarantined as non-evidence.**
 
-This is useful negative evidence about pair construction, not evidence for K-8. The next attempt
-needs histories whose present distributions match before any lifecycle comparison.
+`m3/results.json` describes an ordered-history pair (`adapt → merge → Q4` versus
+`merge → adapt → Q4`, identical budgets and seeds) that matched static features at tolerance 0.05
+and PPL within 0.054 % but failed the registered present-match gate: mean KL 0.032311, teacher-forced
+top-1 agreement 0.88235. **Those numbers cannot be cited.** The committed generator cannot produce
+them: `m3/history_pair.py::train_lora_state` called `opt.step()` with no optimizer ever constructed,
+`CONTRACT.adapt.lr` was declared but never consumed, and the recorded `adapt` dicts lack the
+`capture` / `task_loss_before` / `task_loss_after` keys that function always returns. No commit of
+that file could run (incident #18). `m3/selfcheck.py` reported PASS the whole time because it replaced
+`train_lora_state` with a lambda, so the "future-path" check certified a path that had never executed.
+
+The file is kept deliberately, as a failed-attempt record, not deleted. K-8 has still never been
+tested: it needs a re-run under the fixed harness before any claim about natural histories, positive
+or negative, is made. What survives the incident untouched is the *methodological* lesson — passing
+on perplexity (9.3× inside tolerance) while failing on distribution (16.2× outside) is itself the
+phenomenon this project is about, seen from the pair-construction side.
+
+**Refuter:** two present-matched history pairs surviving the registered shuffled null would support
+it; a present-matched pair whose reserves are equal would refute it. Neither has been earned.
 
 ## K-9 — Merge compatibility is gauge-dependent
 
