@@ -1,1 +1,1 @@
-pid=2777305 start=2026-08-31 00:23:14 cmd=/home/admin/theseus/m1/adapt_probe.py --model-dir /home/admin/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987
+pid=2785110 start=2026-08-31 00:28:31 cmd=/home/admin/theseus/m1/gguf_probe.py --model-dir /home/admin/theseus/m1/work/g1_haar

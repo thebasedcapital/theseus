@@ -374,7 +374,15 @@ def merge_sd(a: dict, b: dict, alpha: float, ties: bool = False, density: float 
     for k in a:
         d = (b[k].float() - a[k].float())
         if d.ndim >= 2 and density < 1.0:
-            thr = torch.quantile(d.abs().flatten(), 1.0 - density)
-            d = d * (d.abs() >= thr)
+            # torch.quantile refuses >16M elements, and embed/lm_head are 136M here: estimate the
+            # trim threshold from a deterministic subsample instead of the full sort.
+            ad = d.abs().flatten()
+            if ad.numel() > 4_000_000:
+                idx = torch.randperm(ad.numel(), generator=torch.Generator().manual_seed(0),
+                                     device="cpu")[:2_000_000]
+                thr = torch.quantile(ad.cpu()[idx], 1.0 - density).to(ad.device)
+            else:
+                thr = torch.quantile(ad, 1.0 - density)
+            d = d * (ad.view_as(d) >= thr)
         out[k] = (a[k].float() + alpha * d).to(a[k].dtype)
     return out
