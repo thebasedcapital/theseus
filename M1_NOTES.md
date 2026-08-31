@@ -82,11 +82,12 @@ the tie. Measured consequence: this gauge is **invisible to per-tensor max-abs
 quantization** (a tensor's scale rides along with its amax) and visible to fp16 runtimes and
 task-vector merges. That asymmetry is a result, not a defect.
 
-**G4 / G6 — permutations (controls).** Query-head and kv-group permutation (`Wq` row blocks +
+**G4 / G6 — permutations (controls for quantization, not for adaptation).** Query-head and kv-group permutation (`Wq` row blocks +
 `Wo` column blocks; `Wk/Wv` row blocks), and SwiGLU neuron permutation (`Wg/Wu` rows + `Wd`
 columns). Exact. `G4` is also quantization-neutral because whole rows move, and llama.cpp
 blocks are contiguous along the input dimension — a useful control that proves the harness is
-not flagging *any* byte change as damage.
+not flagging *any* byte change as damage. Measured, `G4` is 1.00x base Q4 KLD and still costs
+6.4 pp of LoRA capture — so a "control" claim must always name the operation it controls for.
 
 **What died with ReLU.** V0's gauge was `W1 ← D W1, W2 ← W2 D⁻¹` for `D > 0`, which exists
 because `σ(Dz) = Dσ(z)`. SwiGLU kills it twice over: `silu` is neither positively homogeneous
