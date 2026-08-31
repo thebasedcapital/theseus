@@ -49,8 +49,10 @@ re-layout and no norm absorption on the Qwen2 import path).
 the static census still shows > 5 % subnormal weights — which would mean my mechanism story
 (underflow) is wrong even though the numbers are right.
 
-**Practical consequence for a user:** `theseus preflight` answers `export.gguf.f16: AT_RISK` for
-this artifact in 2 s and exit 1, before anyone downloads 400 MB of noise.
+**Practical consequence for a user:** `theseus-scan preflight` reports the fitted
+`export.gguf.f16` verdict (`contract-3.json`) and exits non-zero on risk, before anyone
+downloads 400 MB of noise. Reproducing the g3_pow2 row needs the artifact, which is
+gitignored: rebuild it with `python m1/make_variants.py` after `m1/prep_data.py`.
 
 ---
 
