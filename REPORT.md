@@ -147,10 +147,19 @@ witness (`embed ≈ c·lm_head`, least squares) and applies the whole-file inver
 lattice. The result is not close to the original, it is the original:
 
 ```
-sha256  m1/work/g5_c8_rep/model.safetensors       = 88c142557820ccad55bb59756bfcfcf891de9cc6
-sha256  pristine HF blob for Qwen2.5-0.5B         = 88c142557820ccad55bb59756bfcfcf891de9cc6
-tensors differing from the downloaded checkpoint  = 0 / 290       max|Δlogit| 0   KL 0   top-1 1.00000
+$ cd m1 && python make_variants.py --only g5_c8     # rebuild the stressed artifact (7 s)
+$ python m1/verify_g5_recovery.py                    # repair it, compare, hash (17 s)
+key sets identical: True  (n=290)
+tensors differing: 0/290
+repaired sha: 88c142557820ccad55bb59756bfcfcf891de9cc6202816bd346445188a0ed342
+pristine sha: 88c142557820ccad55bb59756bfcfcf891de9cc6202816bd346445188a0ed342
+BYTE-FOR-BYTE: CONFIRMED      repair meta: {"canon": "G5", "detected": true, "c_recovered": 8.0}
+max|Δlogit| 0   KL 0   top-1 1.00000
 ```
+
+The scale `c = 8.0` is recovered from the embedding/LM-head tie alone; the repair is never given
+the pristine file. `verify_g5_recovery.py` re-derives this end to end, so the claim no longer rests
+on a log line from a run whose artifact is gitignored.
 
 Adaptation recovery is consistent across families: `g3_pow2` `0.0989 → 0.9753` and `g7_rand`
 `0.1931 → 0.9359` mean capture, with all repaired artifacts passing the fp32 equivalence gate and
@@ -326,6 +335,12 @@ python make_variants.py                             # gauges, incl. g3_pow2
 python verify_equiv.py                              # equivalence gate, frozen thresholds
 cargo run --release --manifest-path inspect/Cargo.toml -- inspect <file> --json
 cargo test --manifest-path scan/Cargo.toml          # 13 tests; inspect crate: 9
+python m1/verify_g5_recovery.py                     # re-derive the byte-for-byte result (§6)
+python -m ledger.cli verify                         # cell provenance: commit + generator + shape
+python analysis/reserve.py                          # quantitative reserve vectors, no GPU needed
+python archcheck/test_qknorm_g2.py <snapshot-dir>   # G2 exactness test for QK-norm architectures
+python m1/test_gauge_math.py                        # gauge algebra property tests
+python -m unittest discover -s analysis             # 37 tests; ledger suite: 21
 ```
 
 Quantization rows require a llama.cpp build (`b9851` here); adaptation and merge rows are pure
