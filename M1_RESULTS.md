@@ -205,15 +205,64 @@ quantizing. Audited against the actual artifacts (`m1/check_gguf_layout.py`, lay
   pairs my `G2` gauge rotates are the same pairs the quantizer sees, and the `G2` row needs no
   caveat.
 
-## 5. Status of the surgery panel
+## 5. Measured result: the same function, a broken future
 
-Phase 1 (the equivalence gate above) is complete for 18 checkpoints. Phase 2 — the same three
-real operations run on base and on each stressed/repaired pair, with three replication seeds for
-the combined stress — is executing under `m1/queue.sh`, which refuses to probe any checkpoint that
-did not pass the gate. Its output lands in `M1_TABLE.md` (per-op damage + pass/fail per
-checkpoint), `M1_ANALYSIS.md` (rank correlation of static `J` against measured damage, i.e. the
-M6 seed), and `m1/work/m1_optionality.svg`. I will report the panel numbers as they land; nothing
-in this file depends on them.
+Bounded LoRA r16 (deterministic reversal task, 80 steps, batch 2 × seq 128, lr chosen from
+{3e-4, 3e-3}, seed 1729, identical data order, CUDA, `peak_memory_allocated_gb` recorded). Every
+row below is measured on an artifact whose logits are **bit-identical** to base or whose mean KL is
+≤ 2e-4 nats:
+
+| checkpoint | task loss before → after | capture | Δ capture vs base | protected PPL before → after | verdict |
+|---|---|---:|---:|---|---|
+| `base` | 2.7228 → 0.0733 | 0.9731 | — | 16.9918 → 19.9516 (+2.96) | pass |
+| `g1_haar` | → 0.1014 | 0.9648 | −0.83 pp | +2.73 | pass |
+| `g1_haar_rep` | → 0.0714 | 0.9736 | +0.06 pp | +2.79 | pass |
+| `g2_rand` | → 0.1644 | 0.9520 | −2.11 pp | +2.54 | pass |
+| **`g3_pow2`** | 2.7228 → **2.2983** | **0.1559** | **−81.7 pp** | 16.9918 → **4,316,272** | **FAIL** |
+| **`g3_pow2_rep`** | → 0.0477 | **0.9829** | +0.98 pp | +2.46 | pass |
+
+`g3_pow2` is the exponent-lattice RMSNorm-diagonal gauge whose verification row reads
+`max|Δlogit| 0.00e+00, KL 0.00e+00, top-1 1.00000, PPL 17.7102` — the *same number* as base — and
+whose pre-adaptation protected perplexity is `16.9918`, again identical to base to four decimals.
+Nothing about the checkpoint's present differs from base. After the identical 80-step adaptation
+its perplexity is 4.3 million and it has learned 16 % of what base learned. Both learning rates
+fail (0.0003 → 2.298, 0.003 → 2.910), so this is not a hyperparameter accident.
+
+The artifact-only canonicalizer — which has never seen base, and which here only equalizes consumer
+column energy on the exponent lattice — takes it to capture **0.9829** (slightly above base) with
++2.46 collateral. That is the avoidable-lifecycle-debt quantity of `math.md §6`, measured on a real
+language model: same orbit, same function, reserve destroyed and then restored by a
+function-preserving re-expression.
+
+Mechanism, stated as a hypothesis the data supports rather than a proof: the gauge spreads a
+14-orders-of-magnitude dynamic range across the input coordinates of q/k/v/gate/up (weights down to
+1.8e-11 against norm weights up to 6.7e3). AdamW's per-coordinate second-moment normalization is
+not rotation- or scale-equivariant (arXiv:2410.19964, arXiv:2410.20625), so the low-magnitude
+coordinates dominate the update geometry, and bf16 activation products in that frame lose
+mantissa. Rank-16 LoRA is *mathematically* frame-independent; the optimizer and the storage format
+are not.
+
+## 5b. Quantization rows: measured under a corrected export
+
+The first quantization pass was invalidated by a confound I found mid-run and fixed
+(`PIPELINE_FAILURES.md` #10): the probe exported every artifact as **f16 GGUF**, which is what
+every public quantize script does, but for a gauge that pushes weights below f16's normal range
+the export itself is destructive, so "quantization damage" was mostly export damage. Measured on
+one artifact, three exports of the *same* weights:
+
+| export of `g3_pow2` | ppl |
+|---|---:|
+| bf16 (the artifact's native dtype) | **12.1351** (base bf16: 12.1399 → 0.04 %) |
+| f16 | 177.3286 |
+| f32 | 177.3922 |
+| f16 with f32 KV cache | 177.3286 (so not the cache) |
+
+and an **identity round-trip control** proves my artifact rewriting is faithful: base weights
+written through `save_state` export to f16 GGUF at ppl 12.1399, exactly the pristine checkpoint's
+number. The probe therefore re-exports at the artifact's native dtype (`TSX_OUTTYPE`, default
+`bf16`) and `m1/export_damage.py` measures the export step as its own operation. Quantization rows
+are being regenerated under that definition; the `f16`-source numbers are kept only as evidence for
+this subsection.
 
 ## 6. What is already established, independent of the panel
 
