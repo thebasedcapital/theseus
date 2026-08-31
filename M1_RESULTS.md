@@ -339,6 +339,39 @@ Readings that matter:
 | `g3_pow2` | damage (+0.0183) | KLD 335× base, ΔPPL 2.6e4× | held |
 | `g3_pow2_rep` | neutral (+0.00025) | 1.10× KLD, ΔPPL better than base | held |
 
+## 5d. Reserve vectors (the passport view) and two surprises
+
+`m1/passport.py` emits one lifecycle record per checkpoint (`theseus.passport/0.1`): identity
+hash, gauge provenance (family, mode, seed, tie broken, `rms_norm_eps` rewritten), current-behaviour
+evidence, static features, and a per-operation reserve entry whose status is `MEASURED`,
+`PREDICTED` or `UNAVAILABLE` — never silently absent (ROADMAP B7, B8).
+
+| checkpoint | static debt | Q8_0 KLD | Q4_K_M KLD (ok) | LoRA capture (ok) | Ω₀ |
+|---|---:|---:|---|---|---:|
+| `g1_haar` | −8.7e-05 | 0.000908 | 0.032001 **✗** (rel ΔPPL 3.97 %) | 0.9648 ✓ | 0.75 |
+| `g1_haar_rep` | −9.8e-05 | 0.000927 | 0.030409 ✓ | 0.9736 ✓ | 1.00 |
+| `g2_rand` | +1.2e-05 | 0.001015 | 0.032564 ✓ | 0.9520 ✓ | 1.00 |
+| `g3_pow2` | **+0.018314** | **10.690** | undefined **✗** | **0.1559 ✗** | **0.00** |
+| `g3_pow2_rep` | +0.000251 | 0.001065 | 0.035008 ✓ | 0.9829 ✓ | 1.00 |
+| `g4_perm` | 0 | 0.000946 | 0.031943 ✓ | **0.9088 ✓(−6.4 pp)** | 1.00 |
+| `g5_c8` | 0 | 0.000889 | 0.032523 ✓ | pending | 1.00 |
+| `g7_rand` | +0.003713 | pending | pending | **0.0600 ✗** | 0.00 |
+| `g7_rand_rep` | +2e-06 | 0.000884 | 0.031374 ✓ | 0.8407 ✓ | 1.00 |
+
+Two results I did not predict and have not papered over:
+
+* **Head permutation is a quantization control, not an adaptation control.** `g4_perm` moves no
+  perplexity or KL under any of the three k-quants (1.00× base — exactly what §3 predicted, since
+  whole rows move and 32-element blocks are contiguous along the input axis), yet it costs 6.4 pp
+  of LoRA capture (0.9088 vs 0.9731). Reordering which head an adapter is attached to is invisible
+  to a per-block weight quantizer and very visible to a rank-16 update with per-coordinate moments.
+  My own §3 wording called G4/G6 "controls" without qualifying the operation; they are controls for
+  quantization only.
+* **Residual scaling is quantization-neutral and that is a prediction, not a post-hoc story.**
+  `g5_c8` (embed/o/down ×8, tie broken) sits at 0.000889 Q8_0 KLD and 0.032523 Q4_K_M KLD, both
+  within noise of base, because per-tensor max-abs quantization is invariant to a global scale on
+  a tensor. Its damage channel is the fp16 runtime and merges, which the panel is measuring.
+
 ## 6. What is already established, independent of the panel
 
 1. A real 0.5 B decoder-only Transformer has at least five *exactly* function-preserving
