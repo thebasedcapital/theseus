@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 import subprocess
@@ -215,11 +216,46 @@ def evaluate_merge(cand_sd, specialist_sd, model_dir, alphas, device, ties=False
     return base_ppl, out
 
 
+def sha_of_dir(d: Path) -> str:
+    """Content identity for a supplied specialist directory, so an external merge verdict is
+    attributable to a specific artifact rather than to 'some adapter in a folder'."""
+    h = hashlib.sha256()
+    for f in sorted(p for p in d.rglob("*") if p.is_file() and p.suffix in {".safetensors", ".json"}):
+        h.update(f.name.encode()); h.update(f.read_bytes() if f.suffix == ".safetensors"
+                                            else f.read_bytes()[:1 << 20])
+    return h.hexdigest()[:16]
+
+
+def external_specialist(path: Path, device: str):
+    """Load a supplied specialist and MEASURE its own quality reference.
+
+    The merge contract normalises by the specialist's rule loss and perplexity. Reusing the
+    self-trained specialist's numbers as the denominator for somebody else's adapter would grade
+    the external merge against the wrong yardstick, so both are re-measured on the held-out set.
+    """
+    if not (path / "model.safetensors").exists():
+        raise RuntimeError(f"SPECIALIST_NOT_LOADABLE: {path} has no model.safetensors")
+    sd = common.load_state(path)
+    model = common.state_to_model(sd, common.REF_MODEL, dtype=torch.bfloat16, device=device)
+    rule_loss, eval_ppl = model_metrics(model, HELD_DATA, device)
+    del model
+    common.release(device)
+    if not rule_loss or rule_loss <= 0:
+        raise RuntimeError(f"SPECIALIST_QUALITY_UNMEASURABLE: rule_loss={rule_loss}")
+    return sd, {"kind": "external", "path": str(path), "sha256_16": sha_of_dir(path),
+                "rule_loss": rule_loss, "eval_ppl": eval_ppl,
+                "origin": "supplied via --specialist; not derived from the ungauged base"}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model-dir", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--tags", default="")
+    ap.add_argument("--specialist", default="",
+                    help="HF-style directory of an EXTERNALLY sourced specialist. Without it the "
+                         "specialist is trained from the same ungauged base as the candidates, so "
+                         "merge verdicts are partly a measurement of that construction (weakness #9)")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     t0 = time.perf_counter()
@@ -253,8 +289,18 @@ def main():
             base_rule_loss, base_ppl = model_metrics(base_model, HELD_DATA, device)
             del base_model
             common.release(device)
-            SPECIALIST_QUALITY = ensure_specialist(tok, train, HELD_DATA, device, base_rule_loss, base_ppl)
-            cand, spec = common.load_state(model_dir), common.load_state(SPECIALIST_DIR)
+            if args.specialist:
+                spec_path = Path(args.specialist).expanduser().resolve()
+                spec, SPECIALIST_QUALITY = external_specialist(spec_path, device)
+            else:
+                SPECIALIST_QUALITY = ensure_specialist(tok, train, HELD_DATA, device,
+                                                       base_rule_loss, base_ppl)
+                SPECIALIST_QUALITY.setdefault("kind", "self-derived")
+                SPECIALIST_QUALITY["caveat"] = (
+                    "specialist trained from the same ungauged base as every candidate, so a merge "
+                    "failure is partly a property of this construction, not of merging in general")
+                spec = common.load_state(SPECIALIST_DIR)
+            cand = common.load_state(model_dir)
             linear_base, linear = evaluate_merge(cand, spec, model_dir, ALPHAS, device, False)
             _, ties = evaluate_merge(cand, spec, model_dir, ALPHAS, device, True)
             def smallest(rows):
@@ -266,7 +312,9 @@ def main():
                 "contract": {"version": "merge-v2-base-calibrated", "ppl_ratio_max": 1.05,
                              "rule_loss_ratio_max": RULE_RETENTION,
                              "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4"},
-                "specialist": SPECIALIST_QUALITY, "candidate_ppl": linear_base,
+                "specialist": SPECIALIST_QUALITY,
+                "specialist_provenance": SPECIALIST_QUALITY.get("kind", "self-derived"),
+                "candidate_ppl": linear_base,
                 "base_rule_loss": base_rule_loss, "base_eval_ppl": base_ppl,
                 "linear": {"matrix": linear, "smallest_passing_alpha": smallest(linear)},
                 "ties": {"matrix": ties, "smallest_passing_alpha": smallest(ties)},

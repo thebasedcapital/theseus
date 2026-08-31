@@ -84,11 +84,16 @@ freeze the base before adapter insertion; their contract is
 
 ## What this does not demonstrate yet
 
+- Two measured gaps are open by choice, not oversight: the seed panel is still 3 seeds per artifact
+  (needs ~1 h GPU plus ~5 GB of rebuildable artifacts against 7 GB free on a box with 49 other
+  agents), and no remedy baseline (rotation before quantization, alternative calibration corpus) has
+  been run, so the effect still has no measured size relative to ordinary fixes.
+
 - **Natural histories have never been tested.** The one recorded attempt is quarantined: its
   generator could not execute (incident #18), so neither its failure nor any inference from it
   stands. K-8 must be re-run under the fixed `m3/` harness.
 - One checkpoint family and scale; K-10 now has two corpora, not a second architecture.
-- The merge experiment is constructed against a specialist derived from the ungauged base.
+- The merge experiment is constructed against a specialist derived from the ungauged base. `m1/merge_probe.py --specialist DIR` now accepts an externally sourced adapter and re-measures its rule loss and perplexity, because those are the contract denominators; the default path stamps `specialist_provenance: self-derived` with the caveat inline. The **empirical** re-run against a real public adapter has not been done yet.
 - Q8 v3 is in-sample calibration; Q4/export/adaptation still lack validated thresholds.
 
 ## Known deviations
