@@ -80,7 +80,7 @@ def train_specialist(tok,train,held,device):
     with torch.no_grad():
         for name,mod in model.named_modules():
             if isinstance(mod,LoRALinear):
-                key=name+'.weight'; sd[key]=(sd[key].float()+mod.b.base.float() @ mod.a.float() * mod.scale).to(torch.bfloat16).cpu()
+                key=name+'.weight'; sd[key]=(sd[key].float()+mod.b.float() @ mod.a.float() * mod.scale).to(torch.bfloat16).cpu()
     common.save_state(sd,SPECIALIST_DIR,common.REF_MODEL)
     quality=task_loss(model,held,device)
     batches=[b.to(device) for b in common.eval_batches(common.REF_MODEL,ntokens=2048,seqlen=512)]; ppl=common.perplexity(model,batches)
