@@ -1,21 +1,8 @@
 #!/usr/bin/env python3
-"""Theseus V0: model optionality without an LLM.
-
-A controlled proof-of-concept that demonstrates:
-  1. Two ReLU checkpoints can implement (numerically) the same function.
-  2. Their future compatibility with common model transformations can differ sharply.
-  3. A function-preserving gauge canonicalization can restore much of the lost optionality.
-
-Dependencies: torch, numpy, scikit-learn, matplotlib.
-CPU-only; deterministic seed.
-"""
+"""Theseus V0: deterministic, no-LLM model-optionality smoke test."""
 from __future__ import annotations
 
-import copy
-import csv
-import json
-import math
-import random
+import copy, csv, json, math, random
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -27,277 +14,154 @@ from sklearn.model_selection import train_test_split
 from torch import nn
 
 SEED = 7
-OUTDIR = Path(__file__).resolve().parent
-
-random.seed(SEED)
-np.random.seed(SEED)
-torch.manual_seed(SEED)
-torch.set_num_threads(1)
-
+OUT = Path(__file__).resolve().parent
+random.seed(SEED); np.random.seed(SEED); torch.manual_seed(SEED); torch.set_num_threads(1)
 
 class TinyReLU(nn.Module):
-    def __init__(self, hidden: int = 64):
-        super().__init__()
-        self.fc1 = nn.Linear(64, hidden)
-        self.fc2 = nn.Linear(hidden, 10)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.fc2(torch.relu(self.fc1(x)))
-
+    def __init__(self, hidden=64):
+        super().__init__(); self.fc1 = nn.Linear(64, hidden); self.fc2 = nn.Linear(hidden, 10)
+    def forward(self, x): return self.fc2(torch.relu(self.fc1(x)))
 
 @dataclass
-class CheckpointResult:
-    name: str
-    current_accuracy: float
-    max_logit_diff_vs_base: float
-    gauge_imbalance_max: float
-    q4_accuracy: float
-    q4_pass: bool
-    prune40_accuracy: float
-    prune40_pass: bool
-    adapt_pass: bool
-    adapt_min_steps: int | None
-    adapt_lr: float | None
-    adapt_shift_accuracy: float | None
-    adapt_retained_accuracy: float | None
-    merge_pass: bool
-    merge_alpha: float | None
-    merge_original_accuracy: float | None
-    merge_rotated_accuracy: float | None
-    optionality_passes: int
-    optionality_total: int
+class Result:
+    name: str; current_accuracy: float; max_logit_diff_vs_base: float; gauge_imbalance_max: float
+    q4_accuracy: float; q4_pass: bool; prune40_accuracy: float; prune40_pass: bool
+    adapt_pass: bool; adapt_min_steps: int | None; adapt_lr: float | None
+    adapt_shift_accuracy: float | None; adapt_retained_accuracy: float | None
+    merge_pass: bool; merge_alpha: float | None; merge_original_accuracy: float | None
+    merge_rotated_accuracy: float | None; optionality_passes: int; optionality_total: int
 
+def data():
+    x, y = load_digits(return_X_y=True); x = x.astype(np.float32) / 16
+    a,b,c,d = train_test_split(x,y,test_size=.25,random_state=SEED,stratify=y)
+    return torch.tensor(a), torch.tensor(b), torch.tensor(c,dtype=torch.long), torch.tensor(d,dtype=torch.long)
 
-def load_data():
-    X, y = load_digits(return_X_y=True)
-    X = (X.astype(np.float32) / 16.0)
-    Xtr, Xte, ytr, yte = train_test_split(
-        X, y, test_size=0.25, random_state=SEED, stratify=y
-    )
-    Xtr = torch.tensor(Xtr)
-    Xte = torch.tensor(Xte)
-    ytr = torch.tensor(ytr, dtype=torch.long)
-    yte = torch.tensor(yte, dtype=torch.long)
-    return Xtr, Xte, ytr, yte
+def rot(x): return torch.rot90(x.view(-1,8,8),1,[1,2]).reshape(-1,64)
+def shift(x): return torch.roll(x.view(-1,8,8),1,2).reshape(-1,64)
+def acc(m,x,y):
+    with torch.no_grad(): return (m(x).argmax(1)==y).float().mean().item()
+def logit_diff(a,b,x):
+    with torch.no_grad(): return (a(x)-b(x)).abs().max().item()
 
-
-def rotate90(x: torch.Tensor) -> torch.Tensor:
-    return torch.rot90(x.view(-1, 8, 8), 1, [1, 2]).reshape(-1, 64)
-
-
-def shift_right(x: torch.Tensor) -> torch.Tensor:
-    return torch.roll(x.view(-1, 8, 8), shifts=1, dims=2).reshape(-1, 64)
-
-
-def accuracy(model: nn.Module, X: torch.Tensor, y: torch.Tensor) -> float:
-    with torch.no_grad():
-        return (model(X).argmax(1) == y).float().mean().item()
-
-
-def ce_loss(model: nn.Module, X: torch.Tensor, y: torch.Tensor) -> float:
-    with torch.no_grad():
-        return nn.functional.cross_entropy(model(X), y).item()
-
-
-def train_base(model, X, y, epochs=70, lr=1e-2):
-    opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+def train(m,x,y,epochs=70,lr=1e-2):
+    o=torch.optim.AdamW(m.parameters(),lr=lr,weight_decay=1e-4)
     for _ in range(epochs):
-        perm = torch.randperm(len(X))
-        for i in range(0, len(X), 128):
-            idx = perm[i : i + 128]
-            loss = nn.functional.cross_entropy(model(X[idx]), y[idx])
-            opt.zero_grad()
-            loss.backward()
-            opt.step()
-    return model
+        for idx in torch.randperm(len(x)).split(128):
+            loss=nn.functional.cross_entropy(m(x[idx]),y[idx]); o.zero_grad(); loss.backward(); o.step()
+    return m
 
+def specialist(base,x,xr,y):
+    m=copy.deepcopy(base); o=torch.optim.AdamW(m.parameters(),lr=3e-3,weight_decay=1e-4)
+    for _ in range(35):
+        for xb in (xr,xr,x):
+            for idx in torch.randperm(len(xb)).split(128):
+                loss=nn.functional.cross_entropy(m(xb[idx]),y[idx]); o.zero_grad(); loss.backward(); o.step()
+    return m
 
-def train_rotated_specialist(base, X, X_rot, y, epochs=35):
-    """A sibling checkpoint that learns the rotated domain with rehearsal."""
-    model = copy.deepcopy(base)
-    opt = torch.optim.AdamW(model.parameters(), lr=3e-3, weight_decay=1e-4)
-    for _ in range(epochs):
-        # Two rotated passes + one original pass preserves both capabilities.
-        for Xb in (X_rot, X_rot, X):
-            perm = torch.randperm(len(Xb))
-            for i in range(0, len(Xb), 128):
-                idx = perm[i : i + 128]
-                loss = nn.functional.cross_entropy(model(Xb[idx]), y[idx])
-                opt.zero_grad()
-                loss.backward()
-                opt.step()
-    return model
+def bad_gauge(m,spread=100.):
+    m=copy.deepcopy(m); h=m.fc1.out_features
+    d=torch.logspace(-math.log10(spread),math.log10(spread),h)
+    d=d[torch.randperm(h,generator=torch.Generator().manual_seed(123))]
+    with torch.no_grad(): m.fc1.weight.mul_(d[:,None]); m.fc1.bias.mul_(d); m.fc2.weight.div_(d[None,:])
+    return m
 
-
-def gauge_transform(model: TinyReLU, spread: float = 100.0) -> TinyReLU:
-    """Exact ReLU positive-homogeneity symmetry.
-
-    For positive diagonal D:
-        W1' = D W1, b1' = D b1, W2' = W2 D^{-1}
-    and ReLU(Dz)=D ReLU(z), hence f_theta'(x)=f_theta(x).
-    """
-    model = copy.deepcopy(model)
-    hidden = model.fc1.out_features
-    vals = torch.logspace(-math.log10(spread), math.log10(spread), hidden)
-    perm = torch.randperm(hidden, generator=torch.Generator().manual_seed(123))
-    d = vals[perm]
+def gauge_fix(m,eps=1e-12):
+    m=copy.deepcopy(m)
     with torch.no_grad():
-        model.fc1.weight.mul_(d[:, None])
-        model.fc1.bias.mul_(d)
-        model.fc2.weight.div_(d[None, :])
-    return model
+        a=torch.sqrt((m.fc1.weight**2).sum(1)+m.fc1.bias**2+eps)
+        b=torch.sqrt((m.fc2.weight**2).sum(0)+eps); s=torch.sqrt(b/a)
+        m.fc1.weight.mul_(s[:,None]); m.fc1.bias.mul_(s); m.fc2.weight.div_(s[None,:])
+    return m
 
-
-def gauge_fix(model: TinyReLU, eps: float = 1e-12) -> TinyReLU:
-    """Choose the balanced representative on each rescaling orbit.
-
-    For hidden unit i with incoming norm a_i and outgoing norm b_i, choose
-        s_i = sqrt(b_i / a_i)
-    so the post-transform incoming/outgoing norms match.
-    This preserves the network function exactly (up to floating point roundoff).
-    """
-    model = copy.deepcopy(model)
+def imbalance(m,eps=1e-12):
     with torch.no_grad():
-        a = torch.sqrt((model.fc1.weight**2).sum(1) + model.fc1.bias**2 + eps)
-        b = torch.sqrt((model.fc2.weight**2).sum(0) + eps)
-        s = torch.sqrt(b / a)
-        model.fc1.weight.mul_(s[:, None])
-        model.fc1.bias.mul_(s)
-        model.fc2.weight.div_(s[None, :])
-    return model
+        a=torch.sqrt((m.fc1.weight**2).sum(1)+m.fc1.bias**2+eps)
+        b=torch.sqrt((m.fc2.weight**2).sum(0)+eps)
+        return torch.abs(torch.log(a/b)).max().item()
 
+def qt(t,bits=4):
+    qmax=2**(bits-1)-1; mx=t.abs().max()
+    if mx==0: return t.clone()
+    s=mx/qmax; return torch.clamp(torch.round(t/s),-qmax,qmax)*s
 
-def gauge_imbalance(model: TinyReLU, eps: float = 1e-12) -> float:
+def quant(m,bits=4):
+    q=copy.deepcopy(m)
     with torch.no_grad():
-        a = torch.sqrt((model.fc1.weight**2).sum(1) + model.fc1.bias**2 + eps)
-        b = torch.sqrt((model.fc2.weight**2).sum(0) + eps)
-        return torch.abs(torch.log(a / b)).max().item()
-
-
-def max_logit_diff(a, b, X) -> float:
-    with torch.no_grad():
-        return (a(X) - b(X)).abs().max().item()
-
-
-def quantize_tensor(t: torch.Tensor, bits: int = 4) -> torch.Tensor:
-    qmax = 2 ** (bits - 1) - 1
-    mx = t.abs().max()
-    if mx == 0:
-        return t.clone()
-    scale = mx / qmax
-    return torch.clamp(torch.round(t / scale), -qmax, qmax) * scale
-
-
-def quantize_model(model: TinyReLU, bits: int = 4) -> TinyReLU:
-    q = copy.deepcopy(model)
-    with torch.no_grad():
-        for p in q.parameters():
-            p.copy_(quantize_tensor(p, bits))
+        for p in q.parameters(): p.copy_(qt(p,bits))
     return q
 
-
-def prune_global(model: TinyReLU, fraction: float = 0.40) -> TinyReLU:
-    """Global magnitude pruning on weight matrices; biases retained."""
-    p = copy.deepcopy(model)
-    weights = [p.fc1.weight, p.fc2.weight]
-    values = torch.cat([w.detach().abs().flatten() for w in weights])
-    k = max(1, int(fraction * values.numel()))
-    threshold = torch.kthvalue(values, k).values
+def prune(m,f=.4):
+    p=copy.deepcopy(m); ws=[p.fc1.weight,p.fc2.weight]
+    vals=torch.cat([w.detach().abs().flatten() for w in ws]); k=max(1,int(f*vals.numel()))
+    th=torch.kthvalue(vals,k).values
     with torch.no_grad():
-        for w in weights:
-            w.mul_(w.abs() > threshold)
+        for w in ws: w.mul_(w.abs()>th)
     return p
 
-
-def merge_models(a: TinyReLU, b: TinyReLU, alpha: float) -> TinyReLU:
-    out = copy.deepcopy(a)
-    with torch.no_grad():
-        for po, pa, pb in zip(out.parameters(), a.parameters(), b.parameters()):
-            po.copy_((1 - alpha) * pa + alpha * pb)
-    return out
-
-
-def capture_adaptation(
-    model: TinyReLU,
-    X_train_shift: torch.Tensor,
-    X_test_shift: torch.Tensor,
-    X_test_orig: torch.Tensor,
-    y_train: torch.Tensor,
-    y_test: torch.Tensor,
-    target_accuracy: float = 0.52,
-    retain_accuracy: float = 0.95,
-    max_steps: int = 100,
-):
-    """Finite-budget capture test for an SFT-style operation.
-
-    Target set: shifted-domain accuracy >= target_accuracy.
-    Safe set: original-domain accuracy >= retain_accuracy.
-    Controls: a small learning-rate grid; each run uses SGD and identical batches.
-    """
-    best = None
-    lr_grid = [1e-4, 3e-4, 1e-3, 3e-3, 1e-2, 3e-2]
-    for lr in lr_grid:
-        candidate = copy.deepcopy(model)
-        opt = torch.optim.SGD(candidate.parameters(), lr=lr)
-        gen = torch.Generator().manual_seed(999)
-        for step in range(1, max_steps + 1):
-            idx = torch.randint(0, len(X_train_shift), (128,), generator=gen)
-            loss = nn.functional.cross_entropy(candidate(X_train_shift[idx]), y_train[idx])
-            opt.zero_grad()
-            loss.backward()
-            opt.step()
-            if not math.isfinite(loss.item()):
-                break
-            if step % 5 == 0:
-                target = accuracy(candidate, X_test_shift, y_test)
-                retained = accuracy(candidate, X_test_orig, y_test)
-                if target >= target_accuracy and retained >= retain_accuracy:
-                    record = {
-                        "steps": step,
-                        "lr": lr,
-                        "target_accuracy": target,
-                        "retained_accuracy": retained,
-                    }
-                    if best is None or step < best["steps"]:
-                        best = record
-                    break
-    return best
-
-
-def capture_merge(
-    model: TinyReLU,
-    specialist: TinyReLU,
-    X_orig: torch.Tensor,
-    X_rot: torch.Tensor,
-    y: torch.Tensor,
-    orig_floor: float = 0.90,
-    rot_floor: float = 0.80,
-):
-    """Capture test for parameter merging.
-
-    We forbid alpha=1, because that would simply discard the current checkpoint.
-    """
-    for alpha in np.linspace(0.50, 0.90, 9):
-        merged = merge_models(model, specialist, float(alpha))
-        a_orig = accuracy(merged, X_orig, y)
-        a_rot = accuracy(merged, X_rot, y)
-        if a_orig >= orig_floor and a_rot >= rot_floor:
-            return {
-                "alpha": float(alpha),
-                "original_accuracy": a_orig,
-                "rotated_accuracy": a_rot,
-            }
+def adapt_probe(m,xs,xst,xo,y,yt):
+    for lr in [1e-4,3e-4,1e-3,3e-3,1e-2,3e-2]:
+        c=copy.deepcopy(m); o=torch.optim.SGD(c.parameters(),lr=lr); g=torch.Generator().manual_seed(999)
+        for step in range(1,101):
+            idx=torch.randint(0,len(xs),(128,),generator=g)
+            loss=nn.functional.cross_entropy(c(xs[idx]),y[idx]); o.zero_grad(); loss.backward(); o.step()
+            if not math.isfinite(loss.item()): break
+            if step%5==0:
+                ta,re=acc(c,xst,yt),acc(c,xo,yt)
+                if ta>=.52 and re>=.95: return dict(steps=step,lr=lr,target_accuracy=ta,retained_accuracy=re)
     return None
 
+def merge(a,b,alpha):
+    o=copy.deepcopy(a)
+    with torch.no_grad():
+        for po,pa,pb in zip(o.parameters(),a.parameters(),b.parameters()): po.copy_((1-alpha)*pa+alpha*pb)
+    return o
 
-def evaluate_checkpoint(name, model, base, specialist, data) -> CheckpointResult:
-    Xtr, Xte, ytr, yte, Xtr_rot, Xte_rot, Xtr_shift, Xte_shift = data
-    current = accuracy(model, Xte, yte)
-    q4 = accuracy(quantize_model(model, 4), Xte, yte)
-    pruned = accuracy(prune_global(model, 0.40), Xte, yte)
-    adapt = capture_adaptation(model, Xtr_shift, Xte_shift, Xte, ytr, yte)
-    merged = capture_merge(model, specialist, Xte, Xte_rot, yte)
+def merge_probe(m,s,xo,xr,y):
+    for alpha in np.linspace(.5,.9,9):
+        z=merge(m,s,float(alpha)); ao,ar=acc(z,xo,y),acc(z,xr,y)
+        if ao>=.90 and ar>=.80: return dict(alpha=float(alpha),original_accuracy=ao,rotated_accuracy=ar)
+    return None
 
-    q_pass = q4 >= 0.95
-    p_pass = pruned >= 0.95
-    a_pass = adapt is ž‹M¢w¦¥«,™êàyØ¬ž‹M¢w©jË²Ë¦ª–¬²šZ²Æ©jË&¥«,­ën®p¡yÉ)¢)íEë.–ÙÚ™
+def evaluate(name,m,base,s,pack):
+    xtr,xte,ytr,yte,xr,xre,xs,xse=pack
+    cur=acc(m,xte,yte); q=acc(quant(m),xte,yte); p=acc(prune(m),xte,yte)
+    a=adapt_probe(m,xs,xse,xte,ytr,yte); z=merge_probe(m,s,xte,xre,yte)
+    flags=(q>=.95,p>=.95,a is not None,z is not None)
+    return Result(name,cur,logit_diff(base,m,xte),imbalance(m),q,flags[0],p,flags[1],flags[2],
+                  a['steps'] if a else None,a['lr'] if a else None,a['target_accuracy'] if a else None,
+                  a['retained_accuracy'] if a else None,flags[3],z['alpha'] if z else None,
+                  z['original_accuracy'] if z else None,z['rotated_accuracy'] if z else None,sum(flags),4)
+
+def save(rs,spec):
+    payload={'seed':SEED,'definition':{
+        'q4_pass':'original test accuracy >= 0.95 after per-tensor symmetric int4 quantization',
+        'prune40_pass':'original test accuracy >= 0.95 after 40% global magnitude pruning',
+        'adapt_pass':'within 100 SGD steps and LR grid, shifted-domain accuracy >= 0.52 while original accuracy >= 0.95',
+        'merge_pass':'for alpha in [0.50, 0.90], original accuracy >= 0.90 and rotated-domain accuracy >= 0.80'},
+        'specialist':spec,'results':[asdict(r) for r in rs]}
+    (OUT/'results.json').write_text(json.dumps(payload,indent=2))
+    with (OUT/'results.csv').open('w',newline='') as f:
+        w=csv.DictWriter(f,fieldnames=list(asdict(rs[0]))); w.writeheader(); [w.writerow(asdict(r)) for r in rs]
+    lines=['Theseus V0 smoke test','=====================','']
+    for r in rs:
+        lines += [r.name,f'  current accuracy      : {r.current_accuracy:.4f}',
+          f'  max logit diff vs base: {r.max_logit_diff_vs_base:.3e}',f'  gauge imbalance max   : {r.gauge_imbalance_max:.3f}',
+          f'  Q4 accuracy/pass      : {r.q4_accuracy:.4f} / {r.q4_pass}',f'  prune40 accuracy/pass : {r.prune40_accuracy:.4f} / {r.prune40_pass}',
+          f'  adapt capture         : {r.adapt_pass} steps={r.adapt_min_steps} lr={r.adapt_lr}',
+          f'  merge capture         : {r.merge_pass} alpha={r.merge_alpha}',f'  optionality           : {r.optionality_passes}/{r.optionality_total}','']
+    (OUT/'smoke_output.txt').write_text('\n'.join(lines))
+    plt.figure(figsize=(8,4.5)); plt.bar([r.name for r in rs],[r.optionality_passes/4 for r in rs]); plt.ylim(0,1.05)
+    plt.ylabel('Fraction of future surgery capture tests passed'); plt.title('Same present behavior, different model optionality')
+    plt.tight_layout(); plt.savefig(OUT/'optionality.png',dpi=180); plt.close()
+
+def main():
+    xtr,xte,ytr,yte=data(); xr,xre=rot(xtr),rot(xte); xs,xse=shift(xtr),shift(xte)
+    base=train(TinyReLU(),xtr,ytr); s=specialist(base,xtr,xr,ytr); bad=bad_gauge(base); fixed=gauge_fix(bad)
+    pack=(xtr,xte,ytr,yte,xr,xre,xs,xse)
+    rs=[evaluate('base',base,base,s,pack),evaluate('same-function / bad-gauge',bad,base,s,pack),evaluate('gauge-fixed',fixed,base,s,pack)]
+    save(rs,{'original_accuracy':acc(s,xte,yte),'rotated_accuracy':acc(s,xre,yte)})
+    assert rs[1].max_logit_diff_vs_base<1e-4 and abs(rs[1].current_accuracy-rs[0].current_accuracy)<1e-9
+    assert [r.optionality_passes for r in rs]==[4,0,4]
+    print((OUT/'smoke_output.txt').read_text())
+
+if __name__=='__main__': main()
