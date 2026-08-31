@@ -13,10 +13,10 @@ bad_all_s3         EQUIVALENT    0.01    0.03  +0.022   -   -   -   - L-T-
 bad_all_s3_rep     NOT_EQUIVA    0.01    0.01  +0.001   -   -   -   - L-T-
 base               reference     0.01    0.01  +0.000  0.03193    2.27  0.00100  0.973P L-T-
 g1_haar            EQUIVALENT    0.01    0.01  -0.000   -   -   -  0.965P L-T-
-g1_haar_rep        EQUIVALENT    0.01    0.01  -0.000   -   -   -   - L-T-
+g1_haar_rep        EQUIVALENT    0.01    0.01  -0.000   -   -   -  0.974P L-T-
 g1_svd             EQUIVALENT    0.01    0.01  +0.000   -   -   -   - L-T-
 g1_svd_rep         EQUIVALENT    0.01    0.01  -0.000   -   -   -   - L-T-
-g2_rand            EQUIVALENT    0.01    0.01  +0.000   -   -   -   - L-T-
+g2_rand            EQUIVALENT    0.01    0.01  +0.000  0.03259    2.89  0.00109   - L-T-
 g2_rand_rep        EQUIVALENT    0.01    0.01  +0.000   -   -   -   - L-T-
 g3_pow2            EQUIVALENT    0.01    0.03  +0.018   -   -   -   - L-T-
 g3_pow2_rep        EQUIVALENT    0.01    0.01  +0.000   -   -   -   - L-T-
@@ -33,8 +33,8 @@ g7_rand            EQUIVALENT    0.01    0.01  +0.004   -   -   -   - L-T-
 g7_rand_rep        EQUIVALENT    0.01    0.01  +0.000   -   -   -   - L-T-
 prep_base          NOT_EQUIVA    0.01    0.01  +0.000   -   -   -   - L-T-
 
-Spearman rho(static conditioning J -> measured Q4_K_M mean KLD) = nan (n=1)
-Spearman rho(J -> Q4_K_M relative dPPL)                          = nan (n=1)
-Spearman rho(J -> LoRA capture)                                  = nan (n=2)
+Spearman rho(static conditioning J -> measured Q4_K_M mean KLD) = nan (n=2)
+Spearman rho(J -> Q4_K_M relative dPPL)                          = nan (n=2)
+Spearman rho(J -> LoRA capture)                                  = -0.500 (n=3)
 Interpretation: a nonzero |rho| with n>=6 is a hint, not a result. M1's job is to produce the labelled surgery ledger that M6 fits a calibrated predictor on; the predictor may not be called predictive until it is validated out of sample.
 ```

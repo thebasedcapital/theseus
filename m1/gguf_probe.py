@@ -246,9 +246,10 @@ def judge(t: str, tag: str, ent: dict, results: dict) -> None:
             common.wjson(REF_FILE, ref)
         return
     lim = {"rel_dppl": r["rel_dppl"] + PASS_CONTRACT["rel_dppl_slack"],
-           "kl_mean": r["kl_mean"] + PASS_CONTRACT["kl_mean_slack"],
-           "prefix_agree": r["prefix_agree"] - PASS_CONTRACT["prefix_agree_slack"]}
-    informative_pa = isinstance(r.get("prefix_agree"), (int, float)) and r["prefix_agree"] > 0
+           "kl_mean": r["kl_mean"] + PASS_CONTRACT["kl_mean_slack"]}
+    if isinstance(r.get("prefix_agree"), (int, float)):
+        lim["prefix_agree"] = r["prefix_agree"] - PASS_CONTRACT["prefix_agree_slack"]
+    informative_pa = "prefix_agree" in lim and r["prefix_agree"] > 0
     ent["pass"] = bool(isinstance(rel, (int, float)) and rel <= lim["rel_dppl"]
                        and (not isinstance(km, (int, float)) or km <= lim["kl_mean"])
                        and (not informative_pa or not isinstance(pa, (int, float))
