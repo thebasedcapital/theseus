@@ -1,4 +1,10 @@
-# Theseus Roadmap
+# Theseus Roadmap — scientific scope
+
+> **Sequencing and process are superseded by [`PLAN.md`](PLAN.md)** (claims, evidence obligations,
+> budgets, ordering) and the invariants in [`SYSTEM.md`](SYSTEM.md). What stays authoritative here
+> is the *content*: which operations, which architectures, which formulations, what not to build.
+> Where the two disagree about what to do next, `PLAN.md` wins; where they disagree about what
+> would be interesting, this file wins.
 
 Theseus is a no-LLM model-lifecycle diagnostics layer.
 
@@ -12,7 +18,7 @@ The remaining work splits into two tracks that must advance together.
 
 ---
 
-## 0. Current checkpoint: V0 smoke test ✅
+## 0. Current checkpoint: V0 smoke test ✅ / M1 phase 1 ✅ (see CLAIMS.md K-1…K-7)
 
 Already implemented:
 
