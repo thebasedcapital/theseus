@@ -1,3 +1,19 @@
 == control: base vs itself (harness floor)
 base rc=0
 == verify g1_haar
+g1_haar          rc=0 dlogit=1.75e-01 kl=1.11e-05 top1=0.99902 ppl=17.7082 (base 17.7106) dev=cuda EQUIVALENT
+== verify g1_haar_rep
+g1_haar_rep      rc=0 dlogit=3.05e-01 kl=2.09e-05 top1=0.99780 ppl=17.7087 (base 17.7102) dev=cpu EQUIVALENT
+== verify g1_svd
+g1_svd           rc=0 dlogit=2.08e-01 kl=2.25e-05 top1=0.99585 ppl=17.7083 (base 17.7106) dev=cuda EQUIVALENT
+== verify g1_svd_rep
+g1_svd_rep       rc=0 dlogit=2.73e-01 kl=2.76e-05 top1=0.99561 ppl=17.7093 (base 17.7102) dev=cpu EQUIVALENT
+== verify g2_rand
+g2_rand          rc=0 dlogit=2.23e-01 kl=3.72e-05 top1=0.99756 ppl=17.7144 (base 17.7102) dev=cpu EQUIVALENT
+== verify g2_rand_rep
+g2_rand_rep      rc=0 dlogit=3.16e-01 kl=8.42e-05 top1=0.99561 ppl=17.7181 (base 17.7102) dev=cpu EQUIVALENT
+== verify g3_rand
+g3_rand          rc=2 dlogit=1.12e+00 kl=8.76e-05 top1=0.99609 ppl=17.6928 (base 17.7102) dev=cpu NOT_EQUIVALENT
+== verify g3_rand_rep
+g3_rand_rep      rc=2 dlogit=1.91e+00 kl=1.86e-04 top1=0.99536 ppl=17.6792 (base 17.7102) dev=cpu NOT_EQUIVALENT
+== verify g3_smooth

@@ -140,6 +140,18 @@ Two honest limits found while building this, both encoded in `m1/test_gauge_math
 
 Control: base vs base gives `max_dlogit = 0`, `kl = 0`, `top1 = 1.0`, `ppl = 17.7102` — the
 harness floor is exact, so any nonzero drift in a variant is the artifact's, not the tooling's.
+
+**The gate is not being relaxed.** On the real checkpoint the `G3` stresses trip `max_dlogit`
+(1.12 stressed / 1.91 repaired) while KL (8.8e-5 / 1.9e-4 nats), teacher-forced top-1
+(0.9961 / 0.9954) and PPL (0.1%) all pass. Diagnosis in `m1/control_precision_floor.py`:
+gauges are computed in fp64 but *stored* in the artifact's bf16, so every touched entry
+re-rounds, and `G3` touches five tensor families across 24 layers twice (stress + repair).
+Consequence, and it is a result rather than an excuse: **a checkpoint's own precision caps how
+far you may travel along a gauge orbit for free** — that is artifact-level state in the
+`state = (θ, a)` sense of math.md §1. The clean handling is to keep the frozen thresholds
+untouched, report the tripwire as a separate column, and run the primary `G3` evidence with
+**bf16-exact power-of-two scales** (`g3_pow2`: multiplying a bf16 value by `2^k` is lossless),
+so the storage-noise argument cannot be made at all.
 Equivalence is measured in **fp32 forwards over the bf16 artifacts** (what the artifact
 really is) and never with two models resident at once.
 

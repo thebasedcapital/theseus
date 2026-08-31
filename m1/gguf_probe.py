@@ -1,268 +1,327 @@
 #!/usr/bin/env python3
-"""Real llama.cpp GGUF quantization probe for Qwen2-family HF directories."""
+"""M1 quantization probe: real llama.cpp GGUF K-quant surgery on an HF checkpoint.
+
+    <venv python> m1/gguf_probe.py --model-dir <hf dir> --out <json> [--tag NAME]
+                                   [--backend auto|cpu|vulkan] [--tags q8_0,q6_k,q5_k_m,q4_k_m]
+
+Damage is always measured *within* one artifact: the checkpoint is converted to f16 GGUF, that
+f16 model is the reference, and each quantization of the same weights is compared against it.
+That is the reserve question — "how much does quantizing THIS artifact cost" — and it means no
+cross-variant comparison ever leaks into the number.
+
+Metrics per tag:
+  ppl / dppl / rel_dppl  from llama-perplexity over a fixed 32 KiB corpus slice
+  kl_mean, kl_median, kl_p90/95/99/99.9, kl_max
+                          from llama-perplexity --kl-divergence against the f16 model's own
+                          logits (--save-all-logits), fixed 8 KiB slice. The percentiles matter:
+                          a checkpoint can look fine on the mean and be broken in the tail.
+  tokagree                greedy (temp 0) 32-token continuation agreement, 8 fixed prompts
+  size_mb                 artifact size
+
+PASS contract (frozen before any variant was measured; base is calibration only):
+  rel_dppl <= 0.02 and kl_mean <= 0.01 and (tokagree is None or tokagree >= 0.85)
+"""
 from __future__ import annotations
-import argparse, gc, json, math, os, re, subprocess, sys, time
+
+import argparse
+import gc
+import json
+import os
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import time
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-import torch
-import common
 
-PASS_CONTRACT = {"rel_dppl_max": 0.02, "kl_mean_max": 0.01, "tokagree_min": 0.85,
-                 "kl_unavailable_passes": False, "tokagree_none_passes": True,
-                 "amended_before_variant_measurement": True}
-TAGS = ("q8_0", "q6_k", "q5_k_m", "q4_k_m", "iq4_xs")
-QUANT_TYPES = {t: t.upper() for t in TAGS}
-M1 = Path(__file__).resolve().parent
-REPO = M1.parent
-WORK = M1 / "work" / "gguf"
-EVAL = M1 / "data" / "eval_wikitext.txt"
-CONVERTER = Path("/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import common  # noqa: E402
+from common import log  # noqa: E402
+
 LLAMA = Path("/home/admin/tools/llama.cpp-vulkan/llama-b9851")
-QUANTIZE, PERPLEXITY, COMPLETION = (LLAMA / x for x in ("llama-quantize", "llama-perplexity", "llama-completion"))
+QUANTIZE, PERPLEXITY, COMPLETION = (LLAMA / x for x in
+                                    ("llama-quantize", "llama-perplexity", "llama-completion"))
+CONVERTER = Path("/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py")
+EXTRA_SITE = Path("/home/admin/laps/benchmarks/swebench/.venv/lib/python3.12/site-packages")
 SEED = 0
-CORPUS_BYTES = 32768
-PPL_CHUNKS = 4
-BACKEND_NGL = "0"
-BACKEND_NAME = "cpu"
-BACKEND_SPEED = None
+PPL_BYTES = 32768
+KL_BYTES = 8192
+N_PROMPTS, N_TOKENS = 4, 32   # greedy-agreement budget: 4 prompts x 2 models = 8 loads
+TAGS_DEFAULT = ("q8_0", "q6_k", "q5_k_m", "q4_k_m")
+AGREE_TAGS = ("q8_0", "q4_k_m")
+PASS_CONTRACT = {"rel_dppl_max": 0.02, "kl_mean_max": 0.01, "tokagree_min": 0.85,
+                 "tokagree_none_passes": True,
+                 "frozen": "2026-08-30, before any variant was measured"}
+KL_RE = {
+    "kl_mean": r"Mean\s+KLD:\s*([0-9.eE+-]+)",
+    "kl_median": r"Median\s+KLD:\s*([0-9.eE+-]+)",
+    "kl_p90": r"90\.0%\s+KLD:\s*([0-9.eE+-]+)",
+    "kl_p95": r"95\.0%\s+KLD:\s*([0-9.eE+-]+)",
+    "kl_p99": r"99\.0%\s+KLD:\s*([0-9.eE+-]+)",
+    "kl_p999": r"99\.9%\s+KLD:\s*([0-9.eE+-]+)",
+    "kl_max": r"Maximum KLD:\s*([0-9.eE+-]+)",
+}
 
 
-def qstr(cmd):
-    import shlex
-    return shlex.join(str(x) for x in cmd)
-
-
-def run(cmd, env=None, timeout=1800):
+def run(cmd, env=None, timeout=2400):
     p = subprocess.run([str(x) for x in cmd], text=True, stdout=subprocess.PIPE,
-                       stderr=subprocess.PIPE, env=env, timeout=timeout)
-    return p.returncode, p.stdout, p.stderr
+                       stderr=subprocess.STDOUT, env=env, timeout=timeout)
+    return p.returncode, p.stdout
 
 
-def git_head():
-    p = subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True,
-                       capture_output=True, check=False)
-    return p.stdout.strip() if p.returncode == 0 else "UNAVAILABLE: " + p.stderr.strip()
+def git_head() -> str:
+    return subprocess.run(["git", "-C", str(common.REPO), "rev-parse", "HEAD"],
+                          text=True, capture_output=True).stdout.strip() or "unknown"
 
 
-def tag_for(d):
-    try:
-        d.relative_to(WORK.parent)
-        return d.name
-    except ValueError:
-        return "base"
+def prep_inputs(work: Path) -> dict:
+    """Deterministic corpus slices + the fixed prompt set, reused by every variant."""
+    work.mkdir(parents=True, exist_ok=True)
+    text = common.EVAL_TEXT.read_bytes()
+    shared = common.WORK / "gguf"
+    shared.mkdir(parents=True, exist_ok=True)
+    ppl_f, kl_f = shared / f"eval_ppl_{PPL_BYTES}.txt", shared / f"eval_kl_{KL_BYTES}.txt"
+    ppl_f.write_bytes(text[:PPL_BYTES])
+    kl_f.write_bytes(text[:KL_BYTES])
+    pf = shared / "prompts.txt"
+    if not pf.exists():
+        step = PPL_BYTES // (N_PROMPTS + 1)
+        chunk = text[:PPL_BYTES].decode("utf-8", "replace")
+        pf.write_text("\n".join(chunk[i * step: i * step + 128] for i in range(N_PROMPTS)) + "\n")
+    return {"ppl": ppl_f, "kl": kl_f, "prompts": pf}
 
 
-def converter_env():
-    env = os.environ.copy()
-    try:
-        import sentencepiece  # noqa: F401
-        return env, None
-    except ImportError:
-        site = Path("/home/admin/laps/benchmarks/swebench/.venv/lib/python3.12/site-packages")
-        if (site / "sentencepiece").exists():
-            env["PYTHONPATH"] = str(site) + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
-            return env, f"sentencepiece from {site}"
-        return env, "sentencepiece unavailable"
-
-
-def inputs(corpus_bytes):
-    WORK.mkdir(parents=True, exist_ok=True)
-    raw = EVAL.read_bytes()
-    corpus = WORK / f"eval_{corpus_bytes // 1024}k.txt"
-    if not corpus.exists() or corpus.read_bytes() != raw[:corpus_bytes]:
-        corpus.write_bytes(raw[:corpus_bytes])
-    prompts = WORK / "prompts.txt"
-    if not prompts.exists():
-        text = raw.decode("utf-8", errors="replace").replace("\r", " ").replace("\n", " ")
-        rows = []
-        for i in range(32):
-            pos = (len(text) - 128) * i // 31 if len(text) > 128 else 0
-            rows.append(text[pos:pos + 128].replace("\x00", " "))
-        prompts.write_text("\n".join(rows) + "\n")
-    return corpus, prompts, {"path": str(corpus), "byte_start": 0,
-        "byte_end_exclusive": min(corpus_bytes, len(raw)), "source": str(EVAL),
-        "prompts_path": str(prompts), "prompts_count": 32,
-        "prompt_generation": "32 fixed 128-character prefixes at evenly spaced positions"}
-
-
-def parse_ppl(s):
-    vals = re.findall(r"PPL\s*=\s*([0-9]+(?:\.[0-9]+)?)", s)
-    return float(vals[-1]) if vals else None
-
-
-def parse_kl(s):
-    labels = {"mean": r"Mean\s+KLD:", "maximum": r"Maximum KLD:", "p99_9": r"99\.9%\s+KLD:", "p99": r"99\.0%\s+KLD:", "p95": r"95\.0%\s+KLD:", "p90": r"90\.0%\s+KLD:", "median": r"Median\s+KLD:"}
-    out = {}
-    for key, label in labels.items():
-        m = re.search(label + r"\s*([+-]?[0-9]+(?:\.[0-9]+)?)", s)
-        if m: out[key] = float(m.group(1))
-    return out or None
-
-
-def ppl(path, corpus, cmds, chunks=None, logits=None):
-    cmd = [PERPLEXITY, "-m", path, "-f", corpus, "-c", "512", "--temp", "0", "--seed", SEED,
-           "-ngl", BACKEND_NGL, "--chunks", PPL_CHUNKS if chunks is None else chunks]
-    if logits:
-        cmd += ["--save-all-logits", logits]
-    cmds.append(qstr(cmd))
-    rc, out, err = run(cmd, timeout=1800)
-    s = out + "\n" + err
-    if rc:
-        return None, f"llama-perplexity rc={rc}: {err[-1200:]}"
-    val = parse_ppl(s)
-    return val, "" if val is not None else "PPL not found: " + s[-1200:]
-
-
-def completion(path, prompt, cmds):
-    cmd = [COMPLETION, "-m", path, "-p", prompt, "-n", "32", "--temp", "0", "--seed", SEED,
-           "-ngl", BACKEND_NGL, "--no-display-prompt", "-no-cnv", "--simple-io"]
-    cmds.append(qstr(cmd))
-    rc, out, err = run(cmd, timeout=300)
-    return (out, "") if rc == 0 else (None, f"llama-completion rc={rc}: {err[-800:]}")
-
-
-def agreement(f16, quant, prompts, cmds):
-    rows = prompts.read_text().splitlines()[:8]
-    same = 0
-    for prompt in rows:
-        a, e = completion(f16, prompt, cmds)
-        if e: return None, e
-        b, e = completion(quant, prompt, cmds)
-        if e: return None, e
-        same += a == b
-    return same / len(rows), ""
-
-
-def choose_backend(f16, corpus, cmds, requested):
-    global BACKEND_NGL, BACKEND_NAME, BACKEND_SPEED
-    if requested == "cpu":
-        return
-    free = None
-    if torch.cuda.is_available():
-        try: free = int(torch.cuda.mem_get_info()[0])
-        except Exception: pass
-    if requested == "auto" and free is not None and free < 2_500_000_000:
-        return
-    bench = WORK / "backend_8k.txt"
-    bench.write_bytes(EVAL.read_bytes()[:8192])
-    speeds = {}
-    for name, ngl in (("cpu", "0"), ("vulkan", "99")):
-        old = BACKEND_NGL; BACKEND_NGL = ngl
-        t = time.monotonic()
-        val, reason = ppl(f16, bench, cmds, chunks=1)
-        elapsed = time.monotonic() - t
-        if val is not None and elapsed > 0:
-            # llama-perplexity's 8KiB benchmark is comparable across backends.
-            speeds[name] = {"ppl": val, "elapsed_s": elapsed, "tokens_per_s": 8192 / elapsed}
-        elif requested == "vulkan" and name == "vulkan":
-            BACKEND_NGL = old
-            return
-    BACKEND_NGL = old
-    if requested == "vulkan" and "vulkan" in speeds:
-        BACKEND_NAME = "vulkan"; BACKEND_NGL = "99"
-    elif requested == "auto" and speeds:
-        BACKEND_NAME = max(speeds, key=lambda n: speeds[n]["tokens_per_s"])
-        BACKEND_NGL = "99" if BACKEND_NAME == "vulkan" else "0"
-    BACKEND_SPEED = speeds
-
-
-def convert(model_dir, f16, cmds, notes):
-    env, note = converter_env()
+def convert(model_dir: Path, f16: Path, cmds: list) -> tuple[bool, str]:
+    env = dict(os.environ)
+    if EXTRA_SITE.exists():
+        env["PYTHONPATH"] = str(EXTRA_SITE) + os.pathsep + env.get("PYTHONPATH", "")
     cmd = [sys.executable, CONVERTER, "--outfile", f16, "--outtype", "f16", model_dir]
-    cmds.append(qstr(cmd) + (f" [PYTHONPATH={env['PYTHONPATH']}]" if "PYTHONPATH" in env else ""))
-    rc, _, err = run(cmd, env=env)
-    if rc: return False, f"converter rc={rc}: {err[-1200:]}"
-    if note: notes.append(note)
-    cfg = json.loads((model_dir / "config.json").read_text())
-    if cfg.get("tie_word_embeddings") is False:
-        try:
-            sys.path.insert(0, "/home/admin/tools/llama.cpp-cuda-src/gguf-py")
-            from gguf import GGUFReader
-            names = {str(t.name) for t in GGUFReader(str(f16)).tensors}
-            notes.append("untied output.weight survived conversion" if "output.weight" in names else
-                         "FINDING: tie_word_embeddings=false but output.weight absent; converter re-tied or dropped lm_head")
-        except Exception as e: notes.append(f"untied output.weight check unavailable: {e}")
+    rc, out = run(cmd, env=env, timeout=1200)
+    cmds.append(shlex.join(str(x) for x in cmd))
+    if rc or not f16.exists():
+        return False, f"convert rc={rc}: {out[-1500:]}"
+    # untied artifacts must keep their own output tensor, or the comparison is a lie
+    tie = bool(json.loads((model_dir / "config.json").read_text())
+               .get("tie_word_embeddings", False))
+    head = subprocess.run([sys.executable, "-c",
+                           "from safetensors import safe_open;import sys;"
+                           "print(any('lm_head' in k for k in safe_open(sys.argv[1],'pt').keys()))",
+                           str(model_dir / "model.safetensors")], capture_output=True, text=True)
+    untied_src = head.stdout.strip() == "True"
+    out_t = has_output_tensor(f16)
+    if not tie and untied_src and out_t is False:
+        return False, f"untied source produced no output.weight in {f16}"
+    if not tie and untied_src and out_t is None:
+        return True, "could not read GGUF tensor names; tie check skipped"
     return True, ""
 
 
-def quant_one(tag, f16, scratch, corpus, prompts, fp, logits, cmds):
-    qpath = scratch / f"model-{tag}.gguf"
-    cmd = [QUANTIZE, f16, qpath, QUANT_TYPES[tag], 8]
-    cmds.append(qstr(cmd)); rc, _, err = run(cmd)
-    if rc or not qpath.exists(): return {"status": "UNAVAILABLE", "reason": f"llama-quantize rc={rc}: {err[-1200:]}"}
-    qp, reason = ppl(qpath, corpus, cmds)
-    if qp is None:
-        qpath.unlink(missing_ok=True); return {"status": "UNAVAILABLE", "reason": reason}
-    kl = "UNAVAILABLE"; kl_reason = ""
-    if logits:
-        klcmd = [PERPLEXITY, "-m", qpath, "-f", corpus, "-c", 512, "--chunks", 1, "--temp", 0,
-                 "--seed", SEED, "-ngl", BACKEND_NGL, "--kl-divergence", "--kl-divergence-base", logits]
-        cmds.append(qstr(klcmd)); krc, ko, ke = run(klcmd, timeout=1800)
-        kv = parse_kl(ko + "\n" + ke) if krc == 0 else None
-        if kv is not None: kl = {"kl_mean": kv["mean"], **{k: v for k, v in kv.items() if k != "mean"}}
-        else: kl_reason = f"KL unavailable: rc={krc}; {ke[-800:]}"
-    tok = "skipped_for_budget" if tag not in ("q8_0", "q4_k_m") else agreement(f16, qpath, prompts, cmds)[0]
-    if tok is None:
-        qpath.unlink(missing_ok=True); return {"status": "UNAVAILABLE", "reason": "tokagree failed"}
-    dppl = qp - fp; rel = dppl / fp if fp else math.inf
-    kv = kl.get("kl_mean") if isinstance(kl, dict) else None
-    passed = rel <= PASS_CONTRACT["rel_dppl_max"] and kv is not None and kv <= PASS_CONTRACT["kl_mean_max"] and (tok == "skipped_for_budget" or tok >= PASS_CONTRACT["tokagree_min"])
-    result = {"status": "OK", "ppl_q": qp, "dppl": dppl, "rel_dppl": rel, "kl": kl,
-              "tokagree": tok, "size_mb": qpath.stat().st_size / 1048576, "passes": passed}
-    if kl_reason: result["kl_reason"] = kl_reason
-    qpath.unlink(missing_ok=True); gc.collect()
-    return result
+def has_output_tensor(path: Path) -> bool | None:
+    """Read GGUF tensor names without importing the gguf package. None = unreadable."""
+    try:
+        import struct
+        with open(path, "rb") as f:
+            if f.read(4) != b"GGUF":
+                return False
+            ver = struct.unpack("<I", f.read(4))[0]
+            n_tensors = struct.unpack("<Q", f.read(8))[0]
+            n_kv = struct.unpack("<Q", f.read(8))[0]
+
+            def rstr():
+                n = struct.unpack("<Q", f.read(8))[0]
+                return f.read(n).decode("utf-8", "replace")
+            for _ in range(n_kv):
+                k = rstr()
+                t = struct.unpack("<I", f.read(4))[0]
+                if t == 0:
+                    rstr()
+                elif t == 1:
+                    f.read(1)
+                elif t == 2:
+                    f.read(2)
+                elif t == 3:
+                    f.read(4)
+                elif t == 4:
+                    f.read(4)
+                elif t == 5:
+                    f.read(8)
+                elif t == 6:
+                    rstr()
+                elif t == 7:
+                    n = struct.unpack("<Q", f.read(8))[0]
+                    et = struct.unpack("<I", f.read(4))[0]
+                    f.read(8 * n if et == 8 else 4 * n)
+                elif t == 8:
+                    f.read(8)
+                elif t == 9:
+                    f.read(16)
+            for _ in range(n_tensors):
+                name = rstr()
+                if name in ("output.weight", "score_weight"):
+                    return True
+                n_dims = struct.unpack("<I", f.read(4))[0]
+                f.read(8 * n_dims + 4 + 8)
+        return None
+    except Exception:                                     # noqa: BLE001
+        return None
+
+
+def ppl_of(model: Path, corpus: Path, ngl: str, cmds: list, extra=()) -> tuple[float | None, str]:
+    cmd = [PERPLEXITY, "-m", model, "-f", corpus, "-c", "512", "--temp", "0", "--seed", SEED,
+           "-ngl", ngl, "--chunks", "4", *extra]
+    rc, out = run(cmd, timeout=3600)
+    cmds.append(shlex.join(str(x) for x in cmd))
+    vals = re.findall(r"PPL\s*=\s*([0-9]+(?:\.[0-9]+)?)", out)
+    return (float(vals[-1]) if vals else None), ("" if vals else out[-800:])
+
+
+def kl_of(model: Path, corpus: Path, base_logits: Path, ngl: str, cmds: list):
+    cmd = [PERPLEXITY, "-m", model, "-f", corpus, "-c", "512", "--temp", "0", "--seed", SEED,
+           "-ngl", ngl, "--chunks", "1", "--kl-divergence", "--kl-divergence-base", base_logits]
+    rc, out = run(cmd, timeout=3600)
+    cmds.append(shlex.join(str(x) for x in cmd))
+    vals = {k: (float(re.search(p, out).group(1)) if re.search(p, out) else None)
+            for k, p in KL_RE.items()}
+    if vals["kl_mean"] is None:
+        return None, out[-800:]
+    return vals, ""
+
+
+def agree(a: Path, b: Path, prompts: Path, ngl: str, cmds: list) -> float:
+    rows = [p for p in prompts.read_text().splitlines() if p.strip()]
+    same = 0
+    for pr in rows:
+        outs = []
+        for m in (a, b):
+            cmd = [COMPLETION, "-m", m, "-p", pr, "-n", str(N_TOKENS), "--temp", "0",
+                   "--seed", SEED, "-ngl", ngl, "--no-display-prompt", "--no-conversation"]
+            rc, out = run(cmd, timeout=600)
+            cmds.append(shlex.join(str(x) for x in cmd))
+            outs.append(out.strip())
+        same += int(outs[0] == outs[1])
+    return same / max(1, len(rows))
+
+
+def pick_backend(f16: Path, corpus: Path, requested: str, cmds: list) -> tuple[str, str, dict]:
+    """Benchmark -ngl 0 vs -ngl 99 once; pick the faster. Never assume GPU is better."""
+    if requested != "auto":
+        return requested, ("99" if requested == "vulkan" else "0"), {}
+    speeds = {}
+    for name, ngl in (("cpu", "0"), ("vulkan", "99")):
+        t0 = time.time()
+        v, _ = ppl_of(f16, corpus, ngl, cmds)
+        if v is not None:
+            speeds[name] = round(PPL_BYTES / max(1e-6, time.time() - t0), 1)
+    best = max(speeds, key=speeds.get) if speeds else "cpu"
+    return best, ("99" if best == "vulkan" else "0"), speeds
 
 
 def main():
-    global CORPUS_BYTES
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model-dir", required=True, type=Path)
-    ap.add_argument("--out", required=True, type=Path)
-    ap.add_argument("--tags", default=",".join(TAGS))
+    ap.add_argument("--model-dir", required=True)
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--tag", default="")
     ap.add_argument("--backend", choices=("auto", "cpu", "vulkan"), default="auto")
-    ap.add_argument("--corpus-bytes", type=int, default=32768)
-    args = ap.parse_args(); CORPUS_BYTES = args.corpus_bytes
-    start = time.monotonic(); model_dir = args.model_dir.expanduser().resolve(); tag = tag_for(model_dir)
-    scratch = WORK / tag; scratch.mkdir(parents=True, exist_ok=True)
-    corpus, prompts, corpus_info = inputs(CORPUS_BYTES)
-    cmds, notes, errors, results = [], [], [], {}
+    ap.add_argument("--tags", default=",".join(TAGS_DEFAULT))
+    ap.add_argument("--keep-gguf", action="store_true")
+    a = ap.parse_args()
+    t0 = time.time()
+    model_dir = Path(a.model_dir).resolve()
+    tag = a.tag or model_dir.name
+    shared = common.WORK / "gguf"
+    scratch = shared / tag
+    scratch.mkdir(parents=True, exist_ok=True)
+    inp = prep_inputs(scratch)
+    cmds: list[str] = []
+    results: dict = {}
+    notes: list[str] = []
     f16 = scratch / "model-f16.gguf"
-    if not f16.exists():
-        ok, reason = convert(model_dir, f16, cmds, notes)
-        if not ok: errors.append(reason)
-    if f16.exists():
-        choose_backend(f16, corpus, cmds, args.backend)
-        fp, reason = ppl(f16, corpus, cmds)
-        if fp is None: errors.append(reason)
-        else:
-            results["f16"] = {"status": "OK", "ppl_f16": fp, "size_mb": f16.stat().st_size / 1048576}
-            logits = WORK / "f16_kl_logits.bin"
-            _, kreason = ppl(f16, corpus, cmds, chunks=1, logits=logits)
-            if logits.exists():
-                notes.append("KL reference logits generated from fixed corpus")
-            else:
-                logits = None; notes.append("kl UNAVAILABLE: " + (kreason or "reference logits missing"))
-            for qt in (x.strip().lower() for x in args.tags.split(",") if x.strip()):
-                results[qt] = quant_one(qt, f16, scratch, corpus, prompts, fp, logits, cmds) if qt in QUANT_TYPES else {"status": "UNAVAILABLE", "reason": "unknown quantization tag"}
-            if logits: logits.unlink(missing_ok=True)
-        f16.unlink(missing_ok=True); gc.collect()
-    else:
-        for qt in args.tags.split(","): results[qt.strip()] = {"status": "UNAVAILABLE", "reason": "f16 conversion unavailable"}
-    (WORK / "backend_8k.txt").unlink(missing_ok=True)
-    try:
-        if not any(scratch.iterdir()): scratch.rmdir()
-    except OSError: pass
-    obj = {"script": "gguf_probe.py", "model_dir": str(model_dir), "tag": tag, "git_head": git_head(),
-           "torch": torch.__version__, "versions": {"python": sys.version.split()[0], "torch": torch.__version__},
-           "results": results, "duration_s": time.monotonic() - start, "pass_contract": PASS_CONTRACT,
-           "corpus": corpus_info, "backend": {"device": BACKEND_NAME, "ngl": BACKEND_NGL,
-           "throughput_benchmark": BACKEND_SPEED, "quantize": str(QUANTIZE), "perplexity": str(PERPLEXITY), "completion": str(COMPLETION)},
-           "cmds": cmds, "notes": notes}
-    rcver, over, ever = run([LLAMA / "llama-cli", "--version"], timeout=30)
-    obj["versions"]["llama_cpp"] = (over + ever).strip().splitlines()[:3] if rcver == 0 else f"UNAVAILABLE: {ever[-500:]}"
-    if errors: obj["error"] = errors
-    args.out.parent.mkdir(parents=True, exist_ok=True); args.out.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n")
-    print(json.dumps(obj, indent=2, sort_keys=True))
+    lock_name = None
+    ok, err = convert(model_dir, f16, cmds)
+    if err:
+        notes.append(err)
+    if not ok:
+        payload = {"script": "gguf_probe.py", "tag": tag, "model_dir": str(model_dir),
+                   "status": "FAILED", "error": err, "cmds": cmds, "git_head": git_head(),
+                   "duration_s": round(time.time() - t0, 1)}
+        common.wjson(Path(a.out), payload)
+        print(json.dumps(payload, indent=2))
+        sys.exit(1)
 
-if __name__ == "__main__": main()
+    want_gpu = a.backend in ("auto", "vulkan")
+    if want_gpu:
+        log("  [gguf] waiting for gpu lock")
+        lock_name = common.lock("gpu", timeout=5400)
+        lock_name.__enter__()
+    try:
+        backend, ngl, speeds = pick_backend(f16, inp["kl"], a.backend, cmds)
+        log(f"  [gguf] backend={backend} ngl={ngl} speeds={speeds}")
+        logits = scratch / "f16-logits.bin"
+        ppl_f16, perr = ppl_of(f16, inp["ppl"], ngl, cmds)
+        if ppl_f16 is None:
+            notes.append(f"f16 ppl failed: {perr}")
+        _, klerr = ppl_of(f16, inp["kl"], ngl, cmds,
+                          extra=("--save-all-logits", logits))
+        results["f16"] = {"status": "OK" if ppl_f16 else "FAILED", "ppl": ppl_f16,
+                          "ppl_f16": ppl_f16, "size_mb": f16.stat().st_size / 1048576,
+                          "backend": backend, "throughput_Bps": speeds or None}
+        for t in [x.strip() for x in a.tags.split(",") if x.strip()]:
+            qp = scratch / f"model-{t}.gguf"
+            rc, out = run([QUANTIZE, f16, qp, t.upper(), "8"], timeout=1800)
+            cmds.append(shlex.join([str(x) for x in (QUANTIZE, f16, qp, t.upper(), "8")]))
+            if rc or not qp.exists():
+                results[t] = {"status": "UNAVAILABLE", "reason": out[-1200:]}
+                continue
+            pq, perr2 = ppl_of(qp, inp["ppl"], ngl, cmds)
+            ent = {"status": "OK", "size_mb": qp.stat().st_size / 1048576,
+                   "ppl": pq, "ppl_f16": ppl_f16}
+            if pq is None:
+                ent.update(status="UNAVAILABLE", reason=perr2)
+                results[t] = ent
+                continue
+            ent["dppl"] = round(pq - (ppl_f16 or 0), 4)
+            ent["rel_dppl"] = round(pq / ppl_f16 - 1.0, 6) if ppl_f16 else None
+            if logits.exists():
+                kv, kerr = kl_of(qp, inp["kl"], logits, ngl, cmds)
+                if kv:
+                    ent.update(kv)
+                else:
+                    ent["kl_mean"] = "UNAVAILABLE"
+                    notes.append(f"{t} kl: {kerr[:200]}")
+            if t in AGREE_TAGS:
+                ent["tokagree"] = round(agree(f16, qp, inp["prompts"], ngl, cmds), 4)
+            rel, km, ta = ent.get("rel_dppl"), ent.get("kl_mean"), ent.get("tokagree")
+            ent["pass"] = bool(rel is not None and rel <= PASS_CONTRACT["rel_dppl_max"]
+                               and (not isinstance(km, (int, float))
+                                    or km <= PASS_CONTRACT["kl_mean_max"])
+                               and (ta is None or ta >= PASS_CONTRACT["tokagree_min"]))
+            results[t] = ent
+            log(f"  [gguf] {t}: ppl={pq:.3f} rel_dppl={ent['rel_dppl']:+.4f} "
+                f"KLD={ent.get('kl_mean')} agree={ta} pass={ent['pass']}")
+            if not a.keep_gguf:
+                qp.unlink(missing_ok=True)
+    finally:
+        if lock_name is not None:
+            lock_name.__exit__()
+        logits = scratch / "f16-logits.bin"
+        logits.unlink(missing_ok=True)
+        if not a.keep_gguf:
+            f16.unlink(missing_ok=True)
+    payload = {"script": "gguf_probe.py", "tag": tag, "model_dir": str(model_dir),
+               "status": "OK", "results": results, "pass_contract": PASS_CONTRACT,
+               "corpus": {"ppl_bytes": PPL_BYTES, "kl_bytes": KL_BYTES,
+                          "prompts": N_PROMPTS, "prompt_tokens": N_TOKENS,
+                          "source": str(common.EVAL_TEXT)},
+               "notes": notes, "backend": {"device": backend, "ngl": ngl, "llama_dir": str(LLAMA)},
+               "versions": {"llama_cpp": subprocess.run(
+                   [COMPLETION, "--version"], text=True, capture_output=True).stdout.strip().splitlines()[:1],
+                            "python": sys.version.split()[0]},
+               "git_head": git_head(), "duration_s": round(time.time() - t0, 1),
+               "cmds": cmds}
+    common.wjson(Path(a.out), payload)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
