@@ -1,0 +1,78 @@
+{
+  "seed": 7,
+  "definition": {
+    "q4_pass": "original test accuracy >= 0.95 after per-tensor symmetric int4 quantization",
+    "prune40_pass": "original test accuracy >= 0.95 after 40% global magnitude pruning",
+    "adapt_pass": "within 100 SGD steps and LR grid, shifted-domain accuracy >= 0.52 while original accuracy >= 0.95",
+    "merge_pass": "for alpha in [0.50, 0.90], original accuracy >= 0.90 and rotated-domain accuracy >= 0.80"
+  },
+  "specialist": {
+    "original_accuracy": 0.9800000190734863,
+    "rotated_accuracy": 0.9644444584846497
+  },
+  "results": [
+    {
+      "name": "base",
+      "current_accuracy": 0.9822221994400024,
+      "max_logit_diff_vs_base": 0.0,
+      "gauge_imbalance_max": 1.379930853843689,
+      "q4_accuracy": 0.9755555391311646,
+      "q4_pass": true,
+      "prune40_accuracy": 0.9822221994400024,
+      "prune40_pass": true,
+      "adapt_pass": true,
+      "adapt_min_steps": 55,
+      "adapt_lr": 0.003,
+      "adapt_shift_accuracy": 0.5222222208976746,
+      "adapt_retained_accuracy": 0.9666666388511658,
+      "merge_pass": true,
+      "merge_alpha": 0.8500000000000001,
+      "merge_original_accuracy": 0.9755555391311646,
+      "merge_rotated_accuracy": 0.8244444727897644,
+      "optionality_passes": 4,
+      "optionality_total": 4
+    },
+    {
+      "name": "same-function / bad-gauge",
+      "current_accuracy": 0.9822221994400024,
+      "max_logit_diff_vs_base": 5.7220458984375e-06,
+      "gauge_imbalance_max": 10.59027099609375,
+      "q4_accuracy": 0.09555555880069733,
+      "q4_pass": false,
+      "prune40_accuracy": 0.7866666913032532,
+      "prune40_pass": false,
+      "adapt_pass": false,
+      "adapt_min_steps": null,
+      "adapt_lr": null,
+      "adapt_shift_accuracy": null,
+      "adapt_retained_accuracy": null,
+      "merge_pass": false,
+      "merge_alpha": null,
+      "merge_original_accuracy": null,
+      "merge_rotated_accuracy": null,
+      "optionality_passes": 0,
+      "optionality_total": 4
+    },
+    {
+      "name": "gauge-fixed",
+      "current_accuracy": 0.9822221994400024,
+      "max_logit_diff_vs_base": 5.7220458984375e-06,
+      "gauge_imbalance_max": 3.576278118089249e-07,
+      "q4_accuracy": 0.9800000190734863,
+      "q4_pass": true,
+      "prune40_accuracy": 0.9822221994400024,
+      "prune40_pass": true,
+      "adapt_pass": true,
+      "adapt_min_steps": 85,
+      "adapt_lr": 0.001,
+      "adapt_shift_accuracy": 0.5222222208976746,
+      "adapt_retained_accuracy": 0.9777777791023254,
+      "merge_pass": true,
+      "merge_alpha": 0.8500000000000001,
+      "merge_original_accuracy": 0.9755555391311646,
+      "merge_rotated_accuracy": 0.8377777934074402,
+      "optionality_passes": 4,
+      "optionality_total": 4
+    }
+  ]
+}
