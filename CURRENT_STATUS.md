@@ -70,6 +70,17 @@ freeze the base before adapter insertion; their contract is
   optimizer that was never constructed; incident #18), and its `adapt` dicts lack keys that function
   always returns. The harness is fixed and now executes; K-8 itself is still untested.
 - `m1/rescue.py`: exact lattice prepare ships only after a power-of-two proof and equivalence gate.
+  The G5 byte-for-byte result is now independently re-derivable:
+  `python m1/verify_g5_recovery.py` (rebuild `g5_c8` first) reproduces 0/290 differing tensors and
+  sha256 `88c142557820ccad…a0ed342`, with `c_recovered=8.0` from the tie witness alone.
+- `analysis/reserve.py`: quantitative reserve vectors (math.md §4) computed from existing cells —
+  no GPU. `R_adapt` is the binding of the capture and collateral terms; 37 analysis tests assert it
+  agrees with every recorded pass/fail verdict.
+- `ledger/verify.py` (`python -m ledger.cli verify`): every cell must name a commit that resolves,
+  a script that existed in it, and the fields its writer cannot emit-less. Currently
+  `PASS WITH WARNINGS`: the two #18 records are quarantined as expected, and
+  `m1/work/probes/base_adapt.json` carries no `contract_version` yet `ledger/import_m1.py:499,845`
+  uses it as a LoRA base reference. That comparability gap is open.
 
 ## What this does not demonstrate yet
 
