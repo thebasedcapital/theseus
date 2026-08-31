@@ -1,0 +1,63 @@
+no data yet: analysis/data/evidence/harvest/manifest.jsonl
+no data yet: analysis/data/evidence/harvest/edges.jsonl
+no data yet: analysis/data/evidence/ledger
+active contract: v3 (identical evidence reused)
+
+== export.f16 (feature frac_below_f16_normal) ==
+  n=2 labelled; gate: n=2 < 20 labelled cells
+    c=0.00182  TP=1 FP=1 TN=0 FN=0  prec=0.500 rec=1.000 spec=0.000 f1=0.667
+    c=0.00282  TP=1 FP=0 TN=1 FN=0  prec=1.000 rec=1.000 spec=1.000 f1=1.000
+    c=0.021996  TP=1 FP=0 TN=1 FN=0  prec=1.000 rec=1.000 spec=1.000 f1=1.000
+    c=0.041172  TP=1 FP=0 TN=1 FN=0  prec=1.000 rec=1.000 spec=1.000 f1=1.000
+    c=0.060348  TP=1 FP=0 TN=1 FN=0  prec=1.000 rec=1.000 spec=1.000 f1=1.000
+    c=0.079524  TP=1 FP=0 TN=1 FN=0  prec=1.000 rec=1.000 spec=1.000 f1=1.000
+    c=0.0987  TP=0 FP=0 TN=1 FN=1  prec=-1.000 rec=0.000 spec=1.000 f1=-1.000
+
+== quant.q8_0 (feature q4_block_mse) ==
+  n=20 labelled; gate: emitted
+    c=0.01023  TP=2 FP=18 TN=0 FN=0  prec=0.100 rec=1.000 spec=0.000 f1=0.182
+    c=0.01123  TP=2 FP=17 TN=1 FN=0  prec=0.105 rec=1.000 spec=0.056 f1=0.190
+    c=0.01144  TP=2 FP=16 TN=2 FN=0  prec=0.111 rec=1.000 spec=0.111 f1=0.200
+    c=0.01159  TP=2 FP=15 TN=3 FN=0  prec=0.118 rec=1.000 spec=0.167 f1=0.211
+    c=0.012639  TP=2 FP=14 TN=4 FN=0  prec=0.125 rec=1.000 spec=0.222 f1=0.222
+    c=0.012652  TP=2 FP=13 TN=5 FN=0  prec=0.133 rec=1.000 spec=0.278 f1=0.235
+    c=0.01268  TP=2 FP=12 TN=6 FN=0  prec=0.143 rec=1.000 spec=0.333 f1=0.250
+    c=0.012823  TP=2 FP=8 TN=10 FN=0  prec=0.200 rec=1.000 spec=0.556 f1=0.333
+    c=0.012823  TP=2 FP=3 TN=15 FN=0  prec=0.400 rec=1.000 spec=0.833 f1=0.571
+    c=0.012827  TP=1 FP=3 TN=15 FN=1  prec=0.250 rec=0.500 spec=0.833 f1=0.333
+    c=0.013494  TP=1 FP=2 TN=16 FN=1  prec=0.333 rec=0.500 spec=0.889 f1=0.400
+    c=0.014072  TP=1 FP=1 TN=17 FN=1  prec=0.500 rec=0.500 spec=0.944 f1=0.500
+    c=0.035803  TP=1 FP=0 TN=18 FN=1  prec=1.000 rec=0.500 spec=1.000 f1=0.667
+    c=0.03808  TP=0 FP=0 TN=18 FN=2  prec=-1.000 rec=0.000 spec=1.000 f1=-1.000
+  CHOSEN c=0.012823 (prec 0.400, rec 1.000, spec 0.833)
+  prior verdicts invalidated by v3: 0
+
+== quant.q4_k_m (feature q4_block_mse) ==
+  n=20 labelled; gate: not informative: precision 0.278 < 1.25x fail base rate 0.250 (0.312)
+  (candidate table printed below; nothing emitted because the gate refused a useless cut)
+    c=0.01023  TP=5 FP=15 TN=0 FN=0  prec=0.250 rec=1.000 spec=0.000 f1=0.400
+    c=0.01123  TP=5 FP=14 TN=1 FN=0  prec=0.263 rec=1.000 spec=0.067 f1=0.417
+    c=0.01144  TP=5 FP=13 TN=2 FN=0  prec=0.278 rec=1.000 spec=0.133 f1=0.435
+    c=0.01159  TP=4 FP=13 TN=2 FN=1  prec=0.235 rec=0.800 spec=0.133 f1=0.364
+    c=0.012639  TP=4 FP=12 TN=3 FN=1  prec=0.250 rec=0.800 spec=0.200 f1=0.381
+    c=0.012652  TP=4 FP=11 TN=4 FN=1  prec=0.267 rec=0.800 spec=0.267 f1=0.400
+    c=0.01268  TP=3 FP=11 TN=4 FN=2  prec=0.214 rec=0.600 spec=0.267 f1=0.316
+    c=0.012823  TP=3 FP=7 TN=8 FN=2  prec=0.300 rec=0.600 spec=0.533 f1=0.400
+    c=0.012823  TP=3 FP=2 TN=13 FN=2  prec=0.600 rec=0.600 spec=0.867 f1=0.600
+    c=0.012827  TP=2 FP=2 TN=13 FN=3  prec=0.500 rec=0.400 spec=0.867 f1=0.444
+    c=0.013494  TP=2 FP=1 TN=14 FN=3  prec=0.667 rec=0.400 spec=0.933 f1=0.500
+    c=0.014072  TP=2 FP=0 TN=15 FN=3  prec=1.000 rec=0.400 spec=1.000 f1=0.571
+    c=0.035803  TP=1 FP=0 TN=15 FN=4  prec=1.000 rec=0.200 spec=1.000 f1=0.333
+    c=0.03808  TP=0 FP=0 TN=15 FN=5  prec=-1.000 rec=0.000 spec=1.000 f1=-1.000
+
+== adapt.lora.r16 (feature dyn_range_log10) ==
+  n=6 labelled; gate: n=6 < 20 labelled cells
+    c=8.7512  TP=3 FP=3 TN=0 FN=0  prec=0.500 rec=1.000 spec=0.000 f1=0.667
+    c=8.76  TP=3 FP=2 TN=1 FN=0  prec=0.600 rec=1.000 spec=0.333 f1=0.750
+    c=8.83  TP=3 FP=1 TN=2 FN=0  prec=0.750 rec=1.000 spec=0.667 f1=0.857
+    c=9.01  TP=3 FP=0 TN=3 FN=0  prec=1.000 rec=1.000 spec=1.000 f1=1.000
+    c=9.99  TP=2 FP=0 TN=3 FN=1  prec=1.000 rec=0.667 spec=1.000 f1=0.800
+    c=14.6  TP=1 FP=0 TN=3 FN=2  prec=1.000 rec=0.333 spec=1.000 f1=0.500
+    c=18.81  TP=0 FP=0 TN=3 FN=3  prec=-1.000 rec=0.000 spec=1.000 f1=-1.000
+
+contract v3 reused at analysis/data/evidence/contracts/contract-3.json

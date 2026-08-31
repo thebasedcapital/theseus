@@ -1,0 +1,162 @@
+{
+  "artifacts": {
+    "base": {
+      "artifact": "base",
+      "quantizations": {
+        "q4_k_m": {
+          "dppl": 0.4756999999999998,
+          "kl_max": 0.999578,
+          "kl_mean": 0.031663,
+          "kl_median": 0.020946,
+          "kl_p90": 0.060076,
+          "kl_p95": 0.093701,
+          "kl_p99": 0.197803,
+          "kl_p999": 0.542441,
+          "output_tail": "    1.7953       0.02292 \u00b1    0.01073       0.03166 \u00b1    0.00191     4.553 \u00b1  0.626 %    89.281 \u00b1  1.119 %\n\n====== Perplexity statistics ======\nMean PPL(Q)                   :  17.299613 \u00b1   1.795298\nMean PPL(base)                :  16.907625 \u00b1   1.756747\nCor(ln(PPL(Q)), ln(PPL(base))):  99.47%\nMean ln(PPL(Q)/PPL(base))     :   0.022919 \u00b1   0.010731\nMean PPL(Q)/PPL(base)         :   1.023184 \u00b1   0.010980\nMean PPL(Q)-PPL(base)         :   0.391989 \u00b1   0.187520\n\n====== KL divergence statistics ======\nMean    KLD:   0.031663 \u00b1   0.001913\nMaximum KLD:   0.999578\n99.9%   KLD:   0.542441\n99.0%   KLD:   0.197803\n95.0%   KLD:   0.093701\n90.0%   KLD:   0.060076\nMedian  KLD:   0.020946\n10.0%   KLD:   0.002091\n 5.0%   KLD:   0.000682\n 1.0%   KLD:   0.000033\n 0.1%   KLD:   0.000003\nMinimum KLD:   0.000002\n\n====== Token probability statistics ======\nMean    \u0394p: -0.560 \u00b1 0.163 %\nMaximum \u0394p: 16.072%\n99.9%   \u0394p: 15.956%\n99.0%   \u0394p: 10.922%\n95.0%   \u0394p:  4.453%\n90.0%   \u0394p:  2.665%\n75.0%   \u0394p:  0.412%\nMedian  \u0394p: -0.009%\n25.0%   \u0394p: -1.013%\n10.0%   \u0394p: -4.395%\n 5.0%   \u0394p: -7.070%\n 1.0%   \u0394p: -16.635%\n 0.1%   \u0394p: -31.861%\nMinimum \u0394p: -64.475%\nRMS \u0394p    :  4.553 \u00b1 0.626 %\nSame top p: 89.281 \u00b1 1.119 %\n\n",
+          "ppl": 18.7125,
+          "rel_dppl": 0.02608462010879098,
+          "returncode": 0,
+          "status": "OK"
+        },
+        "q8_0": {
+          "dppl": 0.018499999999999517,
+          "kl_max": 0.013937,
+          "kl_mean": 0.001044,
+          "kl_median": 0.000874,
+          "kl_p90": 0.002021,
+          "kl_p95": 0.002702,
+          "kl_p99": 0.004758,
+          "kl_p999": 0.008455,
+          "output_tail": "lexity statistics ======\nMean PPL(Q)                   :  16.897408 \u00b1   1.752615\nMean PPL(base)                :  16.907625 \u00b1   1.756747\nCor(ln(PPL(Q)), ln(PPL(base))):  99.99%\nMean ln(PPL(Q)/PPL(base))     :  -0.000604 \u00b1   0.001755\nMean PPL(Q)/PPL(base)         :   0.999396 \u00b1   0.001754\nMean PPL(Q)-PPL(base)         :  -0.010217 \u00b1   0.029788\n\n====== KL divergence statistics ======\nMean    KLD:   0.001044 \u00b1   0.000037\nMaximum KLD:   0.013937\n99.9%   KLD:   0.008455\n99.0%   KLD:   0.004758\n95.0%   KLD:   0.002702\n90.0%   KLD:   0.002021\nMedian  KLD:   0.000874\n10.0%   KLD:   0.000111\n 5.0%   KLD:   0.000021\n 1.0%   KLD:   0.000002\n 0.1%   KLD:  -0.000002\nMinimum KLD:  -0.000006\n\n====== Token probability statistics ======\nMean    \u0394p: -0.067 \u00b1 0.025 %\nMaximum \u0394p:  2.828%\n99.9%   \u0394p:  2.650%\n99.0%   \u0394p:  1.696%\n95.0%   \u0394p:  1.039%\n90.0%   \u0394p:  0.581%\n75.0%   \u0394p:  0.111%\nMedian  \u0394p: -0.000%\n25.0%   \u0394p: -0.190%\n10.0%   \u0394p: -0.798%\n 5.0%   \u0394p: -1.334%\n 1.0%   \u0394p: -2.373%\n 0.1%   \u0394p: -3.921%\nMinimum \u0394p: -4.673%\nRMS \u0394p    :  0.706 \u00b1 0.037 %\nSame top p: 97.516 \u00b1 0.563 %\n\n0.02.428.726 W ~llama_context:    Vulkan0 compute buffer size of 441.4355 MiB, does not match expectation of 436.4424 MiB\n",
+          "ppl": 18.2553,
+          "rel_dppl": 0.0010144323565537405,
+          "returncode": 0,
+          "status": "OK"
+        }
+      },
+      "reference": {
+        "dtype": "bf16",
+        "kl_reference": {
+          "output_tail": "0.01.107.191 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.404.268 I \n0.01.404.376 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.404.454 I perplexity: saving all logits to /home/admin/theseus/m1/corpus_replication/.scratch/base-bf16-logits.bin\n0.01.404.460 I perplexity: tokenizing the input ..\n0.01.412.498 I perplexity: tokenization took 8.029 ms\n0.01.412.969 I perplexity: calculating perplexity over 3 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.02.907.746 I perplexity: 1.42 seconds per pass - ETA 0.02 minutes\n[1]11.9083,[2]14.8327,[3]16.9076,\n0.03.466.642 I Final estimate: PPL = 16.9076 +/- 1.75675\n\n",
+          "returncode": 0
+        },
+        "output_tail": "0.00.897.915 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.197.945 I \n0.01.198.054 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.198.074 I perplexity: tokenizing the input ..\n0.01.226.730 I perplexity: tokenization took 28.647 ms\n0.01.226.841 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.02.713.713 I perplexity: 1.49 seconds per pass - ETA 0.02 minutes\n[1]11.9079,[2]14.8324,[3]16.9070,[4]18.2368,\n0.03.032.387 I Final estimate: PPL = 18.2368 +/- 1.64645\n\n",
+        "ppl": 18.2368,
+        "returncode": 0
+      },
+      "status": "OK"
+    },
+    "prep_base_exact": {
+      "artifact": "prep_base_exact",
+      "quantizations": {
+        "q4_k_m": {
+          "dppl": 0.3886000000000003,
+          "kl_max": 0.731746,
+          "kl_mean": 0.031178,
+          "kl_median": 0.021772,
+          "kl_p90": 0.060625,
+          "kl_p95": 0.087442,
+          "kl_p99": 0.182499,
+          "kl_p999": 0.40435,
+          "output_tail": "    1.7540       0.00955 \u00b1    0.01139       0.03118 \u00b1    0.00155     4.318 \u00b1  0.530 %    90.458 \u00b1  1.063 %\n\n====== Perplexity statistics ======\nMean PPL(Q)                   :  17.069930 \u00b1   1.754047\nMean PPL(base)                :  16.907625 \u00b1   1.756747\nCor(ln(PPL(Q)), ln(PPL(base))):  99.40%\nMean ln(PPL(Q)/PPL(base))     :   0.009554 \u00b1   0.011389\nMean PPL(Q)/PPL(base)         :   1.009600 \u00b1   0.011498\nMean PPL(Q)-PPL(base)         :   0.162306 \u00b1   0.192522\n\n====== KL divergence statistics ======\nMean    KLD:   0.031178 \u00b1   0.001549\nMaximum KLD:   0.731746\n99.9%   KLD:   0.404350\n99.0%   KLD:   0.182499\n95.0%   KLD:   0.087442\n90.0%   KLD:   0.060625\nMedian  KLD:   0.021772\n10.0%   KLD:   0.002233\n 5.0%   KLD:   0.000441\n 1.0%   KLD:   0.000065\n 0.1%   KLD:   0.000003\nMinimum KLD:   0.000001\n\n====== Token probability statistics ======\nMean    \u0394p: -0.649 \u00b1 0.154 %\nMaximum \u0394p: 21.844%\n99.9%   \u0394p: 17.438%\n99.0%   \u0394p: 10.248%\n95.0%   \u0394p:  4.247%\n90.0%   \u0394p:  2.224%\n75.0%   \u0394p:  0.332%\nMedian  \u0394p: -0.024%\n25.0%   \u0394p: -1.401%\n10.0%   \u0394p: -4.386%\n 5.0%   \u0394p: -7.223%\n 1.0%   \u0394p: -12.448%\n 0.1%   \u0394p: -32.057%\nMinimum \u0394p: -57.218%\nRMS \u0394p    :  4.318 \u00b1 0.530 %\nSame top p: 90.458 \u00b1 1.063 %\n\n",
+          "ppl": 18.6254,
+          "rel_dppl": 0.021308562905772988,
+          "returncode": 0,
+          "status": "OK"
+        },
+        "q8_0": {
+          "dppl": -0.0008999999999979025,
+          "kl_max": 0.008798,
+          "kl_mean": 0.001008,
+          "kl_median": 0.000836,
+          "kl_p90": 0.001928,
+          "kl_p95": 0.002535,
+          "kl_p99": 0.004632,
+          "kl_p999": 0.007294,
+          "output_tail": "lexity statistics ======\nMean PPL(Q)                   :  16.881634 \u00b1   1.752292\nMean PPL(base)                :  16.907625 \u00b1   1.756747\nCor(ln(PPL(Q)), ln(PPL(base))):  99.98%\nMean ln(PPL(Q)/PPL(base))     :  -0.001538 \u00b1   0.001815\nMean PPL(Q)/PPL(base)         :   0.998463 \u00b1   0.001813\nMean PPL(Q)-PPL(base)         :  -0.025991 \u00b1   0.030943\n\n====== KL divergence statistics ======\nMean    KLD:   0.001008 \u00b1   0.000034\nMaximum KLD:   0.008798\n99.9%   KLD:   0.007294\n99.0%   KLD:   0.004632\n95.0%   KLD:   0.002535\n90.0%   KLD:   0.001928\nMedian  KLD:   0.000836\n10.0%   KLD:   0.000105\n 5.0%   KLD:   0.000024\n 1.0%   KLD:   0.000001\n 0.1%   KLD:  -0.000002\nMinimum KLD:  -0.000003\n\n====== Token probability statistics ======\nMean    \u0394p: -0.035 \u00b1 0.024 %\nMaximum \u0394p:  3.498%\n99.9%   \u0394p:  2.695%\n99.0%   \u0394p:  1.951%\n95.0%   \u0394p:  1.018%\n90.0%   \u0394p:  0.614%\n75.0%   \u0394p:  0.120%\nMedian  \u0394p: -0.000%\n25.0%   \u0394p: -0.181%\n10.0%   \u0394p: -0.732%\n 5.0%   \u0394p: -1.152%\n 1.0%   \u0394p: -2.043%\n 0.1%   \u0394p: -3.506%\nMinimum \u0394p: -4.095%\nRMS \u0394p    :  0.672 \u00b1 0.034 %\nSame top p: 97.255 \u00b1 0.591 %\n\n0.02.753.576 W ~llama_context:    Vulkan0 compute buffer size of 441.4355 MiB, does not match expectation of 436.4424 MiB\n",
+          "ppl": 18.2359,
+          "rel_dppl": -4.9350763291711175e-05,
+          "returncode": 0,
+          "status": "OK"
+        }
+      },
+      "reference": {
+        "dtype": "bf16",
+        "kl_reference": {
+          "output_tail": "0.00.764.640 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 0, abort\n0.00.990.123 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.226.253 I \n0.01.226.336 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.226.410 I perplexity: saving all logits to /home/admin/theseus/m1/corpus_replication/.scratch/prep_base_exact-bf16-logits.bin\n0.01.226.416 I perplexity: tokenizing the input ..\n0.01.231.567 I perplexity: tokenization took 5.146 ms\n0.01.231.640 I perplexity: calculating perplexity over 3 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.03.278.512 I perplexity: 1.99 seconds per pass - ETA 0.02 minutes\n[1]11.9083,[2]14.8327,[3]16.9076,\n0.03.820.673 I Final estimate: PPL = 16.9076 +/- 1.75675\n\n",
+          "returncode": 0
+        },
+        "output_tail": "0.00.597.829 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 0, abort\n0.00.807.539 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden\n0.01.265.256 I \n0.01.265.350 I system_info: n_threads = 4 (n_threads_batch = 4) / 8 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VNNI = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.01.265.364 I perplexity: tokenizing the input ..\n0.01.294.876 I perplexity: tokenization took 29.504 ms\n0.01.295.103 I perplexity: calculating perplexity over 4 chunks, n_ctx=512, batch_size=2048, n_seq=4\n0.04.954.840 I perplexity: 3.66 seconds per pass - ETA 0.05 minutes\n[1]11.9079,[2]14.8324,[3]16.9070,[4]18.2368,\n0.05.229.419 I Final estimate: PPL = 18.2368 +/- 1.64645\n\n",
+        "ppl": 18.2368,
+        "returncode": 0
+      },
+      "status": "OK"
+    }
+  },
+  "commands_file": "/home/admin/theseus/m1/corpus_replication/commands.json",
+  "contract": {
+    "kl_mean_slack": 0.005,
+    "mode": "within-artifact-reference-relative",
+    "note": "M1 amended reference-relative contract; each artifact calibrated independently on this slice",
+    "reference_first": true,
+    "rel_dppl_slack": 0.01
+  },
+  "corpus": {
+    "end_exclusive_bytes": 98304,
+    "kl_range": [
+      65536,
+      73728
+    ],
+    "length_bytes": 32768,
+    "non_overlapping": true,
+    "offset_bytes": 65536,
+    "old_m1_ranges": [
+      [
+        0,
+        32768
+      ],
+      [
+        0,
+        8192
+      ]
+    ],
+    "ppl_range": [
+      65536,
+      98304
+    ],
+    "sha256_16": "c2cc1b4175c60879",
+    "source": "/home/admin/theseus/m1/data/eval_wikitext.txt",
+    "source_size_bytes": 402488
+  },
+  "cross_corpus_comparison": false,
+  "equivalence": {
+    "corpus_sha256_16": "c2cc1b4175c60879",
+    "device": "cpu",
+    "dtype": "fp32 forward over bf16 artifacts",
+    "duration_s": 57.595,
+    "gate": {
+      "kl_mean_nats_max": 0.002,
+      "rel_ppl_max": 0.002,
+      "top1_agree_min": 0.995
+    },
+    "kl_mean_nats": 0.0,
+    "max_dlogit": 0.0,
+    "ntokens": 4096,
+    "positions": 4096,
+    "ppl_base": 18.13738787767861,
+    "ppl_prepared": 18.13738787767861,
+    "rel_ppl": 0.0,
+    "seqlen": 512,
+    "status": "EQUIVALENT",
+    "top1_agree": 1.0
+  },
+  "llama_commit": "b9851",
+  "llama_cpp": "/home/admin/tools/llama.cpp-vulkan/llama-b9851",
+  "q4_relative_delta_prepared_minus_base": -0.0047760572030179915,
+  "reference_first": true,
+  "status": "OK",
+  "timings": {
+    "total_s": 145.279
+  },
+  "verdict": "pass"
+}

@@ -216,7 +216,10 @@ impl StatAcc {
                 0.0
             },
         );
-        m.insert("amax_over_rms", if rms > 0.0 { self.amax / rms } else { 0.0 });
+        m.insert(
+            "amax_over_rms",
+            if rms > 0.0 { self.amax / rms } else { 0.0 },
+        );
         m.insert("below_f16_normal", self.below_f16 as f64);
         m.insert(
             "frac_below_f16_normal",

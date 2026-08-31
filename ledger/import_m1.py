@@ -41,11 +41,13 @@ ADAPT_CONTRACT = content_id({"op": "adapt.lora.r16", "contract": "reference-rela
 TORCH_M1 = "2.13.0+cu130"   # recorded torch for this run in every ops/*.json (29/30 files)
 
 # PIPELINE_FAILURES.md → invariant that now prevents it (footer map of the doc, plus SYSTEM §3
-# for #1/#2 which carry I2). Severity is grounded in the doc (rows that produced invalid numbers).
-PF_INVARIANT = {1: "I2", 2: "I2", 3: "I6", 4: "I4", 5: "I3+I5", 6: "I3+I5", 7: "I1+I7",
-                8: "I6", 9: "I1+I7", 10: "I1+I7", 11: "I1+I7", 12: "K-7", 13: "I6"}
+PF_INVARIANT = {1: "I2", 2: "I2", 3: "I6", 4: "I4", 5: "I3+I5", 6: "I3+I5",
+                7: "I1+I7", 8: "I6", 9: "I1+I7", 10: "I1+I7", 11: "I1+I7",
+                12: "K-7", 13: "I6", 14: "I1+I7", 15: "I2+I5", 16: "I1+I7",
+                17: "I2+I5"}
 PF_SEVERITY = {4: "result-threatening", 5: "result-threatening", 6: "result-threatening",
-               8: "result-threatening", 10: "result-threatening", 11: "result-threatening"}
+               8: "result-threatening", 10: "result-threatening", 11: "result-threatening",
+               14: "result-threatening", 15: "result-threatening", 17: "result-threatening"}
 
 
 class ImportReport:
@@ -756,6 +758,84 @@ def build_cells(w, name_to_id, ops, eq, cd_check, export_damage, pred, pred_new,
     if lora_cal_id is not None:
         report.confirmed_refs.append({"source": "ref_capture.json", "reference_cell": lora_cal_id})
         report.note("ref_capture.json", f"LoRA base reference → cell {lora_cal_id}")
+    # ---- next-milestone evidence outside m1/work ----
+    repo = w.parent.parent
+    threshold_path = repo / "analysis/data/evidence/contracts/contract-3.json"
+    if threshold_path.exists():
+        try:
+            tc = json.loads(threshold_path.read_text())
+            q8 = (tc.get("flags") or {}).get("quant.q8_0") or {}
+            fit_path = repo / "analysis/data/augmentation/fit_result.json"
+            fit = json.loads(fit_path.read_text()) if fit_path.exists() else {}
+            q4_fit = ((fit.get("flags") or {}).get("quant.q4_k_m") or {})
+            records.append(_cell({
+                "op": {"name": "calibrate.preflight.quant.q8_0",
+                       "spec": {"feature": "q4_block_mse"},
+                       "contract": f"threshold-v{tc.get('version')}", "reference_cell": None},
+                "subject": name_to_id.get("base"),
+                "environment": {"code_snapshot": CODE_SNAPSHOT_IMPORT,
+                                "compute_dtype": None, "export_outtype": "bf16",
+                                "corpus": None, "seqlen": None, "chunk_policy": None,
+                                "contract_version": f"threshold-v{tc.get('version')}"},
+                "lease": {"wall_s": None},
+                "result": {"status": "measured", "verdict": "pass",
+                           "metrics": {**{k: q8.get(k) for k in
+                                           ("n", "threshold", "precision", "recall", "specificity", "f1")},
+                                       "q4_n": q4_fit.get("n"), "q4_gate": q4_fit.get("gate")}},
+                "invalidates": None, "notes": ["Q8 v3 emitted; Q4 refit gate refused"],
+                "obligation": "K-6.threshold.q8_v3",
+                "provenance": _provenance("analysis/data/evidence/contracts/contract-3.json")}))
+            report.record("threshold contract v3", "cell")
+        except (OSError, ValueError):
+            report.malformed("threshold contract v3", "unparseable JSON")
+
+    corpus_path = w.parent / "corpus_replication/results.json"
+    if corpus_path.exists():
+        try:
+            cr = json.loads(corpus_path.read_text())
+            records.append(_cell({
+                "op": {"name": "replicate.quant.q4_k_m.corpus2",
+                       "spec": {"corpus_sha256_16": (cr.get("corpus") or {}).get("sha256_16")},
+                       "contract": "K-10-corpus2-v1", "reference_cell": None},
+                "subject": name_to_id.get("prep_base_exact"),
+                "environment": {"code_snapshot": CODE_SNAPSHOT_IMPORT, "llama_cpp": cr.get("llama_commit"),
+                                "compute_dtype": "fp32", "export_outtype": "bf16",
+                                "corpus": cr.get("corpus"), "seqlen": 512, "chunk_policy": "ngl=0",
+                                "contract_version": "K-10-corpus2-v1"},
+                "lease": cr.get("timings") or {},
+                "result": {"status": "measured" if cr.get("status") == "OK" else "unavailable",
+                           "verdict": _verdict(cr.get("verdict")),
+                           "reason": cr.get("blocker"),
+                           "metrics": {"q4_relative_delta_prepared_minus_base":
+                                       cr.get("q4_relative_delta_prepared_minus_base"),
+                                       "equivalence": cr.get("equivalence")}},
+                "invalidates": None, "notes": [], "obligation": "K-10.replication.corpus2",
+                "provenance": _provenance("m1/corpus_replication/results.json")}))
+            report.record("corpus replication", "cell")
+        except (OSError, ValueError):
+            report.malformed("corpus replication", "unparseable JSON")
+
+    history_path = repo / "m3/results.json"
+    if history_path.exists():
+        try:
+            hr = json.loads(history_path.read_text())
+            records.append(_cell({
+                "op": {"name": "history.order_pair.q4_k_m", "spec": (hr.get("contract") or {}).get("history_pair"),
+                       "contract": "K-8-attempt-v1", "reference_cell": None},
+                "subject": name_to_id.get("base"),
+                "environment": {"code_snapshot": CODE_SNAPSHOT_IMPORT, "compute_dtype": "bf16",
+                                "export_outtype": "q4_k_m", "corpus": (hr.get("contract") or {}).get("corpus"),
+                                "seqlen": 512, "chunk_policy": None, "contract_version": "K-8-attempt-v1"},
+                "lease": {"wall_s": hr.get("duration_s")},
+                "result": {"status": "unavailable", "verdict": None,
+                           "reason": hr.get("blocker") or "present-match gate failed",
+                           "metrics": hr.get("present_match_gate") or {}},
+                "invalidates": None, "notes": [], "obligation": "K-8.attempt.qwen25_order_pair",
+                "provenance": _provenance("m3/results.json")}))
+            report.record("K-8 history attempt", "cell")
+        except (OSError, ValueError):
+            report.malformed("K-8 history attempt", "unparseable JSON")
+
     return records
 
 

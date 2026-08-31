@@ -187,15 +187,14 @@ def _ob_k5(ledger):
 
 def _ob_k6(ledger):
     pred = cells_with(ledger, "K-6.prediction.")
-    labelled = cells_with(ledger, "K-4.quantize.")
+    fitted = cells_with_exact(ledger, "K-6.threshold.q8_v3")
     return [
         _ge("predictions.frozen", True, pred, min_n=1,
             note="predictions were frozen before surgery cells; predicted rows are never tallied"),
-        Obligation("measurements.graded", required=True, satisfied=len(labelled) >= 20,
-                   kind="count", evidence_ids=sorted(c.get("id") for c in labelled),
-                   note=f"{len(labelled)} labelled quantization cells"),
-        _declared("refuter.false_negatives", True,
-                  "analysis/baserates.py: provisional Q4 flag TP=1, FN=2 at n=10; claim refuted"),
+        _ge("threshold.q8_v3", True, fitted,
+            note="n=20, recall 1.0, precision 0.4, specificity 0.833"),
+        Obligation("threshold.q4", required=False, satisfied=False,
+                   note="n=20 but fit refused: precision 0.278 < required 0.3125"),
     ]
 
 
@@ -214,12 +213,14 @@ def _ob_k7(ledger):
 
 
 def _ob_k8(ledger):
-    hist = [c for c in ledger.all("cell")
-            if (c.get("op") or {}).get("name", "").startswith("history.")]
+    attempts = cells_with(ledger, "K-8.attempt.")
     return [
-        _ge("matched_pairs", True, hist, min_n=4,
-            note="2 matched pairs at 0.5B (sft→merge→q4 vs merge→sft→q4), matched on L0 "
-                 "features and current behaviour — the next milestone (M3/A5)"),
+        Obligation("attempt.unmatched_pair", required=False, satisfied=bool(attempts),
+                   kind="failed_attempt", evidence_ids=sorted(c.get("id") for c in attempts),
+                   note="ordered Q4 history pair built; present match failed at KL 0.032311, "
+                        "top1 0.88235, so future reserves and null were not run"),
+        Obligation("matched_pairs", required=True, satisfied=False, kind="cells",
+                   evidence_ids=[], note="needs two present-matched history pairs plus shuffled null"),
     ]
 
 
@@ -261,11 +262,14 @@ def _ob_k10(ledger):
     eq = cells_with_exact(ledger, "K-1.equivalence.prep_base_exact")
     q4 = cells_with_exact(ledger, "K-4.quantize.prep_base_exact.q4_k_m")
     merge = cells_with_exact(ledger, "K-9.merge.prep_base_exact")
+    corpus2 = cells_with_exact(ledger, "K-10.replication.corpus2")
     return [
         _ge("equivalence.fp32.prep_base_exact", True, eq,
             note="lattice-only prepare certified EQUIVALENT in fp32"),
         _ge("measurement.q4", True, q4,
-            note="Q4 relative ΔPPL improves from base +2.195% to +2.010%"),
+            note="first corpus Q4 relative ΔPPL improves from base +2.195% to +2.010%"),
+        _ge("replication.corpus2", True, corpus2,
+            note="second disjoint corpus improves Q4 relative ΔPPL by 0.4776 pp"),
         _ge("counter.merge", True, merge,
             note="the same prepared artifact fails both merge operators; treatment is operation-specific"),
         _declared("control.null_gauge", True, "{G5,G3,G7} power-of-two lattice path"),
@@ -323,10 +327,10 @@ CLAIM_SEEDS = [
       "would_drop_to": "preliminary", "answering_ob": "K-3.replication.summary"},
      []),
     ("K-6",
-     "The current provisional static thresholds predict which operations are at risk.",
-     "refuted", False, False,
-     {"query": "a refit on at least 20 labelled cells with no measured false negatives",
-      "would_drop_to": "preliminary", "answering_ob": "K-6"},
+     "A fitted static q4_block_mse threshold predicts Q8 risk; Q4 remains unsupported.",
+     "partial", False, True,
+     {"query": "Q8 v3 produces a measured false negative, or an out-of-sample set misses recall 0.95",
+      "would_drop_to": "refuted", "answering_ob": "K-6.threshold.q8_v3"},
      []),
     ("K-7",
      "Reserve is a vector; no scalar summarizes it.",
@@ -337,7 +341,7 @@ CLAIM_SEEDS = [
     ("K-8",
      "Natural post-training histories, not constructed gauges, produce divergent reserves.",
      "unsupported", False, False,
-     {"query": "two matched pairs at 0.5B whose reserves diverge along the same history axes",
+     {"query": "two present-matched history pairs survive the registered shuffled null",
       "would_drop_to": "preliminary", "answering_ob": "history."},
      []),
     ("K-9",
@@ -348,9 +352,9 @@ CLAIM_SEEDS = [
       "would_drop_to": "preliminary", "answering_ob": "K-9.merge"},
      []),
     ("K-10",
-     "Lattice prepare improves Q4 reserve on a pristine checkpoint but reduces merge reserve.",
+     "Lattice prepare improves Q4 reserve on a pristine checkpoint across two corpora but reduces merge reserve.",
      "controlled", False, False,
-     {"query": "a repeated Q4 corpus where prep_base_exact no longer beats base, or a passing "
+     {"query": "a third corpus or architecture where prepare no longer beats base, or a passing "
                "prepared merge cell under the same contract",
       "would_drop_to": "preliminary", "answering_ob": "K-10"},
      []),

@@ -302,9 +302,10 @@ Readings that matter:
 | `g7_rand` | +0.00371 | — | (KL undefined: distributions no longer overlap) | — | **FAIL** |
 | `g7_rand_rep` | +0.00000 | 12.1 | 0.03137 (**0.98×**) | +2.14 % | pass |
 
-* The frozen static debt gets the catastrophic G3 direction right, but the provisional threshold
-  is not a working predictor. On the frozen measured slice, Q4 has TP=1 and FN=2 at n=10. K-6 is
-  therefore REFUTED until a new contract is fit on at least 20 labelled cells.
+* Nine additional CPU/native-bf16 probes bring Q8 and Q4 to n=20. Q8 emits contract v3 at
+  `q4_block_mse > 0.01282348` with recall 1.0, precision 0.40 and specificity 0.833. Q4's
+  recall-preserving fit is refused because precision 0.278 is below the required 0.3125.
+  Q8 v3 is an in-sample calibrated preflight rule; it is not an out-of-sample model.
 * G3/G7 repair restores adaptation across three seeds and restores quantization where measured,
   but `bad_all_exact` shows that clearing static flags does not guarantee every operation passes.
 
@@ -339,9 +340,22 @@ while the tied specialist omits it. `common.merge_sd` now materializes the tied 
 embedding on either side and rejects every other key mismatch; the rerun above is the corrected
 cell.
 
-`prep_base_exact` proves the vector claim cleanly. It is equivalent to base, improves Q4 relative
-ΔPPL from +2.195 % to +2.010 %, passes its single-seed true-LoRA row, and fails both merge
-operators. No scalar checkpoint-health ordering can preserve those operation-specific outcomes.
+`prep_base_exact` proves the vector claim cleanly. It improves Q4 relative ΔPPL from +2.195 % to
++2.010 % on the original slice and from +2.608 % to +2.131 % on disjoint bytes `[65536,98304)`.
+The second-slice fp32 outputs are exactly equal (KL 0, top-1 1.0, max Δlogit 0). Yet both merge
+operators fail. No scalar checkpoint-health ordering can preserve those operation-specific outcomes.
+
+## 5e. First natural-history attempt: pair construction failed the present-match gate
+
+The harness executed two ordinary histories through final Q4 artifacts:
+
+- A: true-LoRA adaptation → linear merge → Q4_K_M;
+- B: linear merge → the same adaptation → Q4_K_M.
+
+The final artifacts match static features at tolerance 0.05 and PPL within 0.054 %, but mean KL
+is 0.032311 and teacher-forced top-1 agreement is 0.88235. They are not the same current model.
+The harness therefore stopped before fresh adaptation, re-quantization reserve and the shuffled
+null. K-8 remains unsupported; `m3/results.json` is a failed-attempt cell, not positive evidence.
 
 ## 6. What is already established, independent of the panel
 

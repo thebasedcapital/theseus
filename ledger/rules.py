@@ -219,7 +219,8 @@ def claim_cap(claim, obligations) -> dict:
         capped_by_control = any(o.required and not o.satisfied
                                 and (o.kind == "control" or o.name.startswith("controls."))
                                 for o in obligations)
-        any_evidence = any(o.evidence_ids for o in obligations)
+        any_evidence = any(o.evidence_ids for o in obligations
+                           if o.kind not in ("failed_attempt", "refuter"))
         return {
             "state": _cap_from_missing(declared, missing, any_evidence),
             "missing": missing,

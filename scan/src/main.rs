@@ -20,16 +20,17 @@ use stats::StatAcc;
 
 const CONVENTION: &str = "mean_of_per_tensor_ratios";
 
-/// PROVISIONAL risk thresholds, transcribed from inspect/src/main.rs (lines ~32-39) so preflight
-/// reproduces inspect/'s matrix byte-for-byte. Calibrated on M1's n=2 measured pairs and nowhere
-/// else; `theseus` must re-fit them on the M3 history ledger (ROADMAP A6).
-const T_QUANT_ABS: f64 = 0.0165; // 1.5x the 0.011 measured for dense Qwen2.5 families
-const T_QUANT_TOTAL_ABS: f64 = 0.0168; // 1.5 x measured base total J (0.01123)
-const T_EXPORT_FRAC: f64 = 0.02; // share of a family below f16 normal range
-const T_ADAPT_DYN: f64 = 12.0; // log10 dynamic range across a family
-const T_ADAPT_ROW: f64 = 2.0e5; // row-energy imbalance
+/// Operation-specific threshold contracts.
+/// Q8 v3 comes from analysis/data/evidence/contracts/contract-3.json (n=20, recall 1.0,
+/// precision 0.4). Q5/Q4/export/adapt remain v2 provisional because their gates did not pass.
+const T_Q8_ABS: f64 = 0.01282348;
+const T_Q5_Q4_ABS: f64 = 0.0165;
+const T_QUANT_TOTAL_ABS: f64 = 0.0168;
+const T_EXPORT_FRAC: f64 = 0.02;
+const T_ADAPT_DYN: f64 = 12.0;
+const T_ADAPT_ROW: f64 = 2.0e5;
 
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 enum Mode {
     Inspect,
     Preflight,
@@ -98,6 +99,7 @@ fn ops_matrix(
     total: &BTreeMap<&'static str, f64>,
 ) -> Vec<(String, &'static str, String)> {
     let mut out: Vec<(String, &'static str, String)> = Vec::new();
+    let has_experts = per_family.keys().any(|f| f.starts_with("expert_"));
     let worst_q = per_family
         .iter()
         .map(|(f, a)| (*f, a.report()["q4_block_mse"]))
@@ -113,7 +115,11 @@ fn ops_matrix(
 
     out.push((
         "export.gguf.f16".into(),
-        if worst_export.1 > T_EXPORT_FRAC { "AT_RISK" } else { "OK" },
+        if worst_export.1 > T_EXPORT_FRAC {
+            "AT_RISK"
+        } else {
+            "OK"
+        },
         format!(
             "{:.2}% of {} weights below the f16 normal range (limit {:.1}%)",
             100.0 * worst_export.1,
@@ -121,33 +127,36 @@ fn ops_matrix(
             100.0 * T_EXPORT_FRAC
         ),
     ));
-    for op in ["quantize.gguf.q8_0", "quantize.gguf.q5_k_m", "quantize.gguf.q4_k_m"] {
+    for (op, limit, contract) in [
+        ("quantize.gguf.q8_0", T_Q8_ABS, "v3 n=20"),
+        ("quantize.gguf.q5_k_m", T_Q5_Q4_ABS, "v2 provisional"),
+        ("quantize.gguf.q4_k_m", T_Q5_Q4_ABS, "v2 provisional"),
+    ] {
         out.push((
             op.into(),
-            if worst_q.1 > T_QUANT_ABS || total["q4_block_mse"] > T_QUANT_TOTAL_ABS {
+            if worst_q.1 > limit || total["q4_block_mse"] > T_QUANT_TOTAL_ABS {
                 "AT_RISK"
             } else {
                 "OK"
             },
             format!(
-                "worst family {} 4-bit block proxy {:.5} (limit {:.4}); total {:.5}",
-                worst_q.0, worst_q.1, T_QUANT_ABS, total["q4_block_mse"]
+                "worst family {} 4-bit block proxy {:.5} (limit {:.5}, {}); total {:.5}",
+                worst_q.0, worst_q.1, limit, contract, total["q4_block_mse"]
             ),
         ));
     }
     out.push((
         "adapt.lora.r16".into(),
-        if worst_adapt.1 > T_ADAPT_DYN { "AT_RISK" } else { "OK" },
-        format!(
-            "worst family {} dynamic range 1e{:.2} (limit 1e{:.1}); row-energy imbalance {:.3e}",
-            worst_adapt.0,
-            worst_adapt.1,
-            T_ADAPT_DYN,
-            per_family
-                .values()
-                .map(|a| a.report()["row_energy_imbalance"])
-                .fold(0.0f64, f64::max)
-        ),
+        if has_experts { "UNAVAILABLE" } else if worst_adapt.1 > T_ADAPT_DYN { "AT_RISK" } else { "OK" },
+        if has_experts {
+            "MoE expert adaptation requires operation-specific calibration".into()
+        } else {
+            format!(
+                "worst family {} dynamic range 1e{:.2} (limit 1e{:.1}); row-energy imbalance {:.3e}",
+                worst_adapt.0, worst_adapt.1, T_ADAPT_DYN,
+                per_family.values().map(|a| a.report()["row_energy_imbalance"]).fold(0.0f64, f64::max)
+            )
+        },
     ));
     out.push((
         "merge.linear".into(),
@@ -167,14 +176,23 @@ fn ops_matrix(
     out
 }
 
-fn verdicts(per_family: &BTreeMap<&'static str, StatAcc>, tr: &BTreeMap<&'static str, f64>) -> Vec<String> {
+fn verdicts(
+    per_family: &BTreeMap<&'static str, StatAcc>,
+    tr: &BTreeMap<&'static str, f64>,
+) -> Vec<String> {
     let mut flags: Vec<String> = Vec::new();
     for (fam, acc) in per_family {
         let r = acc.report();
-        if r["q4_block_mse"] > T_QUANT_ABS {
+        if r["q4_block_mse"] > T_Q8_ABS {
             flags.push(format!(
-                "QUANT_RISK {}: 4-bit block MSE proxy {:.5} > {:.4}",
-                fam, r["q4_block_mse"], T_QUANT_ABS
+                "QUANT_Q8_RISK {}: 4-bit block MSE proxy {:.5} > {:.5} (v3 n=20)",
+                fam, r["q4_block_mse"], T_Q8_ABS
+            ));
+        }
+        if r["q4_block_mse"] > T_Q5_Q4_ABS {
+            flags.push(format!(
+                "QUANT_Q4_RISK {}: 4-bit block MSE proxy {:.5} > {:.4} (v2 provisional)",
+                fam, r["q4_block_mse"], T_Q5_Q4_ABS
             ));
         }
         if r["frac_below_f16_normal"] > T_EXPORT_FRAC {
@@ -276,7 +294,11 @@ fn build_census_json(
         .as_deref()
         .map(|s| format!("\"{}\"", s))
         .unwrap_or_else(|| "null".into());
-    let stats_source = if scheme.is_some() { "structural" } else { "dequantized" };
+    let stats_source = if scheme.is_some() {
+        "structural"
+    } else {
+        "dequantized"
+    };
     let mut j = format!(
         "{{\n  \"path\": \"{}\",\n  \"input_format\": \"{}\",\n  \"convention\": \"{}\",\n  \"families\": {{\n",
         js_esc(path),
@@ -289,13 +311,21 @@ fn build_census_json(
             j.push_str(",\n");
         }
         first = false;
-        j.push_str(&format!("    \"{}\": {{ {} }}", fam, report_map(&acc.report())));
+        j.push_str(&format!(
+            "    \"{}\": {{ {} }}",
+            fam,
+            report_map(&acc.report())
+        ));
     }
-    j.push_str(&format!("\n  }},\n  \"total\": {{ {} }}", report_map(total)));
+    j.push_str(&format!(
+        "\n  }},\n  \"total\": {{ {} }}",
+        report_map(total)
+    ));
     j.push_str(&format!(
         ",\n  \"quantization\": {{ \"scheme\": {}, \"stats_source\": \"{}\" }}",
         scheme_s, stats_source
     ));
+    j.push_str(",\n  \"threshold_contract\": { \"q8_0\": \"v3:n20\", \"q5_k_m\": \"v2:provisional\", \"q4_k_m\": \"v2:provisional\", \"export_f16\": \"v2:provisional\", \"adapt_lora_r16\": \"v2:provisional\" }");
     j.push_str(",\n  \"quant_types\": {");
     let mut first = true;
     for (k, v) in counts {
@@ -352,7 +382,9 @@ fn adapter_json(path: &str, hdr: &formats::SafetensorsHeader) -> String {
     j.push_str("\",\n  \"input_format\": \"adapter\",\n  \"kind\": \"peft_lora\",\n  \"families\": {},\n  \"total\": {},\n  \"adapter\": {");
     j.push_str(&format!(
         "\"rank\": {}, \"ranks\": {{ {} }}, \"target_modules\": [",
-        a.rank.map(|r| r.to_string()).unwrap_or_else(|| "null".into()),
+        a.rank
+            .map(|r| r.to_string())
+            .unwrap_or_else(|| "null".into()),
         a.ranks
             .iter()
             .map(|(r, c)| format!("\"{}\": {}", r, c))
@@ -369,10 +401,16 @@ fn adapter_json(path: &str, hdr: &formats::SafetensorsHeader) -> String {
         "], \"tensor_count\": {}, \"pair_count\": {}, \"dtype\": {}",
         a.tensor_count,
         a.pair_count,
-        a.dtype.clone().map(|d| format!("\"{}\"", d)).unwrap_or_else(|| "null".into())
+        a.dtype
+            .clone()
+            .map(|d| format!("\"{}\"", d))
+            .unwrap_or_else(|| "null".into())
     ));
     j.push_str(", \"alpha\": null, \"alpha_reason\": \"");
-    j.push_str(a.alpha_reason.unwrap_or("lora_alpha not present in safetensors bytes"));
+    j.push_str(
+        a.alpha_reason
+            .unwrap_or("lora_alpha not present in safetensors bytes"),
+    );
     j.push_str("\"}");
     j.push_str(",\n  \"quantization\": { \"scheme\": null, \"stats_source\": null, \"reason\": \"adapters carry deltas, not weight blocks; census does not apply\" }");
     j.push_str(",\n  \"skipped\": [],\n  \"verdicts\": [\"");
@@ -415,7 +453,11 @@ fn main() {
             }
             "-h" | "--help" => usage(),
             "inspect" | "preflight" => {
-                mode = if args[i] == "preflight" { Mode::Preflight } else { Mode::Inspect };
+                mode = if args[i] == "preflight" {
+                    Mode::Preflight
+                } else {
+                    Mode::Inspect
+                };
                 i += 1;
             }
             other => {
@@ -506,19 +548,28 @@ fn main() {
             let tr = total_with_override(&out.per_family, &out.total);
             println!(
                 "theseus-scan  {}  ({} 2-D weight tensors metered, {} skipped; {})",
-                path, out.metered_tensors, out.skipped.len(), header_note
+                path,
+                out.metered_tensors,
+                out.skipped.len(),
+                header_note
             );
             render_table(&out.per_family, &tr);
             let scheme = scheme_from_counts(&out.type_counts);
             println!(
                 "quantization: scheme={} stats_source={} types={:?}",
                 scheme.clone().unwrap_or_else(|| "null".into()),
-                if scheme.is_some() { "structural" } else { "dequantized" },
+                if scheme.is_some() {
+                    "structural"
+                } else {
+                    "dequantized"
+                },
                 out.type_counts
             );
             let preflight = if mode == Mode::Preflight {
                 let ops = ops_matrix(&out.per_family, &tr);
-                println!("PREFLIGHT  operation x risk (thresholds provisional, n=2 measured contrast)");
+                println!(
+                    "PREFLIGHT  operation x risk (Q8 v3 n=20; other thresholds v2 provisional)"
+                );
                 println!("{:<20} {:<12} {}", "operation", "verdict", "reason");
                 for (op, ver, reason) in &ops {
                     println!("{:<20} {:<12} {}", op, ver, reason);
@@ -538,9 +589,9 @@ fn main() {
             );
             write_out(&json, json_out.as_deref());
             let vds = verdicts(&out.per_family, &tr);
-            println!("verdicts (thresholds provisional, calibrated on n=2 measured pairs):");
+            println!("verdicts (Q8 v3 n=20; Q4/export/adaptation v2 provisional):");
             if vds.is_empty() {
-                println!("  none: no family exceeds the provisional quant/export/adaptation risk limits");
+                println!("  none: no family exceeds the active operation thresholds");
             } else {
                 for v in &vds {
                     println!("  {}", v);

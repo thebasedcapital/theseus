@@ -10,7 +10,7 @@ use std::fs;
 
 use crate::formats::{self, ArtifactKind, Container, Dtype};
 use crate::gguf::{self, Blk, RowSink};
-use crate::stats::{StatAcc, bf16_to_f32, f16_to_f32};
+use crate::stats::{bf16_to_f32, f16_to_f32, StatAcc};
 
 fn f16b(v: f32) -> u8 {
     // f16 -> 2 LE bytes for hand-building blocks (exact for the test values used: integers/powers).
@@ -41,7 +41,10 @@ fn block_statistic_64_ones_is_1_over_588() {
     a.feed_row(&vec![1.0f32; 64]);
     a.close_tensor();
     let r = a.report();
-    assert!((r["q4_block_mse_pooled"] - 1.0 / 588.0).abs() < 1e-12, "pooled");
+    assert!(
+        (r["q4_block_mse_pooled"] - 1.0 / 588.0).abs() < 1e-12,
+        "pooled"
+    );
     assert!((r["q4_block_mse"] - 1.0 / 588.0).abs() < 1e-12, "mean");
     assert_eq!(r["weights"], 64.0);
     assert_eq!(r["below_f16_normal"], 0.0);
@@ -97,7 +100,10 @@ fn adapter_sniff_and_metrics() {
     assert_eq!(hdr.adapter.tensor_count, 2);
     assert_eq!(hdr.adapter.pair_count, 1);
     assert_eq!(hdr.adapter.dtype.as_deref(), Some("F32"));
-    assert_eq!(formats::ADAPTER_VERDICT, "ADAPTER: static risk flags not defined for adapters yet");
+    assert_eq!(
+        formats::ADAPTER_VERDICT,
+        "ADAPTER: static risk flags not defined for adapters yet"
+    );
     fs::remove_file(&p).ok();
 }
 
@@ -121,6 +127,89 @@ fn short_or_truncated_files_stay_unsupported_not_mislabeled() {
     fs::remove_file(&q).ok();
 }
 
+#[test]
+fn moe_family_keying_is_boundary_aware_and_fail_closed() {
+    assert_eq!(
+        formats::family_of("model.layers.0.mlp.gate_proj.weight"),
+        Some("gate_proj")
+    );
+    assert_eq!(
+        formats::family_of("model.layers.0.mlp.experts.3.gate_proj.weight"),
+        Some("expert_gate")
+    );
+    assert_eq!(
+        formats::family_of("model.layers.0.mlp.experts.3.up_proj.weight"),
+        Some("expert_up")
+    );
+    assert_eq!(
+        formats::family_of("model.layers.0.mlp.experts.3.down_proj.weight"),
+        Some("expert_down")
+    );
+    assert_eq!(
+        formats::family_of("model.layers.0.mlp.experts.3.gate_up_proj.weight"),
+        Some("__unavailable_expert_fused")
+    );
+    assert_eq!(
+        gguf::gguf_family_of("blk.0.block_sparse_moe.experts.3.w1.weight"),
+        Some("expert_gate")
+    );
+    assert_eq!(
+        gguf::gguf_family_of("blk.0.block_sparse_moe.experts.3.w2.weight"),
+        Some("expert_down")
+    );
+    assert_eq!(
+        gguf::gguf_family_of("blk.0.block_sparse_moe.experts.3.w3.weight"),
+        Some("expert_up")
+    );
+    assert_eq!(
+        gguf::gguf_family_of("blk.0.ffn_gate_exps.weight"),
+        Some("__unavailable_expert_fused")
+    );
+    assert_eq!(
+        gguf::gguf_family_of("blk.0.ffn_down_exps.weight"),
+        Some("__unavailable_expert_fused")
+    );
+    assert_eq!(
+        gguf::gguf_family_of("blk.0.ffn_up_exps.weight"),
+        Some("__unavailable_expert_fused")
+    );
+    assert_eq!(
+        gguf::gguf_family_of("blk.0.ffn_gate.3.weight"),
+        Some("expert_gate")
+    );
+    assert_eq!(
+        gguf::gguf_family_of("blk.0.ffn_down.3.weight"),
+        Some("expert_down")
+    );
+    assert_eq!(
+        gguf::gguf_family_of("blk.0.ffn_up.3.weight"),
+        Some("expert_up")
+    );
+}
+
+#[test]
+fn q8_v3_threshold_is_operation_specific() {
+    let mut acc = StatAcc::new();
+    let mut row = vec![1.0f32; 32];
+    row[0] = 3.28;
+    acc.feed_row(&row);
+    acc.close_tensor();
+    let mut fam = BTreeMap::new();
+    fam.insert("q_proj", acc);
+    let total = fam["q_proj"].report();
+    let ops = crate::ops_matrix(&fam, &total);
+    assert_eq!(
+        ops.iter().find(|x| x.0 == "quantize.gguf.q8_0").unwrap().1,
+        "AT_RISK"
+    );
+    assert_eq!(
+        ops.iter()
+            .find(|x| x.0 == "quantize.gguf.q4_k_m")
+            .unwrap()
+            .1,
+        "OK"
+    );
+}
 // ---- synthetic GGUF builder (in-test write side of the format) ----
 struct Gb {
     v: Vec<u8>,
@@ -169,7 +258,7 @@ fn build_synthetic_gguf() -> Vec<u8> {
     g.u64(256);
     g.pad(32);
     // data: attn_q all 1.0 f16 (0x3C00); ffn_gate all 2.0 f32
-         // each f16 element is 2 bytes; 32*4 = 128 elements -> 256 bytes
+    // each f16 element is 2 bytes; 32*4 = 128 elements -> 256 bytes
     for _ in 0..(32 * 4) {
         g.v.extend([0x00, 0x3C]);
     }
@@ -247,13 +336,15 @@ fn q8_0_hand_block_amax_reconstruction() {
         .max()
         .unwrap() as f64;
     assert!((r["dyn_range_log10"] - 127.0f64.log10()).abs() < 1e-9); // amax 127 / amin 1
-    // energy = sum qs^2 (d=1)
+                                                                     // energy = sum qs^2 (d=1)
     let sum_sq: f64 = blk_bytes[2..34]
         .iter()
         .map(|&q| (q as i8 as f64).powi(2))
         .sum();
     assert!((r["amax_over_rms"] * (sum_sq / 32.0).sqrt() - amax).abs() < 1e-9);
-    assert!((r["q4_block_mse_pooled"] - (amax * amax * 32.0) / (12.0 * 49.0 * sum_sq)).abs() < 1e-12);
+    assert!(
+        (r["q4_block_mse_pooled"] - (amax * amax * 32.0) / (12.0 * 49.0 * sum_sq)).abs() < 1e-12
+    );
     assert_eq!(r["weights"], 32.0);
 }
 
@@ -266,7 +357,7 @@ fn q4_k_hand_superblock_ones() {
     b.push(0x3C); // d = 1.0 f16 LE
     b.push(0x00);
     b.push(0x00); // dmin = 0.0
-    // scales[12] with sc=63 (packing per printf in quantize_row_q4_K_impl / get_scale_min_k4)
+                  // scales[12] with sc=63 (packing per printf in quantize_row_q4_K_impl / get_scale_min_k4)
     b.extend([0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0, 0x0F, 0x0F, 0x0F, 0x0F]);
     b.extend(vec![0xFFu8; 128]); // all nibbles 15
     assert_eq!(b.len(), 144);
@@ -317,7 +408,12 @@ fn q5_k_and_q6_k_hand_amax() {
     // block 0: element0 v=63*31=1953; amax across block = 1953; energy includes 1*1953^2 + 255*(945^2)
     let sum_sq = 1953.0 * 1953.0 + 255.0 * 945.0 * 945.0;
     assert!((r["amax_over_rms"] * (sum_sq / 256.0f64).sqrt() - 1953.0).abs() < 1e-9);
-assert!((r["q4_block_mse_pooled"] - (32.0 * (1953.0f64.powi(2) + 7.0 * 945.0f64.powi(2))) / (12.0 * 49.0 * sum_sq)).abs() < 5e-6);
+    assert!(
+        (r["q4_block_mse_pooled"]
+            - (32.0 * (1953.0f64.powi(2) + 7.0 * 945.0f64.powi(2))) / (12.0 * 49.0 * sum_sq))
+            .abs()
+            < 5e-6
+    );
 
     // Q6_K: d=1, all scales =1, ql high/low nibbles = 2, qh=0 -> q = 2 - 32 = -30, v=-30.
     let mut b6: Vec<u8> = Vec::new();

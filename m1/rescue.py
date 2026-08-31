@@ -86,9 +86,12 @@ def _run_inspect(saf: Path, tag: str, preflight: bool) -> dict:
     if not preflight:
         rep = common.rjson(out_json)
     else:
-        # The frozen binary's preflight-mode JSON is TRUNCATED (writes the ops array, never
-        # the closing brace or verdicts) — parse the complete printed table instead.
-        rep = {"preflight": _preflight_from_stdout(p.stdout)}
+        # Current inspector emits a complete JSON object. Keep stdout parsing as a compatibility
+        # fallback for older local binaries that truncated preflight JSON before the closing brace.
+        try:
+            rep = common.rjson(out_json)
+        except (OSError, ValueError, json.JSONDecodeError):
+            rep = {"preflight": _preflight_from_stdout(p.stdout)}
     rep["meter_wall_s"] = round(time.time() - t0, 2)
     rep["inspector_rc"] = p.returncode
     return rep

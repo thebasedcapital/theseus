@@ -13,7 +13,7 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::{BufReader, Read, Seek, SeekFrom};
 
-use crate::stats::{StatAcc, bf16_to_f32, f16_to_f32};
+use crate::stats::{bf16_to_f32, f16_to_f32, StatAcc};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Container {
@@ -83,9 +83,7 @@ pub fn sniff(path: &str) -> Sniff {
         let hlen = u64::from_le_bytes(head[0..8].try_into().unwrap());
         if hlen > 0 && hlen <= (1 << 24) {
             let mut hb = [0u8; 1];
-            if f.seek(SeekFrom::Start(8)).is_ok()
-                && f.read_exact(&mut hb).is_ok()
-                && hb[0] == b'{'
+            if f.seek(SeekFrom::Start(8)).is_ok() && f.read_exact(&mut hb).is_ok() && hb[0] == b'{'
             {
                 return Sniff {
                     container: Container::Safetensors,
@@ -101,7 +99,9 @@ pub fn sniff(path: &str) -> Sniff {
         return Sniff {
             container: Container::PyTorchBin,
             kind: ArtifactKind::Unsupported,
-            reason: ".bin is a torch pickle; requires torch to read, static bytes insufficient (I8)".into(),
+            reason:
+                ".bin is a torch pickle; requires torch to read, static bytes insufficient (I8)"
+                    .into(),
         };
     }
     if lower.ends_with(".npy") || lower.ends_with(".npz") {
@@ -114,7 +114,10 @@ pub fn sniff(path: &str) -> Sniff {
     Sniff {
         container: Container::Unknown,
         kind: ArtifactKind::Unsupported,
-        reason: format!("{}: unrecognized container (not GGUF, not safetensors, not .bin)", path),
+        reason: format!(
+            "{}: unrecognized container (not GGUF, not safetensors, not .bin)",
+            path
+        ),
     }
 }
 
@@ -368,35 +371,61 @@ fn module_of(name: &str) -> String {
     "(unknown)".to_string()
 }
 
-/// Model family for safetensors names (identical to inspect/src/main.rs::family_of).
+/// Classify exact dot-separated tensor components. Expert names follow the audited HF converter
+/// layouts (conversion/deepseek.py:386-411; conversion/qwen.py:110-139); fused MoE tensors are
+/// reported as unavailable rather than guessed (qwen2_moe/modeling_qwen2_moe.py:287-288).
 pub fn family_of(name: &str) -> Option<&'static str> {
-    for f in ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"] {
-        if name.contains(f) {
-            return Some(match f {
-                "q_proj" => "q_proj",
-                "k_proj" => "k_proj",
-                "v_proj" => "v_proj",
-                "o_proj" => "o_proj",
-                "gate_proj" => "gate_proj",
-                "up_proj" => "up_proj",
-                _ => "down_proj",
-            });
+    let parts: Vec<&str> = name.split('.').collect();
+    if let Some(i) = parts.iter().position(|p| *p == "experts") {
+        let next = parts.get(i + 1).copied().unwrap_or("");
+        let stem = if next.parse::<u32>().is_ok() {
+            parts.get(i + 2).copied().unwrap_or("")
+        } else {
+            next
+        };
+        if next.parse::<u32>().is_ok() {
+            return match stem {
+                "gate_proj" | "w1" => Some("expert_gate"),
+                "up_proj" | "w3" => Some("expert_up"),
+                "down_proj" | "w2" => Some("expert_down"),
+                "gate_up_proj" => Some("__unavailable_expert_fused"),
+                _ => None,
+            };
         }
+        if matches!(stem, "gate_up_proj" | "down_proj") {
+            return Some("__unavailable_expert_fused");
+        }
+        return None;
     }
-    None
+    if parts.iter().any(|p| matches!(*p, "qkv_proj" | "qkv")) {
+        return Some("__unavailable_dense_fused");
+    }
+    [
+        ("q_proj", "q_proj"),
+        ("k_proj", "k_proj"),
+        ("v_proj", "v_proj"),
+        ("o_proj", "o_proj"),
+        ("gate_proj", "gate_proj"),
+        ("up_proj", "up_proj"),
+        ("down_proj", "down_proj"),
+    ]
+    .iter()
+    .find_map(|(needle, family)| parts.iter().any(|p| *p == *needle).then_some(*family))
 }
 
 /// Parse the safetensors JSON header (all keys), returning entries and adapter info.
 pub fn parse_header(path: &str) -> Result<SafetensorsHeader, String> {
     let mut f = File::open(path).map_err(|e| e.to_string())?;
     let mut lb = [0u8; 8];
-    f.read_exact(&mut lb).map_err(|_| "no 8-byte header length".to_string())?;
+    f.read_exact(&mut lb)
+        .map_err(|_| "no 8-byte header length".to_string())?;
     let hlen = u64::from_le_bytes(lb) as usize;
     if hlen == 0 || hlen > (1 << 28) {
         return Err(format!("implausible header length {}", hlen));
     }
     let mut hb = vec![0u8; hlen];
-    f.read_exact(&mut hb).map_err(|_| "truncated header".to_string())?;
+    f.read_exact(&mut hb)
+        .map_err(|_| "truncated header".to_string())?;
 
     let mut p = js::Toks::new(&hb);
     p.eat(b'{').map_err(|e| format!("header parse: {}", e))?;
@@ -411,8 +440,9 @@ pub fn parse_header(path: &str) -> Result<SafetensorsHeader, String> {
             if key == "__metadata__" {
                 p.skip_value().map_err(|e| format!("header parse: {}", e))?;
             } else {
-                let (dtype, shape, a, b) =
-                    p.tensor_entry().map_err(|e| format!("header parse: {}", e))?;
+                let (dtype, shape, a, b) = p
+                    .tensor_entry()
+                    .map_err(|e| format!("header parse: {}", e))?;
                 if is_lora_a(&key) {
                     adapter.has_lora_a = true;
                     adapter.tensor_count += 1;
@@ -457,14 +487,20 @@ pub fn parse_header(path: &str) -> Result<SafetensorsHeader, String> {
     let is_adapter = adapter.has_lora_a || adapter.has_lora_b;
     if is_adapter && adapter.has_lora_a {
         // PEFT uses a uniform rank; report the mode (and keep the full histogram).
-        adapter.rank = adapter.ranks.iter().max_by_key(|(_, &c)| c).map(|(r, _)| *r);
+        adapter.rank = adapter
+            .ranks
+            .iter()
+            .max_by_key(|(_, &c)| c)
+            .map(|(r, _)| *r);
         adapter.pair_count = entries
             .iter()
             .filter(|e| is_lora_a(&e.name) || is_lora_b(&e.name))
             .count()
             / 2;
         adapter.alpha = None; // genuine absence: alpha lives in adapter_config.json
-        adapter.alpha_reason = Some("safetensors bytes do not carry lora_alpha (HF PEFT stores it in adapter_config.json)");
+        adapter.alpha_reason = Some(
+            "safetensors bytes do not carry lora_alpha (HF PEFT stores it in adapter_config.json)",
+        );
     } else if is_adapter {
         adapter.alpha = None;
         adapter.alpha_reason = Some("lora_B only; no lora_A to infer rank from");
@@ -494,11 +530,25 @@ pub fn scan_safetensors(path: &str, hdr: &SafetensorsHeader) -> Result<ScanOut, 
     let mut total = StatAcc::new();
     let mut skipped: Vec<(String, String)> = Vec::new();
     let mut metered = 0usize;
-
     let mut br = BufReader::with_capacity(1 << 20, f);
     for e in &hdr.entries {
+        let expert_path = e.name.split('.').any(|p| p == "experts");
         let fam = match family_of(&e.name) {
+            Some("__unavailable_expert_fused") => {
+                skipped.push((e.name.clone(), format!("UNAVAILABLE: fused expert tensor rank {} cannot be split/deaggregated from header shape alone", e.shape.len())));
+                continue;
+            }
             Some(x) => x,
+            None if expert_path => {
+                skipped.push((
+                    e.name.clone(),
+                    format!(
+                        "UNAVAILABLE: unrecognized expert tensor layout rank {}",
+                        e.shape.len()
+                    ),
+                ));
+                continue;
+            }
             None => continue,
         };
         if e.dtype == Dtype::Other || e.shape.is_empty() {
@@ -523,7 +573,8 @@ pub fn scan_safetensors(path: &str, hdr: &SafetensorsHeader) -> Result<ScanOut, 
         let mut buf = vec![0u8; row_bytes];
         let mut vals: Vec<f32> = vec![0.0; cols];
         for _r in 0..e.shape[0] as usize {
-            br.read_exact(&mut buf).map_err(|_| "short read".to_string())?;
+            br.read_exact(&mut buf)
+                .map_err(|_| "short read".to_string())?;
             match e.dtype {
                 Dtype::F32 => {
                     for k in 0..cols {
@@ -552,7 +603,10 @@ pub fn scan_safetensors(path: &str, hdr: &SafetensorsHeader) -> Result<ScanOut, 
         acc.close_tensor();
         metered += 1;
         total.merge(&acc);
-        per_family.entry(fam).or_insert_with(StatAcc::new).merge(&acc);
+        per_family
+            .entry(fam)
+            .or_insert_with(StatAcc::new)
+            .merge(&acc);
     }
     Ok(ScanOut {
         per_family,

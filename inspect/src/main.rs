@@ -36,17 +36,16 @@ enum Mode {
 const BLOCK: usize = 32;
 const QBITS: f64 = 7.0; // 2^(4-1) - 1 for symmetric 4-bit
 
-/// Provisional risk thresholds, calibrated on M1's measured pairs and NOWHERE ELSE:
-///   base        J 0.01123, dyn_range 8.83, frac_below_f16 0.0028 -> LoRA capture 0.973, Q4 KLD 0.0319
-///   g3_pow2     J 0.02955, dyn_range 14.6, frac_below_f16 0.0987 -> LoRA capture 0.156, Q4 KLD n/a
-///   g3_pow2_rep J 0.01148, (lattice repair)                      -> LoRA capture 0.983, Q4 KLD 0.0350
-/// n=2 contrast per rule. They are printed with the verdict so a reader can never mistake a
-/// flag for a measurement, and `theseus` must re-fit them on the M3 history ledger (ROADMAP A6).
-const T_QUANT_ABS: f64 = 0.0165; // 1.5x the 0.011 measured for dense Qwen2.5 families
-const T_QUANT_TOTAL_ABS: f64 = 0.0168; // 1.5 x measured base total J (0.01123)
-const T_EXPORT_FRAC: f64 = 0.02; // share of a family below f16 normal range
-const T_ADAPT_DYN: f64 = 12.0; // log10 dynamic range across a family
-const T_ADAPT_ROW: f64 = 2.0e5; // row-energy imbalance
+/// Risk thresholds are operation-specific and versioned.
+/// Q8 v3: fitted on 20 measured artifacts, recall 1.0, precision 0.4, specificity 0.833;
+/// immutable source: analysis/data/evidence/contracts/contract-3.json.
+/// Q5/Q4/export/adapt remain v2 provisional because their refit gates did not pass.
+const T_Q8_ABS: f64 = 0.01282348;
+const T_Q5_Q4_ABS: f64 = 0.0165;
+const T_QUANT_TOTAL_ABS: f64 = 0.0168;
+const T_EXPORT_FRAC: f64 = 0.02;
+const T_ADAPT_DYN: f64 = 12.0;
+const T_ADAPT_ROW: f64 = 2.0e5;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Dtype {
@@ -393,8 +392,22 @@ impl Acc {
                 0.0
             },
         );
-        m.insert("q4_block_mse_pooled", if self.sum_sq > 0.0 { self.block_amax_sq / (12.0 * QBITS * QBITS * self.sum_sq) } else { 0.0 });
-        m.insert("q4_block_mse", if self.tensor_count > 0 { self.tensor_ratio_sum / self.tensor_count as f64 } else { 0.0 });
+        m.insert(
+            "q4_block_mse_pooled",
+            if self.sum_sq > 0.0 {
+                self.block_amax_sq / (12.0 * QBITS * QBITS * self.sum_sq)
+            } else {
+                0.0
+            },
+        );
+        m.insert(
+            "q4_block_mse",
+            if self.tensor_count > 0 {
+                self.tensor_ratio_sum / self.tensor_count as f64
+            } else {
+                0.0
+            },
+        );
         m.insert(
             "row_energy_imbalance",
             if self.rows > 0 && self.row_min_e.is_finite() && self.row_min_e > 0.0 {
@@ -403,29 +416,60 @@ impl Acc {
                 0.0
             },
         );
-        m.insert("amax_over_rms", if rms > 0.0 { self.amax / rms } else { 0.0 });
+        m.insert(
+            "amax_over_rms",
+            if rms > 0.0 { self.amax / rms } else { 0.0 },
+        );
         m.insert("below_f16_normal", self.below_f16 as f64);
-        m.insert("frac_below_f16_normal", if self.n > 0 { self.below_f16 as f64 / self.n as f64 } else { 0.0 });
+        m.insert(
+            "frac_below_f16_normal",
+            if self.n > 0 {
+                self.below_f16 as f64 / self.n as f64
+            } else {
+                0.0
+            },
+        );
         m.insert("weights", self.n as f64);
         m
     }
 }
 
+/// Classify exact dot-separated tensor components. This deliberately keeps routed experts out
+/// of dense families (ARCHITECTURES.md R1; audited conversion/deepseek.py:386-411 and
+/// conversion/qwen.py:110-139; fused layout qwen2_moe/modeling_qwen2_moe.py:287-288).
 fn family_of(name: &str) -> Option<&'static str> {
-    for f in ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"] {
-        if name.contains(f) {
-            return Some(match f {
-                "q_proj" => "q_proj",
-                "k_proj" => "k_proj",
-                "v_proj" => "v_proj",
-                "o_proj" => "o_proj",
-                "gate_proj" => "gate_proj",
-                "up_proj" => "up_proj",
-                _ => "down_proj",
-            });
+    let parts: Vec<&str> = name.split('.').collect();
+    if let Some(i) = parts.iter().position(|p| *p == "experts") {
+        let next = parts.get(i + 1).copied().unwrap_or("");
+        let stem = if next.parse::<u32>().is_ok() {
+            parts.get(i + 2).copied().unwrap_or("")
+        } else {
+            next
+        };
+        if next.parse::<u32>().is_ok() {
+            return match stem {
+                "gate_proj" | "w1" => Some("expert_gate"),
+                "up_proj" | "w3" => Some("expert_up"),
+                "down_proj" | "w2" => Some("expert_down"),
+                _ => None,
+            };
         }
+        if stem == "gate_up_proj" || stem == "down_proj" {
+            return Some("__unavailable_expert_fused");
+        }
+        return None;
     }
-    None
+    [
+        ("q_proj", "q_proj"),
+        ("k_proj", "k_proj"),
+        ("v_proj", "v_proj"),
+        ("o_proj", "o_proj"),
+        ("gate_proj", "gate_proj"),
+        ("up_proj", "up_proj"),
+        ("down_proj", "down_proj"),
+    ]
+    .iter()
+    .find_map(|(needle, family)| parts.iter().any(|p| *p == *needle).then_some(*family))
 }
 
 fn usage() -> ! {
@@ -455,14 +499,16 @@ fn main() {
                 i += 2;
             }
             "--fail-above" => {
-                fail_above = args
-                    .get(i + 1)
-                    .and_then(|s| s.parse::<f64>().ok());
+                fail_above = args.get(i + 1).and_then(|s| s.parse::<f64>().ok());
                 i += 2;
             }
             "-h" | "--help" => usage(),
             "inspect" | "preflight" => {
-                mode = if args[i] == "preflight" { Mode::Preflight } else { Mode::Inspect };
+                mode = if args[i] == "preflight" {
+                    Mode::Preflight
+                } else {
+                    Mode::Inspect
+                };
                 i += 1;
             }
             other => {
@@ -535,10 +581,34 @@ fn main() {
     let mut rows_seen = 0usize;
 
     for (name, dt, shape, a, b) in &entries {
+        let expert_path = name.split('.').any(|p| p == "experts");
+        let fused_dense = name.split('.').any(|p| matches!(p, "qkv_proj" | "qkv"));
         let fam = match family_of(name) {
+            Some("__unavailable_expert_fused") => {
+                skipped.push((name.clone(), format!("UNAVAILABLE: fused expert tensor rank {} cannot be split/deaggregated from header shape alone", shape.len())));
+                continue;
+            }
             Some(x) => x,
+            None if expert_path => {
+                skipped.push((
+                    name.clone(),
+                    format!(
+                        "UNAVAILABLE: unrecognized expert tensor layout rank {}",
+                        shape.len()
+                    ),
+                ));
+                continue;
+            }
+            None if fused_dense => {
+                skipped.push((name.clone(), format!("UNAVAILABLE: fused dense qkv tensor rank {} has no independent family boundaries", shape.len())));
+                continue;
+            }
             None => continue,
         };
+        if shape.len() != 2 && fam.starts_with("expert_") {
+            skipped.push((name.clone(), format!("UNAVAILABLE: fused/rank-{} expert tensor cannot be split/deaggregated from header shape alone", shape.len())));
+            continue;
+        }
         if *dt == Dtype::Other || shape.is_empty() {
             skipped.push((name.clone(), format!("dtype/{:?}", dt)));
             continue;
@@ -643,8 +713,13 @@ fn main() {
     let mut tr = total.report();
     // A pooled max/min row energy across all tensors grows with tensor count and says nothing
     // about conditioning; the interpretable aggregate is the worst family.
-    tr.insert("row_energy_imbalance",
-              per_family.values().map(|a| a.report()["row_energy_imbalance"]).fold(0.0f64, f64::max));
+    tr.insert(
+        "row_energy_imbalance",
+        per_family
+            .values()
+            .map(|a| a.report()["row_energy_imbalance"])
+            .fold(0.0f64, f64::max),
+    );
     json.push_str("\n  },\n  \"total\": {");
     let mut inner = true;
     for (k, v) in &tr {
@@ -654,7 +729,8 @@ fn main() {
         inner = false;
         json.push_str(&format!("\"{}\": {:.8}", k, v));
     }
-    json.push_str("},\n  \"skipped\": [");
+    json.push_str("},\n  \"threshold_contract\": { \"q8_0\": \"v3:n20\", \"q5_k_m\": \"v2:provisional\", \"q4_k_m\": \"v2:provisional\", \"export_f16\": \"v2:provisional\", \"adapt_lora_r16\": \"v2:provisional\" }");
+    json.push_str(",\n  \"skipped\": [");
     for (i, (n, why)) in skipped.iter().take(12).enumerate() {
         if i > 0 {
             json.push_str(", ");
@@ -674,8 +750,11 @@ fn main() {
     );
     println!();
     if mode == Mode::Preflight {
-        let ops = ops_matrix(&per_family, &tr, &entries_have_bias(entries_names(&entries)));
-        println!("PREFLIGHT  operation x risk (thresholds provisional, n=2 measured contrast)");
+        let ops = ops_matrix(
+            &per_family,
+            &tr,
+            &entries_have_bias(entries_names(&entries)),
+        );
         println!("{:<20} {:<12} {}", "operation", "verdict", "reason");
         let mut risky = 0usize;
         for (op, verdict, reason) in &ops {
@@ -684,53 +763,74 @@ fn main() {
                 risky += 1;
             }
         }
-        json.push_str(&format!(",\n  \"preflight\": [{}\n  ]",
+        json.push_str(&format!(
+            ",\n  \"preflight\": [{}\n  ]",
             ops.iter()
                 .map(|(o, v, r)| format!("[\"{}\", \"{}\", \"{}\"]", o, v, r.replace('"', "'")))
                 .collect::<Vec<_>>()
-                .join(",\n    ")));
-        json.push('\n');
+                .join(",\n    ")
+        ));
+        json.push_str(",\n  \"verdicts\": []\n}\n");
         if let Some(o) = json_out {
             if let Err(e) = std::fs::write(&o, json) {
                 eprintln!("error: writing {}: {}", o, e);
                 exit(1);
             }
         }
-        println!("\n{} of {} operations flagged; {} unknown (never counted as safe)",
-                 risky,
-                 ops.len(),
-                 ops.iter().filter(|(_, v, _)| *v == "UNAVAILABLE").count());
+        println!(
+            "\n{} of {} operations flagged; {} unknown (never counted as safe)",
+            risky,
+            ops.len(),
+            ops.iter().filter(|(_, v, _)| *v == "UNAVAILABLE").count()
+        );
         exit(if risky > 0 { 1 } else { 0 });
     }
-    println!("verdicts (thresholds provisional, calibrated on n=2 measured pairs):");
+    println!("verdicts (Q8 v3 n=20; Q4/export/adaptation v2 provisional):");
     let mut flags: Vec<String> = Vec::new();
     for (fam, acc) in &per_family {
         let r = acc.report();
-        if r["q4_block_mse"] > T_QUANT_ABS {
-            flags.push(format!("QUANT_RISK {}: 4-bit block MSE proxy {:.5} > {:.4}",
-                               fam, r["q4_block_mse"], T_QUANT_ABS));
+        if r["q4_block_mse"] > T_Q8_ABS {
+            flags.push(format!(
+                "QUANT_Q8_RISK {}: 4-bit block MSE proxy {:.5} > {:.5}",
+                fam, r["q4_block_mse"], T_Q8_ABS
+            ));
+        }
+        if r["q4_block_mse"] > T_Q5_Q4_ABS {
+            flags.push(format!(
+                "QUANT_Q4_RISK {}: 4-bit block MSE proxy {:.5} > {:.4}",
+                fam, r["q4_block_mse"], T_Q5_Q4_ABS
+            ));
         }
         if r["frac_below_f16_normal"] > T_EXPORT_FRAC {
-            flags.push(format!("F16_EXPORT_RISK {}: {:.3}% of weights below the f16 normal range",
-                               fam, 100.0 * r["frac_below_f16_normal"]));
+            flags.push(format!(
+                "F16_EXPORT_RISK {}: {:.3}% of weights below the f16 normal range",
+                fam,
+                100.0 * r["frac_below_f16_normal"]
+            ));
         }
         if r["dyn_range_log10"] > T_ADAPT_DYN {
-            flags.push(format!("ADAPT_RISK {}: dynamic range 1e{:.1} > 1e{:.1}",
-                               fam, r["dyn_range_log10"], T_ADAPT_DYN));
+            flags.push(format!(
+                "ADAPT_RISK {}: dynamic range 1e{:.1} > 1e{:.1}",
+                fam, r["dyn_range_log10"], T_ADAPT_DYN
+            ));
         }
         if r["row_energy_imbalance"] > T_ADAPT_ROW {
-            flags.push(format!("ADAPT_RISK {}: row-energy imbalance {:.3e} > {:.1e}",
-                               fam, r["row_energy_imbalance"], T_ADAPT_ROW));
+            flags.push(format!(
+                "ADAPT_RISK {}: row-energy imbalance {:.3e} > {:.1e}",
+                fam, r["row_energy_imbalance"], T_ADAPT_ROW
+            ));
         }
     }
     // Absolute, not self-referential: 1.5x the measured total for the pristine Qwen2.5-0.5B
     // (J = 0.01123). A ratio against the artifact's own number would flag everything.
     if tr["q4_block_mse"] > T_QUANT_TOTAL_ABS {
-        flags.push(format!("QUANT_RISK TOTAL: 4-bit proxy {:.5} > {:.4} (1.5x pristine-family reference)",
-                           tr["q4_block_mse"], T_QUANT_TOTAL_ABS));
+        flags.push(format!(
+            "QUANT_RISK TOTAL: 4-bit proxy {:.5} > {:.4} (1.5x pristine-family reference)",
+            tr["q4_block_mse"], T_QUANT_TOTAL_ABS
+        ));
     }
     if flags.is_empty() {
-        println!("  none: no family exceeds the provisional quant/export/adaptation risk limits");
+        println!("  none: no family exceeds the active operation thresholds");
     } else {
         for f in &flags {
             println!("  {}", f);
@@ -738,8 +838,11 @@ fn main() {
     }
     json.push_str(",\n  \"verdicts\": [\n");
     for (idx, fl) in flags.iter().enumerate() {
-        json.push_str(&format!("    {}\"{}\"", if idx == 0 { "" } else { ", " },
-                               fl.replace('"', "'")));
+        json.push_str(&format!(
+            "    {}\"{}\"",
+            if idx == 0 { "" } else { ", " },
+            fl.replace('"', "'")
+        ));
         json.push('\n');
     }
     json.push_str("  ]\n}\n");
@@ -767,6 +870,33 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn moe_family_keying_is_boundary_aware() {
+        assert_eq!(
+            family_of("model.layers.0.mlp.gate_proj.weight"),
+            Some("gate_proj")
+        );
+        assert_eq!(
+            family_of("model.layers.0.mlp.experts.3.gate_proj.weight"),
+            Some("expert_gate")
+        );
+        assert_eq!(
+            family_of("model.layers.0.mlp.experts.3.up_proj.weight"),
+            Some("expert_up")
+        );
+        assert_eq!(
+            family_of("model.layers.0.mlp.experts.3.down_proj.weight"),
+            Some("expert_down")
+        );
+        assert_eq!(
+            family_of("model.layers.0.mlp.experts.gate_up_proj.weight"),
+            Some("__unavailable_expert_fused")
+        );
+        assert_eq!(
+            family_of("model.layers.0.mlp.experts.down_proj.weight"),
+            Some("__unavailable_expert_fused")
+        );
+    }
 
     #[test]
     fn bf16_decodes_the_ieee_truncation() {
@@ -858,8 +988,14 @@ mod tests {
             a.report()
         };
         let ops = ops_matrix(&benign, &bt, &true);
-        assert!(ops.iter().all(|(_, v, _)| *v != "AT_RISK"), "benign shape flagged");
-        assert_eq!(ops.iter().filter(|(_, v, _)| *v == "UNAVAILABLE").count(), 3);
+        assert!(
+            ops.iter().all(|(_, v, _)| *v != "AT_RISK"),
+            "benign shape flagged"
+        );
+        assert_eq!(
+            ops.iter().filter(|(_, v, _)| *v == "UNAVAILABLE").count(),
+            3
+        );
 
         // a wide dynamic range across a family: 1e-11 .. 1e3 in one row
         let mut wide = vec![1e-11f32; 32];
@@ -882,6 +1018,30 @@ mod tests {
     }
 
     #[test]
+    fn q8_v3_threshold_is_operation_specific() {
+        let mut a = Acc::new();
+        let mut row = vec![1.0f32; 32];
+        row[0] = 3.28;
+        a.feed_row(&row);
+        a.close_tensor();
+        let mut fam = BTreeMap::new();
+        fam.insert("q_proj", a);
+        let total = fam["q_proj"].report();
+        let ops = ops_matrix(&fam, &total, &false);
+        assert_eq!(
+            ops.iter().find(|x| x.0 == "quantize.gguf.q8_0").unwrap().1,
+            "AT_RISK"
+        );
+        assert_eq!(
+            ops.iter()
+                .find(|x| x.0 == "quantize.gguf.q4_k_m")
+                .unwrap()
+                .1,
+            "OK"
+        );
+    }
+
+    #[test]
     fn row_energy_imbalance_ignores_all_zero_rows() {
         let mut a = Acc::new();
         a.feed_row(&[1.0; 32]); // energy 32
@@ -890,7 +1050,6 @@ mod tests {
         a.close_tensor();
         let r = a.report();
         // inputs arrive as f32 (0.1f32 is not 0.1), so the ratio carries ~3e-8 relative error;
-        // the risk thresholds are orders of magnitude away, which is what makes that fine.
         assert!(
             ((r["row_energy_imbalance"] / 100.0) - 1.0).abs() < 1e-6,
             "got {}",
@@ -908,58 +1067,76 @@ fn entries_names(entries: &[(String, Dtype, Vec<u64>, u64, u64)]) -> Vec<String>
     entries.iter().map(|e| e.0.clone()).collect()
 }
 
-/// The product surface: for each operation a local user would run, a verdict plus the reason,
-/// and UNAVAILABLE wherever this checkpoint's bytes cannot tell us (roadmap B8: missing evidence
-/// is never a PASS, and here it is also never a FAIL).
-fn ops_matrix(per_family: &BTreeMap<&'static str, Acc>, total: &BTreeMap<&'static str, f64>,
-              _has_bias: &bool) -> Vec<(String, &'static str, String)> {
-    let mut out: Vec<(String, &'static str, String)> = Vec::new();
+/// Operation-level predictions are unavailable for MoE adaptation until calibrated on expert
+/// coordinates; static trusted expert measurements remain valid for quant/export preflight.
+fn ops_matrix(
+    per_family: &BTreeMap<&'static str, Acc>,
+    total: &BTreeMap<&'static str, f64>,
+    _has_bias: &bool,
+) -> Vec<(String, &'static str, String)> {
+    let mut out = Vec::new();
+    let has_experts = per_family.keys().any(|f| f.starts_with("expert_"));
     let worst_q = per_family
         .iter()
         .map(|(f, a)| (*f, a.report()["q4_block_mse"]))
-        .fold(("none", 0.0f64), |acc, x| if x.1 > acc.1 { x } else { acc });
+        .fold(("none", 0.0), |acc, x| if x.1 > acc.1 { x } else { acc });
     let worst_export = per_family
         .iter()
         .map(|(f, a)| (*f, a.report()["frac_below_f16_normal"]))
-        .fold(("none", 0.0f64), |acc, x| if x.1 > acc.1 { x } else { acc });
+        .fold(("none", 0.0), |acc, x| if x.1 > acc.1 { x } else { acc });
     let worst_adapt = per_family
         .iter()
         .map(|(f, a)| (*f, a.report()["dyn_range_log10"]))
-        .fold(("none", 0.0f64), |acc, x| if x.1 > acc.1 { x } else { acc });
-
+        .fold(("none", 0.0), |acc, x| if x.1 > acc.1 { x } else { acc });
     out.push((
         "export.gguf.f16".into(),
-        if worst_export.1 > T_EXPORT_FRAC { "AT_RISK" } else { "OK" },
-        format!("{:.2}% of {} weights below the f16 normal range (limit {:.1}%)",
-                100.0 * worst_export.1, worst_export.0, 100.0 * T_EXPORT_FRAC),
+        if worst_export.1 > T_EXPORT_FRAC {
+            "AT_RISK"
+        } else {
+            "OK"
+        },
+        format!(
+            "{:.2}% of {} weights below the f16 normal range (limit {:.1}%)",
+            100.0 * worst_export.1,
+            worst_export.0,
+            100.0 * T_EXPORT_FRAC
+        ),
     ));
-    for op in ["quantize.gguf.q8_0", "quantize.gguf.q5_k_m", "quantize.gguf.q4_k_m"] {
+    for (op, limit, contract) in [
+        ("quantize.gguf.q8_0", T_Q8_ABS, "v3 n=20"),
+        ("quantize.gguf.q5_k_m", T_Q5_Q4_ABS, "v2 provisional"),
+        ("quantize.gguf.q4_k_m", T_Q5_Q4_ABS, "v2 provisional"),
+    ] {
         out.push((
             op.into(),
-            if worst_q.1 > T_QUANT_ABS || total["q4_block_mse"] > T_QUANT_TOTAL_ABS {
+            if worst_q.1 > limit || total["q4_block_mse"] > T_QUANT_TOTAL_ABS {
                 "AT_RISK"
             } else {
                 "OK"
             },
-            format!("worst family {} 4-bit block proxy {:.5} (limit {:.4}); total {:.5}",
-                    worst_q.0, worst_q.1, T_QUANT_ABS, total["q4_block_mse"]),
+            format!(
+                "worst family {} 4-bit block proxy {:.5} (limit {:.5}, {}); total {:.5}",
+                worst_q.0, worst_q.1, limit, contract, total["q4_block_mse"]
+            ),
         ));
     }
+    out.push(("adapt.lora.r16".into(), if has_experts { "UNAVAILABLE" } else if worst_adapt.1 > T_ADAPT_DYN { "AT_RISK" } else { "OK" },
+              if has_experts { "MoE expert adaptation requires operation-specific calibration".into() } else { format!("worst family {} dynamic range 1e{:.2} (limit 1e{:.1}); row-energy imbalance {:.3e}", worst_adapt.0, worst_adapt.1, T_ADAPT_DYN, per_family.values().map(|a| a.report()["row_energy_imbalance"]).fold(0.0, f64::max)) }));
     out.push((
-        "adapt.lora.r16".into(),
-        if worst_adapt.1 > T_ADAPT_DYN { "AT_RISK" } else { "OK" },
-        format!("worst family {} dynamic range 1e{:.2} (limit 1e{:.1}); row-energy imbalance {:.3e}",
-                worst_adapt.0, worst_adapt.1, T_ADAPT_DYN,
-                per_family.values().map(|a| a.report()["row_energy_imbalance"]).fold(0.0f64, f64::max)),
+        "merge.linear".into(),
+        "UNAVAILABLE",
+        "needs a second checkpoint to compare coordinates against".into(),
     ));
-    // Merge and quantization-aware adaptation are coordinate-order questions that these bytes
-    // alone cannot answer: no second parent, no reference delta, no calibration data.
-    out.push(("merge.linear".into(), "UNAVAILABLE".into(),
-              "needs a second checkpoint to compare coordinates against".into()));
-    out.push(("merge.ties".into(), "UNAVAILABLE".into(),
-              "needs task vectors against a shared base".into()));
-    out.push(("quantize.awlora".into(), "UNAVAILABLE".into(),
-              "static features do not predict adapter-on-quantized-base behaviour yet".into()));
+    out.push((
+        "merge.ties".into(),
+        "UNAVAILABLE",
+        "needs task vectors against a shared base".into(),
+    ));
+    out.push((
+        "quantize.awlora".into(),
+        "UNAVAILABLE",
+        "static features do not predict adapter-on-quantized-base behaviour yet".into(),
+    ));
     out
 }
 

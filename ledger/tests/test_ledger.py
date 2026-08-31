@@ -178,6 +178,12 @@ class TestCellInvariants(unittest.TestCase):
                                [Obligation("equivalence", required=True, satisfied=False)])
         self.assertEqual(cap2["state"], "preliminary")
 
+        cap3 = rules.claim_cap(
+            {"state": "unsupported"},
+            [Obligation("attempt", required=False, satisfied=True, kind="failed_attempt",
+                        evidence_ids=["attempt-cell"]),
+             Obligation("matched_pair", required=True, satisfied=False, kind="cells")])
+        self.assertEqual(cap3["state"], "unsupported")
     def test_i8_predicted_unavailable_not_tallied(self):
         """I8: predicted/unavailable are recorded, never counted; basis/reason are mandatory."""
         with tempfile.TemporaryDirectory() as td:

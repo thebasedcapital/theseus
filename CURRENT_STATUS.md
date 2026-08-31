@@ -31,10 +31,10 @@ On `Qwen2.5-0.5B`:
 - artifact-only lattice repair returns G3 to 0.9753 and G7 to 0.9359 mean capture;
 - calibrated merge passes on base. Eleven gauged/prepared representatives fail both operators;
   G5 passes linear at α=0.4 but fails TIES-trim;
-- pristine lattice prepare improves Q4 relative ΔPPL from +2.195 % to +2.010 %, but both merge
-  operators fail. Reserve is operation-specific, not scalar;
-- the provisional static thresholds are REFUTED as a predictor because Q4 has two false negatives
-  in ten labelled artifacts. Threshold fitting now refuses to emit below n=20.
+- pristine lattice prepare improves Q4 on two disjoint corpus slices: −0.185 pp and −0.478 pp
+  relative damage versus base. It still breaks both merge operators;
+- Q8 static preflight now uses fitted contract v3 at n=20, recall 1.0 and precision 0.40. Q4
+  also reaches n=20 but its fit is refused as uninformative.
 
 The first adaptation/merge panel remains archived and invalidated. The replacement probes globally
 freeze the base before adapter insertion; their contract is
@@ -42,26 +42,28 @@ freeze the base before adapter insertion; their contract is
 
 ## Product and corpus status
 
-- `scan/`: zero-dependency Rust scanner for safetensors, PEFT adapters and GGUF Q8/Q4_K/Q5_K/Q6_K.
-  Eleven offline tests pass; Qwen reference J matches within 4.65e-6.
-- `ledger/`: append-only evidence store with calibration/environment admission rules, invalidation
-  edges and claim explainers. Twelve invariant tests pass; live M1 imports 179 admission-clean cells.
-- `analysis/`: Wilson base rates, guarded threshold fitting and matched-lineage null tests. Twenty-one
-  tests pass. Current 617 lineage relations produce zero feature-matched measured pairs.
+- `scan/` and `inspect/`: dense safetensors/GGUF behavior preserved; boundary-aware MoE keying
+  separates trusted 2-D expert families and makes fused rank-3 stacks explicitly unavailable.
+  Q8 uses contract v3; Q4/export/adaptation remain v2 provisional.
+- `ledger/`: append-only evidence store now imports 182 admission-clean cells, including Q8 v3,
+  second-corpus K-10 replication and the failed K-8 history attempt.
+- `analysis/`: 22 tests pass. Nine CPU/native-bf16 augmentation probes bring Q8/Q4 to n=20;
+  contract v3 is idempotent and Q4 emission is refused.
 - `harvest/`: 390 public HF artifacts across seven kinds, 264 resolved edges, 88 dangling edges;
   offline reruns are byte-identical.
+- `m1/corpus_replication/`: disjoint second slice `[65536,98304)`, sha `c2cc1b4175c60879`;
+  base/prepared equivalence is exact and prepared Q4 damage improves by 0.478 pp.
+- `m3/`: first real ordered-history attempt built Q4 artifacts for `adapt→merge→Q4` and
+  `merge→adapt→Q4`. Present-match failed at KL 0.032311 and top-1 0.88235, so future probes stopped.
 - `m1/rescue.py`: exact lattice prepare ships only after a power-of-two proof and equivalence gate.
-  Full non-lattice mode is diagnostic-only and always REFUSED.
-- `ARCHITECTURES.md` / `archcheck/`: 14-architecture audit. Current substring keying silently
-  corrupts or drops MoE expert statistics; the probe fails closed on those artifacts.
 
 ## What this does not demonstrate yet
 
-- Natural heterogeneous histories (`SFT → merge → Q4` vs `merge → SFT → Q4`) remain untouched.
-  K-8 is UNSUPPORTED; the harvested lineage population is selection infrastructure, not evidence.
-- One checkpoint family, one scale, one calibration corpus.
+- Natural histories remain UNSUPPORTED. One real pair was constructed, but it failed the required
+  current-behavior match before future reserve measurement.
+- One checkpoint family and scale; K-10 now has two corpora, not a second architecture.
 - The merge experiment is constructed against a specialist derived from the ungauged base.
-- Static preflight thresholds are not validated predictors yet.
+- Q8 v3 is in-sample calibration; Q4/export/adaptation still lack validated thresholds.
 
 ## Known deviations
 

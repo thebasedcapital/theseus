@@ -315,56 +315,38 @@ def header_class_stats(entries, arch: str) -> dict:
 
 
 def header_keying_issues(entries, families, arch):
-    """Header-driven MoE-keying + family-keying audit. Fail-closed on a missing header.
-    Returns [(severity, family, message)]. severity 'ERR' forces FAIL CLOSED."""
+    """Header-driven MoE and fused-layout audit against the current boundary-aware scanners."""
     if entries is None:
-        return [("WARN", "?",
-                 "no model.safetensors header found — per-family keying and MoE collision "
-                 "checks are UNAVAILABLE (still fail-closed)")]
+        return [("WARN", "?", "no model.safetensors header found; byte-level checks unavailable")]
     issues = []
     names = [n for n, _, _ in entries]
     expert_marker = re.compile(r"(^|\.)experts\.|block_sparse_moe\.experts|\.experts\.")
-    expert_proj = [n for n in names if expert_marker.search(n) and any(f in n for f in families)]
-    seen = set()
-    for n in expert_proj:
-        fam = next(f for f in families if f in n)
-        if (n, fam) in seen:
-            continue
-        seen.add((n, fam))
+    per_expert = [n for n in names if expert_marker.search(n)
+                  and re.search(r"\.experts\.\d+\.(gate_proj|up_proj|down_proj|w1|w2|w3)\.weight$", n)]
+    if per_expert:
+        issues.append(("INFO", "experts",
+                       "boundary-aware scanners separate recognized 2-D expert tensors into "
+                       "expert_gate/expert_up/expert_down families"))
+    fused = [n for n in names if expert_marker.search(n) and
+             ("gate_up_proj" in n or ("down_proj" in n and len(next(s for nn, _, s in entries if nn == n)) > 2))]
+    for n in fused[:6]:
         shape = next(s for nn, _, s in entries if nn == n)
-        issues.append(("ERR", fam,
-                       f"expert tensor {n!r} (rank {len(shape)}) matches family substring "
-                       f"{fam!r}: would be merged into the dense family aggregate AND total "
-                       "(inspect/src/main.rs:414-426 substring contains())"))
-    fused = [n for n in names if "gate_up_proj" in n]
-    for n in fused:
-        shape = next(s for nn, _, s in entries if nn == n)
-        issues.append(("ERR", "gate/up",
-                       f"fused {n!r} (rank {len(shape)}) cannot be split into gate/up on the "
-                       "bytes; contains 'up_proj' -> inspector would file it as up_proj only"))
-    if any(re.search(r"\.(w1|w2|w3)\.weight", n) for n in names):
-        issues.append(("WARN", "experts",
-                       "w1/w2/w3 expert naming: matches NO family substring, silently dropped "
-                       "from the census without a UNAVAILABLE flag "
-                       "(conversion/llama.py:256-295)"))
+        issues.append(("ERR", "experts",
+                       f"fused expert tensor {n!r} rank {len(shape)} is explicit UNAVAILABLE; "
+                       "the row scanner cannot deaggregate it"))
+    if any(re.search(r"\.experts\.\d+\.(w1|w2|w3)\.weight$", n) for n in names):
+        issues.append(("INFO", "experts", "Mixtral w1/w2/w3 map to expert gate/down/up families"))
     seen_r = set()
     for n, _, s in entries:
         if len(s) != 2:
             for f in families:
                 if f in n:
-                    if n.endswith(".bias"):
-                        key = ("bias", f)
-                        msg = (f"rank-1 {f} bias tensors (e.g. {n!r}) are skipped by the "
-                               "inspector (rank != 2, main.rs:553-557) — expected, no census "
-                               "impact")
-                    else:
-                        key = ("rank", f)
-                        msg = (f"non-2D tensor {n!r} matches family {f!r} and is silently "
-                               "skipped (rank != 2, main.rs:553-557); its weights are ABSENT "
-                               "from the census")
+                    key = ("bias" if n.endswith(".bias") else "rank", f)
                     if key in seen_r:
                         continue
                     seen_r.add(key)
+                    msg = (f"rank-1 {f} bias skipped as expected" if n.endswith(".bias") else
+                           f"non-2D tensor {n!r} is explicit UNAVAILABLE")
                     issues.append(("WARN", f, msg))
                     break
     return issues
@@ -490,37 +472,35 @@ def main() -> int:
         g7, g7r = "EXACT", (f"SwiGLU ({hidden_act!r}) gate/up split: scale up_proj row j by "
                             "c_j and down_proj column j by c_j^-1; the MLP output is unchanged")
         if "deepseek" in arch_id:
-            g7r += " on dense/shared-expert GLU layers; routed experts need the MoE keying fix"
+            g7r += " on dense/shared-expert GLU layers; routed experts still need a gauge adapter"
     else:
         g7, g7r = "UNAVAILABLE", (f"MLP is {info['mlp']!r} — no gate/up split "
                                   "(G7 requires a GLU variant)")
     gauges["G7"] = (g7, g7r)
 
     # ---- per-family static-feature trust (evidence-driven) ----
-    dropped_experts = any(s == "WARN" and "w1/w2/w3" in m for s, _, m in issues)
     err_fams = {f for s, f, _ in issues if s == "ERR"}
+    fused_experts = "experts" in err_fams
     fam_trust = {}
     for f in FAMILIES:
         reasons = []
         if entries is None:
-            reasons.append("no model.safetensors header next to config — per-family "
-                           "features are uncertifiable without artifact bytes (fail closed)")
+            reasons.append("no model.safetensors header next to config; byte evidence unavailable")
         if stats.get("no_qwen_families") and arch_id != "gpt2":
-            reasons.append("no family key matched any safetensors name — families UNAVAILABLE by name")
+            reasons.append("no family key matched any safetensors name")
         if arch_id == "mamba":
             reasons.append("SSM block, no attention/GLU families")
         if arch_id == "gpt2":
-            reasons.append("GPT-2 uses c_attn/c_proj/c_fc naming — none of the 7 Qwen2 family patterns exist")
+            reasons.append("GPT-2 uses c_attn/c_proj/c_fc naming")
         if f in err_fams:
-            reasons.append("header evidence: family substring is polluted by expert/fused tensors (see issues)")
-        if f in ("gate_proj", "up_proj", "down_proj") and dropped_experts:
-            reasons.append("w1/w2/w3 expert weights are silently dropped from the census (no family match)")
-        if f in ("gate_proj", "up_proj", "down_proj") and arch_id in ("deepseek_v2_v3", "qwen_moe", "hybrid", "mixtral"):
-            reasons.append("routed-expert tensors cannot be separated from dense families on disk")
-        if reasons:
-            fam_trust[f] = "UNAVAILABLE: " + "; ".join(reasons)
-        else:
-            fam_trust[f] = "EXACT"
+            reasons.append("header evidence marks this family unavailable")
+        if f in ("gate_proj", "up_proj", "down_proj") and fused_experts:
+            reasons.append("fused expert stack unavailable; dense family remains separate")
+        if f in ("gate_proj", "up_proj", "down_proj") and arch_id in ("deepseek_v2_v3", "qwen_moe", "mixtral", "hybrid"):
+            reasons.append("scanner separates expert families, but the gauge/canonicalizer adapter is unavailable")
+        if arch_id == "hybrid":
+            reasons.append("hybrid layer schedule not declared")
+        fam_trust[f] = "UNAVAILABLE: " + "; ".join(reasons) if reasons else "EXACT"
 
     # -------- report --------
     print(f"archcheck/probe.py  target={target}")

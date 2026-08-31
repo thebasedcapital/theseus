@@ -526,6 +526,9 @@ equivalence condition. Both gaps clear the three-seed 3σ gate. Merge compatibil
 gauge-dependent. Natural-history evidence (A5/K-8) remains the next scientific milestone.
 
 ## M2 — Local preflight alpha
+**Status:** Q8 preflight contract v3 emitted at n=20 and wired into both Rust scanners. Q4 fit
+was refused. MoE 2-D expert keying is fixed; fused stacks remain unavailable.
+
 
 Commands:
 
@@ -540,10 +543,16 @@ Support safetensors + one architecture family + one GGUF backend.
 ## M3 — Heterogeneous optionality benchmark
 
 At least three operation families and multiple mixed histories, with matched-current-capability checkpoint pairs.
+**Status:** first real ordered pair (`adapt→merge→Q4` vs `merge→adapt→Q4`) was constructed but
+failed the present-match gate (KL 0.032311, top-1 0.88235). No future-reserve claim was made.
+
 
 ## M4 — Canonicalization / prepare
 
 Architecture-aware exact gauge transforms that measurably increase one or more future operation reserves without changing current model behavior.
+**Status:** pristine lattice prepare improves Q4 relative ΔPPL on two disjoint corpus slices,
+while reducing merge reserve. Third-corpus or second-architecture replication remains open.
+
 
 ## M5 — Local ML beta
 

@@ -37,10 +37,11 @@ write `seed_replicate.py` after the fact. `controls` are the three universal one
 | **K-3** | Function-equivalent checkpoints have materially different **adaptation** reserve | fp32; G3 bf16 bit-identical | true-LoRA base cell ✓ | identity ✓ | 3 seeds on base/G3/G7 + repairs | 3σ gate | **CONTROLLED**: G3 −87 pp, G7 −78 pp; both repair |
 | **K-4** | …and different **quantization** reserve, at the same bit-width, same corpus | fp32 | quant ladder refs ✓ | identity, permutation ✓ | 1 | ladder-stop armed | **CONTROLLED**: G3 Q8 10.69 vs base 0.00094 |
 | **K-5** | Artifact-only lattice canonicalization restores G3/G7 adaptation reserve | fp32; G3 bf16 | LoRA base ✓ | power-of-two proof | 3 seeds | repaired gap >3σ refuter | **CONTROLLED** |
-| **K-6** | Current provisional static thresholds predict operation risk | n/a | family baseline | n/a | Q4 n=10 | zero false negatives required | **REFUTED**: Q4 TP=1, FN=2 |
-| **K-7** | Reserve is a vector: no scalar summarizes it | fp32 | per-op refs | n/a | n/a | operation-independent ordering | **CONTROLLED**: pristine prepare helps Q4, hurts merge |
-| **K-8** | Natural post-training histories, not constructed gauges, produce divergent reserves | fp32 | per-op refs | identity | 2 matched pairs | ≥200-shuffle null | **UNSUPPORTED**: 617 relations, zero matched measured pairs |
+| **K-6** | Fitted static threshold predicts Q8 risk; Q4 remains unsupported | n/a | Q8 n=20 | n/a | in-sample | out-of-sample recall | **PARTIAL**: Q8 v3 recall 1.0, precision 0.40; Q4 refused |
+| **K-7** | Reserve is a vector: no scalar summarizes it | fp32 | per-op refs | n/a | two Q4 corpora | operation-independent ordering | **CONTROLLED**: prepare helps Q4, hurts merge |
+| **K-8** | Natural post-training histories, not constructed gauges, produce divergent reserves | Q4 present-match | per-op refs | identity | 2 matched pairs | ≥200-shuffle null | **UNSUPPORTED**: first real pair failed KL/top1 match |
 | **K-9** | Merge compatibility is gauge-dependent | fp32 | base linear/TIES refs ✓ | key/tie normalization ✓ | ≥2 gauge representatives | base rerun / passing gauged pairs | **CONTROLLED**: 11 fail both; G5 passes linear only |
+| **K-10** | Pristine lattice prepare improves Q4 across corpora but hurts merge | fp32 exact | own bf16 refs | lattice proof | 2 disjoint corpora | third corpus/arch | **CONTROLLED** |
 
 ★ K-2's obligations are uninteresting until the identity round-trip passes; that single control is
 what prevented M1's headline from being an importer artifact (incident #10).
@@ -67,10 +68,11 @@ this session were disk or VRAM arrivals, not bugs.
 
 Next highest-value work, ordered by evidence gain:
 
-1. **K-8 natural histories** — select and measure matched public lineages from the 390-artifact harvest.
-2. **Refit static thresholds** — reach n≥20 per flag, then run the guarded precision/recall sweep.
-3. **Cross-architecture adapters** — MoE-aware family keying first; current expert statistics fail closed.
-4. **Repeat K-10 Q4 on another corpus/architecture** — the pristine-prepare gain is small and single-corpus.
+1. **K-8 pair construction v2** — tune ordinary history budgets until present KL/top-1 match before future surgery.
+2. **Q8 v3 out-of-sample validation** — the emitted threshold is calibrated in-sample.
+3. **Fused MoE stack metering** — keying is fixed; rank-3 expert stacks remain unavailable.
+4. **Q4 threshold evidence** — n=20 exists, but the current feature is not informative enough.
+5. **Third K-10 corpus or second architecture** — two corpora currently agree.
 
 ## 4. Track B, gated on Track A (unchanged in spirit, sharper in shape)
 
