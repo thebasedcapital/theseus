@@ -172,7 +172,23 @@ def g1_vo_orth(sd: dict, arch: Arch, mode: str = "haar", seed: int = 0,
 
 def g2_rope_pairs(sd: dict, arch: Arch, mode: str = "random", seed: int = 0,
                   angles: torch.Tensor | None = None) -> tuple[dict, dict]:
-    """Rotate rows and biases of every RoPE pair (j, j+hd/2) of q (per head) and k (per group)."""
+    """Rotate rows and biases of every RoPE pair (j, j+hd/2) of q (per head) and k (per group).
+
+    Fails closed on architectures with per-head QK-norm between the projection and RoPE
+    (Qwen3 and friends). Qwen3RMSNorm is `g * (x / rms(x))`: the denominator is rotation-invariant
+    but the learned per-dimension gain `g` is not, so a projection-output pair rotation is exact
+    only when `g_j == g_{j+hd/2}` for every pair. Trained gains are nowhere near pair-constant, and
+    `archcheck/test_qknorm_g2.py` measures the resulting error at 1.23 relative to ||x|| on real
+    Qwen3-0.6B-Base weights. `archcheck/probe.py` reports G2 UNAVAILABLE for such models; this
+    guard keeps the implementation from contradicting that audit and manufacturing a false
+    equivalence cell.
+    """
+    qk = sorted(k for k in sd if k.endswith(("self_attn.q_norm.weight", "self_attn.k_norm.weight")))
+    if qk:
+        raise SystemExit(
+            f"G2 is not exact here: {len(qk)} per-head QK-norm tensors (e.g. {qk[0]}) sit between "
+            "the projection and RoPE and their learned gain does not commute with a (j, j+hd/2) "
+            "rotation. See archcheck/test_qknorm_g2.py; promote only on a pair-constant gain.")
     sd = {k: v.clone() for k, v in sd.items()}
     hd, grp = arch.head_dim, arch.group
     if hd % 2:

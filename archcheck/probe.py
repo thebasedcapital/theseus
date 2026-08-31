@@ -135,11 +135,17 @@ ARCHS = {
             ("NO weight transform on import",
              "conversion/qwen.py:154-252 (Qwen3Model extends Qwen2Model)"),
         ],
-        "danger": "QK-NORM present: per-head-dim q_norm/k_norm AFTER projection, BEFORE RoPE "
-                  "(qwen3/modeling_qwen3.py:237-238, :252-257). Rotation-invariant per token, "
-                  "so G2's pair rotations remain exact; but the q_norm/k_norm rank-1 tensors are "
-                  "not meterable by the current inspector and a pipeline that pins G2 rows to the "
-                  "projection output must use the pre-norm frame.",
+        "danger": "QK-NORM BREAKS G2. Per-head q_norm/k_norm run AFTER projection, BEFORE RoPE "
+                  "(qwen3/modeling_qwen3.py:237-238, :252-257) as weight * (x / rms(x)). The "
+                  "denominator is rotation-invariant, but the per-dimension gain is not: a "
+                  "projection-output 2-plane rotation on (j, j+d/2) commutes with diag(g) only if "
+                  "g_j == g_{j+d/2} for every pair, and trained gains violate that enormously "
+                  "(Qwen3-0.6B-Base layer 0: max |g_j - g_{j+64}| = 95.3 on k_norm). Measured "
+                  "through the real weights: max ||qnorm(xR) - qnorm(x)R|| / ||x|| = 1.23, i.e. the "
+                  "'exact' rotation moves q by 123% of its own scale. G2 is therefore UNAVAILABLE "
+                  "here. G1/G3/G5/G7 are unaffected: there is no norm on v/o, and G3/G7 act on "
+                  "input columns and the MLP. Reproduce with "
+                  "archcheck/test_qknorm_g2.py <snapshot-dir>.",
     },
     "phi3": {
         "hf": ("Phi3ForCausalLM",),
@@ -431,8 +437,17 @@ def main() -> int:
                                            "concatenated per section, not the (j,j+d/2) split — "
                                            "raw G2 pair indices are wrong")
         elif rope == "rotate_half":
-            g2, g2r = "EXACT", (f"RoPE rotate_half pairs (j,j+d/2), theta={rope_theta}; distinct "
-                                "per-pair frequencies -> G2 is the maximal q/k gauge")
+            if stats.get("qk_norm_tensors"):
+                g2, g2r = "UNAVAILABLE", (
+                    "per-head QK-norm sits between the projection and RoPE: Qwen3RMSNorm is "
+                    "g * (x / rms(x)), and a 2-plane rotation on (j,j+d/2) commutes with diag(g) "
+                    "only when g_j == g_{j+d/2} for every pair. Trained gains are nowhere near "
+                    "pair-constant, so the pair rotation is NOT exact. Measured on real weights by "
+                    "archcheck/test_qknorm_g2.py; promote to EXACT only if that test reports a "
+                    "pair-constant gain.")
+            else:
+                g2, g2r = "EXACT", (f"RoPE rotate_half pairs (j,j+d/2), theta={rope_theta}; distinct "
+                                    "per-pair frequencies -> G2 is the maximal q/k gauge")
         else:
             g2, g2r = "UNAVAILABLE", f"no RoPE ({rope!r})"
         gauges["G2"] = (g2, g2r)
