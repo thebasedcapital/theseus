@@ -156,8 +156,9 @@ def run_variant(model_dir, tok, train_data, held_data, device):
     common.release(device)
     return {"task_loss_before": before, "task_loss_after": after, "capture": (before-after)/before,
             "protected_ppl_before": ppl_before, "protected_ppl_after": ppl_after,
-            "protected_dppl": ppl_after-ppl_before, "selected_lr": best["lr"],
-            "lr_grid": grid, "runtime_s": runtime, "peak_memory_allocated_gb": torch.cuda.max_memory_allocated() / 1e9 if device == "cuda" else 0.0}
+            "protected_dppl": ppl_after-ppl_before, "selected_lr": best["lr"], "base_frozen": True,
+            "contract_version": "adapt-v2-true-lora-base-frozen", "lr_grid": grid, "runtime_s": runtime,
+            "peak_memory_allocated_gb": torch.cuda.max_memory_allocated() / 1e9 if device == "cuda" else 0.0}
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--model-dir", required=True); ap.add_argument("--out", required=True); ap.add_argument("--tags", default=""); ap.add_argument("--ref-capture", type=float)
@@ -178,16 +179,16 @@ def main():
             if ref_capture is None and ref_cache.exists():
                 try:
                     cached=common.rjson(ref_cache)
-                    if cached.get("seed") == SEED and cached.get("steps") == STEPS: ref_capture=float(cached["capture"])
+                    if cached.get("seed") == SEED and cached.get("steps") == STEPS and cached.get("base_frozen") is True: ref_capture=float(cached["capture"])
                 except Exception: pass
             ref_run=None
             if ref_capture is None:
                 ref_run=run_variant(common.REF_MODEL,tok,train,held,device)
                 ref_capture=ref_run["capture"]
-                common.wjson(ref_cache,{"seed":SEED,"steps":STEPS,"rank":RANK,"capture":ref_capture,"protected_dppl":ref_run["protected_dppl"]})
+                common.wjson(ref_cache,{"seed":SEED,"steps":STEPS,"rank":RANK,"base_frozen":True,"contract_version":"adapt-v2-true-lora-base-frozen","capture":ref_capture,"protected_dppl":ref_run["protected_dppl"]})
             protected_dppl_ref = ref_run["protected_dppl"] if ref_run is not None else float(common.rjson(ref_cache)["protected_dppl"])
             run = ref_run if model_dir == common.REF_MODEL.resolve() and ref_run is not None else run_variant(model_dir,tok,train,held,device)
-            run.update({"seed":SEED,"rule":"reverse 10-digit identifier: rev: ID -> reversed(ID)","train_examples":TRAIN_N,"heldout_examples":HELDOUT_N,"seq_len":SEQ_LEN,"steps":STEPS,"batch_size":BATCH_SIZE,"grad_accum":GRAD_ACCUM,"lora_rank":RANK,"lora_alpha":ALPHA,"targets":list(TARGETS),"capture_ref":ref_capture,"protected_dppl_ref":protected_dppl_ref,"pass_contract":"amended after base calibration before variant measurement: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02","capture_threshold":0.75*ref_capture,"pass":run["capture"] >= 0.75*ref_capture and run["protected_dppl"] <= protected_dppl_ref + 0.02,"device":device,"device_note":device_note})
+            run.update({"seed":SEED,"base_frozen":True,"contract_version":"adapt-v2-true-lora-base-frozen","rule":"reverse 10-digit identifier: rev: ID -> reversed(ID)","train_examples":TRAIN_N,"heldout_examples":HELDOUT_N,"seq_len":SEQ_LEN,"steps":STEPS,"batch_size":BATCH_SIZE,"grad_accum":GRAD_ACCUM,"lora_rank":RANK,"lora_alpha":ALPHA,"targets":list(TARGETS),"capture_ref":ref_capture,"protected_dppl_ref":protected_dppl_ref,"pass_contract":"adapt-v2: capture >= 0.75*capture_ref AND protected_dppl <= protected_dppl_ref + 0.02; base globally frozen","capture_threshold":0.75*ref_capture,"pass":run["capture"] >= 0.75*ref_capture and run["protected_dppl"] <= protected_dppl_ref + 0.02,"device":device,"device_note":device_note})
             result["results"]={"variant":run,"sanity_reference":ref_run}
     except Exception as e:
         result["error"]={"type":type(e).__name__,"message":str(e)}
