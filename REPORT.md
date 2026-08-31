@@ -342,10 +342,15 @@ The reason the negative results are in this document is structural, not stylisti
 append-only store: `182` admission-clean cells, each binding `(artifact, operation, environment)` to
 a verdict, re-derivable and re-checkable, plus `19` incident records linked to the invariant that now
 prevents recurrence — including #18, which voids the natural-history attempt described in §11.
-`CLAIMS.md` holds the claim register with an explicit refuter per claim, and
-states `UNSUPPORTED → PRELIMINARY → CONTROLLED → CONFIRMED` from the obligations table; prose never
-upgrades a state. Generated files (`M1_TABLE.md`, passports, reports) are renderings of the ledger,
-never hand-written, so a session that loses its working tree loses nothing. Invariants I1–I10 in
+`python -m ledger.cli verify` audits every persisted cell against three claims it makes about itself:
+the recorded commit resolves, the named generator existed in that commit's tree, and the cell carries
+the fields its own writer cannot omit. A `contract_version`-tagged adaptation record missing `capture`
+is the #18 signature and fails the run; pre-contract cells are reported as warnings rather than
+silently compared, which is how §11's superseded alpha figures stay labelled as superseded.
+`CLAIMS.md` holds the claim register with an explicit refuter per claim, and states
+`UNSUPPORTED → PRELIMINARY → CONTROLLED → CONFIRMED` from the obligations table; prose never upgrades
+a state. Generated files (`M1_TABLE.md`, passports, reports) are renderings of the ledger, never
+hand-written, so a session that loses its working tree loses nothing. Invariants I1–I10 in
 `SYSTEM.md` encode the rules that the incidents taught.
 
 ---

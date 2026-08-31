@@ -30,18 +30,19 @@ intended future surface; do not read that as a shell command that exists.
 | `explain <claim-id>` | `python -m ledger.cli explain` | obligation table, evidence cells, the refuter, the cell answering it | implemented |
 | `render` | `python -m ledger.cli render` | regenerate `views/` from the ledger | implemented |
 | `import-m1 --work <dir>` | `python -m ledger.cli import-m1` | map `m1/work` cell JSON onto the ledger | implemented |
+| `verify [--work <dir>]` | `python -m ledger.cli verify` | does every persisted cell name a commit that resolves and a script that existed in it, and does each operation kind carry the fields its own writer cannot omit (incidents #18/#19) | implemented, read-only, exits non-zero on violation |
 | — | `theseus-scan inspect\|preflight <file> [--json]` | 32-block conditioning, dynamic range, f16-export risk; preflight exits non-zero on risk | implemented (Rust) |
 | — | `theseus-inspect inspect\|preflight <file> [--json]` | per-family features incl. boundary-keyed MoE expert families | implemented (Rust) |
 | `run <cell-id…>` | *none* | execute a cell in a frozen code snapshot under a lease | **not implemented**; execution is `m1/drive.sh` + per-probe scripts |
 | `calibrate --family <arch>` | *none* | refit thresholds, bump contract version, mark dependent verdicts stale | **not implemented**; fitting is `python analysis/thresholds.py --root analysis/data/evidence` |
-| `prepare` / `verify` / `history` | *none* | canonicalize an artifact, certify equivalence, read lineage | **not implemented**; see `m1/rescue.py`, `m1/verify_equiv.py`, `m1/passport.py` |
+| `prepare` / `certify` / `history` | *none* | canonicalize an artifact, certify equivalence, read lineage | **not implemented**; see `m1/rescue.py`, `m1/verify_equiv.py`, `m1/passport.py`. Named `certify`, not `verify`: the ledger verb `verify` already means provenance audit |
 
 The ledger root defaults to `$THESEUS_LEDGER_ROOT` or `.theseus`; sessions run every command with an
 explicit `--root` under `/tmp` so nothing is written into the live repo layout.
 
-Read-only commands (`status`, `plan`, `explain`, `render`, both scanners) are always safe to call;
-that is deliberate — the answer to "what is the situation?" must never be a memory task for the
-agent driving it.
+Read-only commands (`status`, `plan`, `explain`, `render`, `verify`, both scanners) are always safe
+to call; that is deliberate — the answer to "what is the situation?" must never be a memory task for
+the agent driving it.
 
 ## 2. Session procedure
 

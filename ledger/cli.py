@@ -1,6 +1,6 @@
 """`ledger/cli.py` — the L4 session surface: `python -m ledger.cli <verb> …`.
 
-Commands: admit | cell | status | plan | explain | render | import-m1.
+Commands: admit | cell | status | plan | explain | render | import-m1 | verify.
 None of them ever import `m1/` (live pipeline) — only `m1/work/*.json` files are read, and only
 by `import-m1` with an explicit `--work` path. The ledger root defaults to `$THESEUS_LEDGER_ROOT`
 or `.theseus`; this agent runs every command with `--root` under /tmp so nothing is ever written
@@ -195,6 +195,13 @@ def _print_dry_verify(report):
     print("  (dry-run: no files written)")
 
 
+def cmd_verify(args):
+    """Audit cell provenance: recorded commit resolves, named script existed there, and each
+    operation kind carries the fields its own writer cannot omit. See ledger/verify.py."""
+    from . import verify as _verify
+    return _verify.main(["--work", args.work] + (["--json"] if args.json else []))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="theseus", description=__doc__)
     ap.add_argument("--root", help=".theseus root (default $THESEUS_LEDGER_ROOT or .theseus)")
@@ -241,12 +248,18 @@ def main(argv=None):
                        help="after writing, recompute every record's content id")
     p_imp.set_defaults(fn=cmd_import_m1)
 
+    p_ver = sub.add_parser("verify", help="check every persisted cell names a generator that "
+                                          "could have written it (incidents #18/#19)")
+    p_ver.add_argument("--work", default=DEFAULT_WORK, help="cell store to audit")
+    p_ver.add_argument("--json", action="store_true")
+    p_ver.set_defaults(fn=cmd_verify)
+
     args = ap.parse_args(argv)
     # --root must be absolute when passed at CLI to avoid accidental local writes
     if args.root:
         args.root = str(Path(args.root).expanduser().resolve())
-    args.fn(args)
+    return args.fn(args) or 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
