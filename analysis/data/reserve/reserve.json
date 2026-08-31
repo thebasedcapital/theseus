@@ -1,0 +1,969 @@
+{
+  "conventions": {
+    "reserve": "R_o = clip(1 - excess/allowed_slack, 0, 1); 1.0 = at or better than the reference, 0.0 = the operation is lost. Margin in the statistic's own units, not parameter distance (math.md \u00a75 notes Euclidean distance is invalid under gauge freedom).",
+    "bpw": "measured artifact bytes / metered parameter count * 8, not llama.cpp's nominal label",
+    "deep_bit": "most aggressive scheme on the recorded ladder whose OWN cells both pass",
+    "merge": "largest alpha that passes / largest alpha swept; the specialist fraction the coordinates can absorb",
+    "collapse": "no scalar is produced (K-7); each operation is reported separately"
+  },
+  "n_params_metered": 357826560,
+  "ladder": [
+    "q8_0",
+    "q5_k_m",
+    "q4_k_m"
+  ],
+  "artifacts": {
+    "bad_all_exact": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 11.324,
+            "R_rel_dppl": 0.7807,
+            "excess_rel_dppl": 0.002193,
+            "R_kl_mean": 0.9832,
+            "excess_kl_mean": 8.4e-05
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.956,
+            "R_rel_dppl": 0.3891,
+            "excess_rel_dppl": 0.006109,
+            "R_kl_mean": 0.1442,
+            "excess_kl_mean": 0.004279
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": false,
+            "bpw": 8.482,
+            "R_rel_dppl": 0.0,
+            "excess_rel_dppl": 0.010773,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": "q5_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.9455,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.8359,
+        "protected_dppl": 1.9,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 0.0,
+        "binding": "collateral",
+        "R_adapt": 0.0,
+        "recorded_pass": false,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "base": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": null,
+            "bpw": 11.324,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": null,
+            "bpw": 8.956,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": null,
+            "bpw": 8.482,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": "q4_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.986,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 1.0,
+        "protected_dppl": 1.2238,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 1.0,
+        "binding": "capture",
+        "R_adapt": 1.0,
+        "recorded_pass": true,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": 0.3,
+          "R_merge": 0.4286
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": 0.4,
+          "R_merge": 0.5714
+        }
+      }
+    },
+    "g1_haar": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 11.324,
+            "R_rel_dppl": 0.7279,
+            "excess_rel_dppl": 0.002721,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.956,
+            "R_rel_dppl": 0.2349,
+            "excess_rel_dppl": 0.007651,
+            "R_kl_mean": 0.8352,
+            "excess_kl_mean": 0.000824
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": false,
+            "bpw": 8.482,
+            "R_rel_dppl": 0.0,
+            "excess_rel_dppl": 0.017726,
+            "R_kl_mean": 0.9826,
+            "excess_kl_mean": 8.7e-05
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": "q5_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.9336,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.7875,
+        "protected_dppl": 1.5129,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 0.0,
+        "binding": "collateral",
+        "R_adapt": 0.0,
+        "recorded_pass": false,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "g1_haar_rep": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 11.324,
+            "R_rel_dppl": 0.7791,
+            "excess_rel_dppl": 0.002209,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.956,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 0.8534,
+            "excess_kl_mean": 0.000733
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.482,
+            "R_rel_dppl": 0.0472,
+            "excess_rel_dppl": 0.009528,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": "q4_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.9628,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.9058,
+        "protected_dppl": 1.1348,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 1.0,
+        "binding": "capture",
+        "R_adapt": 0.9058,
+        "recorded_pass": true,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "g2_rand": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 11.324,
+            "R_rel_dppl": 0.8953,
+            "excess_rel_dppl": 0.001047,
+            "R_kl_mean": 0.985,
+            "excess_kl_mean": 7.5e-05
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.956,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 0.898,
+            "excess_kl_mean": 0.00051
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.482,
+            "R_rel_dppl": 0.2271,
+            "excess_rel_dppl": 0.007729,
+            "R_kl_mean": 0.87,
+            "excess_kl_mean": 0.00065
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": "q4_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.8794,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.5674,
+        "protected_dppl": 1.5962,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 0.0,
+        "binding": "collateral",
+        "R_adapt": 0.0,
+        "recorded_pass": false,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "g3_pow2": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": false,
+            "bpw": 11.324,
+            "R_rel_dppl": 0.0,
+            "excess_rel_dppl": 52197.255433,
+            "R_kl_mean": 0.0,
+            "excess_kl_mean": 10.689364
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": false,
+            "bpw": 8.956,
+            "R_rel_dppl": 0.0,
+            "excess_rel_dppl": 657042.475703,
+            "R_kl_mean": null
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": false,
+            "bpw": 8.482,
+            "R_rel_dppl": 0.0,
+            "excess_rel_dppl": 26189.994141,
+            "R_kl_mean": null
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": null
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.1988,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.0,
+        "protected_dppl": 234568031.0082,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 0.0,
+        "binding": "capture",
+        "R_adapt": 0.0,
+        "recorded_pass": false,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "g3_pow2_rep": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 11.324,
+            "R_rel_dppl": 0.9761,
+            "excess_rel_dppl": 0.000239,
+            "R_kl_mean": 0.975,
+            "excess_kl_mean": 0.000125
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.956,
+            "R_rel_dppl": 0.864,
+            "excess_rel_dppl": 0.00136,
+            "R_kl_mean": 0.2378,
+            "excess_kl_mean": 0.003811
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.482,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 0.3812,
+            "excess_kl_mean": 0.003094
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": "q4_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.9639,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.9103,
+        "protected_dppl": 0.7854,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 1.0,
+        "binding": "capture",
+        "R_adapt": 0.9103,
+        "recorded_pass": true,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "g4_perm": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 11.324,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 0.9988,
+            "excess_kl_mean": 6e-06
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.956,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 0.999,
+            "excess_kl_mean": 5e-06
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.482,
+            "R_rel_dppl": 0.9077,
+            "excess_rel_dppl": 0.000923,
+            "R_kl_mean": 0.9942,
+            "excess_kl_mean": 2.9e-05
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": "q4_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.8855,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.5922,
+        "protected_dppl": 0.7555,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 1.0,
+        "binding": "capture",
+        "R_adapt": 0.5922,
+        "recorded_pass": true,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "g5_c8": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 14.407,
+            "R_rel_dppl": 0.991,
+            "excess_rel_dppl": 9e-05,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 11.134,
+            "R_rel_dppl": 0.8276,
+            "excess_rel_dppl": 0.001724,
+            "R_kl_mean": 0.8334,
+            "excess_kl_mean": 0.000833
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 10.477,
+            "R_rel_dppl": 0.9382,
+            "excess_rel_dppl": 0.000618,
+            "R_kl_mean": 0.8782,
+            "excess_kl_mean": 0.000609
+          }
+        },
+        "bpw": {
+          "q8_0": 14.407,
+          "q5_k_m": 11.134,
+          "q4_k_m": 10.477
+        },
+        "deepest_passing": "q4_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.9857,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.9987,
+        "protected_dppl": 0.6384,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 1.0,
+        "binding": "capture",
+        "R_adapt": 0.9987,
+        "recorded_pass": true,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": 0.4,
+          "R_merge": 0.5714
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "g7_rand_rep": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 11.324,
+            "R_rel_dppl": 0.9077,
+            "excess_rel_dppl": 0.000923,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.956,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 0.9326,
+            "excess_kl_mean": 0.000337
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.482,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": "q4_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.8853,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.5916,
+        "protected_dppl": 1.1338,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 1.0,
+        "binding": "capture",
+        "R_adapt": 0.5916,
+        "recorded_pass": true,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "prep_base_exact": {
+      "quantize": {
+        "schemes": {
+          "q8_0": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 11.324,
+            "R_rel_dppl": 0.9942,
+            "excess_rel_dppl": 5.8e-05,
+            "R_kl_mean": 0.9846,
+            "excess_kl_mean": 7.7e-05
+          },
+          "q5_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.956,
+            "R_rel_dppl": 0.9745,
+            "excess_rel_dppl": 0.000255,
+            "R_kl_mean": 0.9998,
+            "excess_kl_mean": 1e-06
+          },
+          "q4_k_m": {
+            "status": "MEASURED",
+            "pass": true,
+            "bpw": 8.482,
+            "R_rel_dppl": 1.0,
+            "excess_rel_dppl": 0.0,
+            "R_kl_mean": 1.0,
+            "excess_kl_mean": 0.0
+          }
+        },
+        "bpw": {
+          "q8_0": 11.324,
+          "q5_k_m": 8.956,
+          "q4_k_m": 8.482
+        },
+        "deepest_passing": "q4_k_m"
+      },
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.99,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 1.0,
+        "protected_dppl": 1.1532,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 1.0,
+        "binding": "capture",
+        "R_adapt": 1.0,
+        "recorded_pass": true,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "bad_all": {
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.0951,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.0,
+        "protected_dppl": 960975.2478,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 0.0,
+        "binding": "capture",
+        "R_adapt": 0.0,
+        "recorded_pass": false,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    },
+    "g7_rand": {
+      "adapt.lora.r16": {
+        "status": "MEASURED",
+        "capture": 0.1537,
+        "threshold": 0.7395,
+        "reference": 0.986,
+        "R_capture": 0.0,
+        "protected_dppl": 30490537967.0413,
+        "dppl_allowed": 1.2438,
+        "R_collateral": 0.0,
+        "binding": "capture",
+        "R_adapt": 0.0,
+        "recorded_pass": false,
+        "contract_version": "adapt-v2-true-lora-base-frozen"
+      },
+      "merge": {
+        "linear": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        },
+        "ties": {
+          "status": "MEASURED",
+          "alphas_swept": [
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7
+          ],
+          "largest_passing_alpha": null,
+          "R_merge": 0.0
+        }
+      }
+    }
+  },
+  "note": "UNAVAILABLE is never tallied as 0 (I8); absence of evidence is not evidence."
+}
