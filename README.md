@@ -3,9 +3,13 @@
 > Two checkpoints can compute the same function and have very different futures. Theseus
 > measures the difference, per operation, and then repairs it without changing the function.
 
+**Technical report:** [`REPORT.md`](REPORT.md) is the citable summary: results, the prior-art
+boundary, and what is explicitly not shown.
+
 This repo is organised as a tower, and each layer has exactly one job:
 
 ```
+REPORT.md    the citable technical report (results, limits, prior art, reproduction)
 SYSTEM.md    how the thing is built and WHY each rule exists (invariants I1-I10)
 PLAN.md      claims + evidence obligations + budget + ordering   -> what is owed
 SCHEMA.md    the record contract (artifact / cell / claim / incident) -> what is stored
