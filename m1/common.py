@@ -67,6 +67,57 @@ def pick_device(need_gb: float = 3.6) -> str:
     return "cuda" if free >= need_gb * 1e9 else "cpu"
 
 
+
+# --- llama.cpp resolution ---------------------------------------------------------------
+# These are external tools, not a sibling project, but they were absolute machine paths, so a
+# fresh clone could not run a single quantization cell. $THESEUS_LLAMA points at a llama.cpp build
+# directory (binaries) and $THESEUS_LLAMA_SRC at a source checkout (convert_hf_to_gguf.py).
+# Missing tools raise here, at import of the resolver, rather than surfacing as a subprocess error
+# deep inside a probe - that difference is the gap between "install llama.cpp" and a mystery cell.
+_LLAMA_CANDIDATES = ("llama.cpp-vulkan/llama-b9851", "llama.cpp/build/bin", "llama.cpp")
+_SRC_CANDIDATES = ("llama.cpp-cuda-src", "llama.cpp")
+ToolsVersion = "b9851"          # the build every recorded cell in this repo was produced with
+
+
+def _tools_root() -> Path:
+    return Path(os.environ.get("HOME", str(Path.home()))) / "tools"
+
+
+def llama_dir() -> Path:
+    env = os.environ.get("THESEUS_LLAMA")
+    if env:
+        d = Path(os.path.expanduser(env))
+        if (d / "llama-quantize").exists():
+            return d
+        raise SystemExit(f"THESEUS_LLAMA={d} has no llama-quantize; build llama.cpp "
+                         f"({ToolsVersion}) and point the variable at the binary directory")
+    for c in _LLAMA_CANDIDATES:
+        d = _tools_root() / c
+        if (d / "llama-quantize").exists():
+            return d
+    raise SystemExit("llama.cpp not found. Build " + ToolsVersion + " and set THESEUS_LLAMA to the "
+                     "directory holding llama-quantize / llama-perplexity")
+
+
+def llama_bin(name: str) -> Path:
+    p = llama_dir() / name
+    if not p.exists():
+        raise SystemExit(f"{p} missing from the resolved llama.cpp build")
+    return p
+
+
+def converter() -> Path:
+    env = os.environ.get("THESEUS_LLAMA_SRC")
+    cands = ([Path(os.path.expanduser(env))] if env
+             else [_tools_root() / c for c in _SRC_CANDIDATES] + [llama_dir().parent])
+    for d in cands:
+        p = d / "convert_hf_to_gguf.py"
+        if p.exists():
+            return p
+    raise SystemExit("convert_hf_to_gguf.py not found; set THESEUS_LLAMA_SRC to a llama.cpp "
+                     "source checkout")
+
+
 def release(dev: str | None = None):
     import gc
     gc.collect()

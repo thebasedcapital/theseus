@@ -96,6 +96,16 @@ claims. Full derivation in `m1/PRIOR_ART.md` and `M1_NOTES.md`.
   Q8_0/Q4_K_M damage cells (`m1/work-qwen3/*.gguf.json`)
 | bias | attention q/k/v biases | critical: Qwen2.5-0.5B ships `max|b_q| = 79`, `max|b_k| = 130`, so any row transform must transform the matching bias entries |
 
+**How much does the damage cost to buy back?** Walking the K-quant ladder under the same
+reference-relative contract, `base` passes from q4_K_M (4.5 bpw, 397.8 MB) upward, while the
+bit-identical `g3_pow2` fails at every rung including q8_0 (8.5 bpw, 531.1 MB, ppl 633,431). Within
+the ladder there is no bit budget that recovers it, so the minimum-cost reachability of math.md §4 is
+not "four more bits" but unbounded, whereas the artifact-only coordinate repair restores Q4 at zero
+storage cost. That asymmetry is the practical case for canonicalising checkpoints rather than
+spending bytes on them (`m1/remedy_baseline.py`, `m1/work/remedy_baseline.json`). A tensor-type
+override arm was attempted and is reported `UNAVAILABLE`, not failed: the quantiser accepted the flag
+in six forms and returned a byte-identical file each time, so it measured nothing.
+
 **Important negative space.** That rotations preserving full-precision behaviour change
 quantized quality is *established*: SpinQuant reports up to **13 points** of downstream spread
 between random dense rotations at W4A4 (arXiv:2405.16406 §2.2), and QuIP/QuIP#/QuaRot/QTIP/

@@ -43,6 +43,7 @@ python -m ledger.cli verify                # does each cell name a generator tha
                                            # written it? (incidents #18/#19)
 python analysis/reserve.py                 # quantitative reserve vectors, no GPU needed
 python m1/test_gauge_math.py               # gauge algebra property tests
+python m1/remedy_baseline.py                       # bits-ladder cost of buying back quantization
 python archcheck/probe.py <snapshot-dir>   # exactness audit; exit 1 = fail closed
 python archcheck/test_qknorm_g2.py <dir>   # is G2 really exact on a QK-norm architecture?
 bash archcheck/matrix_parity.sh            # do the two Rust binaries agree per operation?

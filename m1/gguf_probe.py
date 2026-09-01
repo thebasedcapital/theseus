@@ -35,16 +35,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import common  # noqa: E402
 from common import log  # noqa: E402
 
-LLAMA = Path("/home/admin/tools/llama.cpp-vulkan/llama-b9851")
-QUANTIZE, PERPLEXITY, COMPLETION = (LLAMA / x for x in
+# Resolved, not hardcoded: see common.llama_dir()/converter(). THESEUS_LLAMA and
+# THESEUS_LLAMA_SRC override; a missing tool now raises with an actionable message.
+LLAMA = common.llama_dir()
+QUANTIZE, PERPLEXITY, COMPLETION = (common.llama_bin(x) for x in
                                     ("llama-quantize", "llama-perplexity", "llama-completion"))
-CONVERTER = Path("/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py")
+CONVERTER = common.converter()
 # Export dtype matters more than the quantizer for gauged artifacts. Measured on g3_pow2
 # (bit-identical logits in fp32 torch): bf16 export ppl 12.1351 vs base 12.1399, while f16 and
 # f32 exports both give ~177 and Q4_K_M from that source gives 3.2e5. bf16 is also the artifact's
 # native dtype, so it is the honest reference for "damage caused by quantizing".
 OUTTYPE = os.environ.get("TSX_OUTTYPE", "bf16")
-EXTRA_SITE = Path("/home/admin/laps/benchmarks/swebench/.venv/lib/python3.12/site-packages")
+# llama.cpp's convert_hf_to_gguf.py needs sentencepiece. It used to be supplied by grafting a
+# third project's site-packages onto PYTHONPATH, which made the recorded exports unreproducible
+# and silently meant "this repo only quantises on one machine". sentencepiece is now a declared
+# dependency in requirements.txt; THISUS_EXPORT_PYTHONPATH remains as an escape hatch.
+EXTRA_SITE = Path(os.environ.get("THESEUS_EXPORT_PYTHONPATH", "")) if os.environ.get("THESEUS_EXPORT_PYTHONPATH") else None
 SEED = 0
 PPL_BYTES = 32768
 KL_BYTES = 8192

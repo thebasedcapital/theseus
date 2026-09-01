@@ -1,0 +1,211 @@
+{
+  "contract_used": {
+    "amended": "2026-08-30 after the base calibration run, before any variant was measured; absolute caps failed the pristine checkpoint",
+    "kl_mean_slack": 0.005,
+    "mode": "reference-relative",
+    "prefix_agree_slack": 0.1,
+    "rel_dppl_slack": 0.01,
+    "base_rel_dppl": 0.021945,
+    "base_kl_mean": 0.031914
+  },
+  "ladder": [
+    "q2_K",
+    "q3_K_M",
+    "q4_0",
+    "q4_K_M",
+    "q5_K_M",
+    "q6_K",
+    "q8_0"
+  ],
+  "override_families": [
+    "attn_q",
+    "attn_k",
+    "attn_v",
+    "ffn_gate",
+    "ffn_up"
+  ],
+  "artifacts": [
+    {
+      "artifact": "base",
+      "status": "MEASURED",
+      "bf16_ppl": 12.1351,
+      "ladder": {
+        "q2_K": {
+          "status": "OK",
+          "ppl": 14.4823,
+          "rel_dppl": 0.19342238630089584,
+          "kl_mean": 0.197177,
+          "size_mb": 338.6,
+          "pass": false
+        },
+        "q3_K_M": {
+          "status": "OK",
+          "ppl": 12.9612,
+          "rel_dppl": 0.06807525277912833,
+          "kl_mean": 0.073057,
+          "size_mb": 355.5,
+          "pass": false
+        },
+        "q4_0": {
+          "status": "OK",
+          "ppl": 13.4415,
+          "rel_dppl": 0.10765465467940108,
+          "kl_mean": 0.112319,
+          "size_mb": 352.2,
+          "pass": false
+        },
+        "q4_K_M": {
+          "status": "OK",
+          "ppl": 12.4014,
+          "rel_dppl": 0.021944606966568147,
+          "kl_mean": 0.025396,
+          "size_mb": 397.8,
+          "pass": true
+        },
+        "q5_K_M": {
+          "status": "OK",
+          "ppl": 12.4402,
+          "rel_dppl": 0.02514194361809967,
+          "kl_mean": 0.014055,
+          "size_mb": 420.1,
+          "pass": true
+        },
+        "q6_K": {
+          "status": "OK",
+          "ppl": 12.1746,
+          "rel_dppl": 0.0032550205601931848,
+          "kl_mean": 0.002313,
+          "size_mb": 505.7,
+          "pass": true
+        },
+        "q8_0": {
+          "status": "OK",
+          "ppl": 12.1231,
+          "rel_dppl": -0.0009888670056281924,
+          "kl_mean": 0.00088,
+          "size_mb": 531.1,
+          "pass": true
+        },
+        "q4_k_m+fams@q8_0": {
+          "status": "OK",
+          "ppl": 12.4014,
+          "rel_dppl": 0.021944606966568147,
+          "kl_mean": 0.025396,
+          "size_mb": 397.8,
+          "pass": true
+        }
+      },
+      "size_mb": {
+        "q2_K": 338.6,
+        "q3_K_M": 355.5,
+        "q4_0": 352.2,
+        "q4_K_M": 397.8,
+        "q5_K_M": 420.1,
+        "q6_K": 505.7,
+        "q8_0": 531.1,
+        "q4_k_m+fams@q8_0": 397.8
+      },
+      "min_passing_type": "q4_K_M",
+      "min_passing_mb": 397.8,
+      "override_arm": {
+        "status": "UNAVAILABLE",
+        "size_mb": 397.8,
+        "plain_size_mb": null,
+        "verdict": null,
+        "reason": "llama-quantize b9851 --tensor-type produced a byte-identical file in every tried form (glob/literal/bare name, before/after positionals, with/without --allow-requantize); the override was not applied, so this arm measured nothing"
+      },
+      "override_passes": null
+    },
+    {
+      "artifact": "g3_pow2",
+      "status": "MEASURED",
+      "bf16_ppl": 12.1351,
+      "ladder": {
+        "q2_K": {
+          "status": "OK",
+          "ppl": 188653.0613,
+          "rel_dppl": 15545.065652528614,
+          "kl_mean": 9.90846,
+          "size_mb": 338.6,
+          "pass": false
+        },
+        "q3_K_M": {
+          "status": "OK",
+          "ppl": 1752236.5925,
+          "rel_dppl": 144393.07936481776,
+          "kl_mean": 12.449038,
+          "size_mb": 355.5,
+          "pass": false
+        },
+        "q4_0": {
+          "status": "OK",
+          "ppl": 259404.5655,
+          "rel_dppl": 21375.38466102463,
+          "kl_mean": 10.059051,
+          "size_mb": 352.2,
+          "pass": false
+        },
+        "q4_K_M": {
+          "status": "OK",
+          "ppl": 317830.5993,
+          "rel_dppl": 26190.016085569958,
+          "kl_mean": 10.923149,
+          "size_mb": 397.8,
+          "pass": false
+        },
+        "q5_K_M": {
+          "status": "OK",
+          "ppl": 7973288.5871,
+          "rel_dppl": 657042.5008446573,
+          "kl_mean": 13.539507,
+          "size_mb": 420.1,
+          "pass": false
+        },
+        "q6_K": {
+          "status": "OK",
+          "ppl": 659374.4091,
+          "rel_dppl": 54335.133126220644,
+          "kl_mean": 10.482328,
+          "size_mb": 505.7,
+          "pass": false
+        },
+        "q8_0": {
+          "status": "OK",
+          "ppl": 633431.0375,
+          "rel_dppl": 52197.25444372111,
+          "kl_mean": 10.425087,
+          "size_mb": 531.1,
+          "pass": false
+        },
+        "q4_k_m+fams@q8_0": {
+          "status": "OK",
+          "ppl": 317830.5993,
+          "rel_dppl": 26190.016085569958,
+          "kl_mean": 10.923149,
+          "size_mb": 397.8,
+          "pass": false
+        }
+      },
+      "size_mb": {
+        "q2_K": 338.6,
+        "q3_K_M": 355.5,
+        "q4_0": 352.2,
+        "q4_K_M": 397.8,
+        "q5_K_M": 420.1,
+        "q6_K": 505.7,
+        "q8_0": 531.1,
+        "q4_k_m+fams@q8_0": 397.8
+      },
+      "min_passing_type": null,
+      "min_passing_mb": null,
+      "override_arm": {
+        "status": "UNAVAILABLE",
+        "size_mb": 397.8,
+        "plain_size_mb": null,
+        "verdict": null,
+        "reason": "llama-quantize b9851 --tensor-type produced a byte-identical file in every tried form (glob/literal/bare name, before/after positionals, with/without --allow-requantize); the override was not applied, so this arm measured nothing"
+      },
+      "override_passes": null
+    }
+  ]
+}

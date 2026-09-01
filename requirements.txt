@@ -12,6 +12,12 @@ transformers>=5.16        # m1/common.py, m1/test_gauge_math.py  (was missing: f
 safetensors>=0.8          # m1/common.py state load/save
 numpy>=2.0
 
+# GGUF export (m1/gguf_probe.py -> llama.cpp convert_hf_to_gguf.py).
+# Undeclared until now: the recorded cells were produced by an environment that happened to have
+# it, so nothing in this repo said the exporter needs it. Without it, conversion dies deep inside
+# llama.cpp's vocab builder rather than at an install step.
+sentencepiece>=0.2
+
 # pinned eval corpus (m1/prep_data.py)
 datasets>=5.0             # was missing: m1/prep_data.py could not run on a fresh clone
 

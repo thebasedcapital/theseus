@@ -31,15 +31,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import common  # noqa: E402
 from common import log  # noqa: E402
 
-LLAMA = Path("/home/admin/tools/llama.cpp-vulkan/llama-b9851")
-PERPLEXITY, CONVERT_BIN = LLAMA / "llama-perplexity", Path("/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py")
-EXTRA_SITE = Path("/home/admin/laps/benchmarks/swebench/.venv/lib/python3.12/site-packages")
+LLAMA = common.llama_dir()
+PERPLEXITY, CONVERT_BIN = common.llama_bin("llama-perplexity"), common.converter()
+# llama.cpp export needs sentencepiece; it is declared in requirements.txt rather than
+# borrowed from another project's site-packages. Set THESEUS_EXPORT_PYTHONPATH to override.
+EXTRA_SITE = Path(os.environ["THESEUS_EXPORT_PYTHONPATH"]) if os.environ.get("THESEUS_EXPORT_PYTHONPATH") else None
 F16_NORMAL = 6.103515625e-5
 
 
 def convert(src: Path, dst: Path, outtype: str) -> bool:
     env = dict(os.environ)
-    if EXTRA_SITE.exists():
+    if EXTRA_SITE is not None and EXTRA_SITE.exists():
         env["PYTHONPATH"] = str(EXTRA_SITE) + os.pathsep + env.get("PYTHONPATH", "")
     cmd = [sys.executable, CONVERT_BIN, "--outfile", dst, "--outtype", outtype, src]
     r = subprocess.run([str(x) for x in cmd], env=env, capture_output=True, text=True, timeout=1800)
