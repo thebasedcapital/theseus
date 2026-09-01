@@ -304,16 +304,18 @@ Stated in the repo itself (`m1/passport.py` `UNCLAIMED`, `CLAIMS.md`):
   cause transferring nearly numerically (J 0.01020→0.02886, dyn range 8.66→14.54, flags 0→21).
   Adaptation reserve replicates as well: base 0.9613 ± 0.0080 against `g3_pow2` 0.2511 ± 0.0211,
   gap −0.710 versus a 3σ bar of 0.223, so K-3 and K-5 are two-architecture claims.
-- **Merge reserve is the one surgery still single-model, for two stacked reasons.** First the
-  calibration: rule learning succeeded (0.0717 against a 0.962 ceiling) but collateral perplexity on
-  the rule holdout reached 45.46 where 42.44 is allowed. A 7-config sweep cleared that - every
-  configuration passes once the budget softens to 150 steps at lr 1e-4, keeping Qwen2's rank 32
-  because rank changes merge arithmetic.
-- **Then a contract defect surfaced (incident #21).** With a specialist at rule loss 0.0194, the
-  absolute term `rule_loss_ratio <= 0.75` demands merged loss below 0.0146 - better than the
-  specialist itself - so the pristine base cannot pass and no verdict is issuable. The
-  reference-relative perplexity axis does replicate: linear merge ppl_ratio 1.00 for base, 696,800
-  for `g3_pow2`, 1.057 after repair.
+- **Merge reserve needed the contract repaired before it could be graded at all.** The Qwen2
+  specialist budget failed Qwen3's collateral gate - rule-holdout ppl 45.46 against a 42.44 ceiling -
+  and a 7-config sweep cleared it at 150 steps and lr 1e-4, keeping rank 32 because rank changes
+  merge arithmetic. Then incident #21: with a specialist at rule loss 0.0194, the absolute term
+  `rule_loss_ratio <= 0.75` demands merged loss under 0.0146, better than the specialist itself, and
+  the pristine base cannot reach it (best 0.958).
+- **Re-graded against a base-derived frontier ceiling** (`analysis/merge_frontier.py`: base frontier
+  × 1.03, mirroring the ppl slack, with both terms required to hold at one alpha), Qwen3 reproduces
+  the Qwen2 pattern. Base passes linear and TIES; `g3_pow2` fails at rule ratio 768 and ppl ratio
+  6.97e5; the repaired artifact still fails, because although retention recovers to 0.939 - better
+  than base's own 0.958 - no alpha brings merge perplexity under the ceiling (best 1.057). The
+  mechanism is now two-architecture; the thresholds stay architecture-specific by construction.
 - **Two corpora support the Q4 result, but only on Qwen2.**
 - **The Qwen3 adaptation panel is thin.** The seed drives LoRA init only, and a fourth init fell to
   base capture 0.676 beside the panel's 0.951-0.971. Three seeds therefore understate that model's

@@ -1,0 +1,101 @@
+{
+  "frontier_slack": {
+    "retention": 1.03,
+    "ppl": 1.03
+  },
+  "ops": {
+    "linear": {
+      "base_rule_frontier": 0.9581913358242606,
+      "rule_ceiling": 0.9869,
+      "base_ppl_frontier": 0.9979012494559325,
+      "ppl_ceiling_rel": 1.0278,
+      "ppl_ceiling_abs": 1.05,
+      "candidates": {
+        "base": {
+          "status": "MEASURED",
+          "best_rule_loss_ratio": 0.9581913358242606,
+          "at_alpha": 0.7,
+          "best_ppl_ratio": 0.9979012494559325,
+          "passing_alphas_frontier": [
+            0.7
+          ],
+          "passing_alphas_ppl_abs": [
+            0.7
+          ],
+          "verdict_frontier_relative": true,
+          "verdict_mixed_ppl_absolute": true,
+          "absolute_retention_verdict_old": false
+        },
+        "g3_pow2": {
+          "status": "MEASURED",
+          "best_rule_loss_ratio": 768.2680551980335,
+          "at_alpha": 0.5,
+          "best_ppl_ratio": 696800.4659095436,
+          "passing_alphas_frontier": [],
+          "passing_alphas_ppl_abs": [],
+          "verdict_frontier_relative": false,
+          "verdict_mixed_ppl_absolute": false,
+          "absolute_retention_verdict_old": false
+        },
+        "g3_pow2_rep": {
+          "status": "MEASURED",
+          "best_rule_loss_ratio": 0.9386092112134258,
+          "at_alpha": 0.7,
+          "best_ppl_ratio": 1.0573233586452917,
+          "passing_alphas_frontier": [],
+          "passing_alphas_ppl_abs": [],
+          "verdict_frontier_relative": false,
+          "verdict_mixed_ppl_absolute": false,
+          "absolute_retention_verdict_old": false
+        }
+      }
+    },
+    "ties": {
+      "base_rule_frontier": 0.9814174219093205,
+      "rule_ceiling": 1.0109,
+      "base_ppl_frontier": 0.9985964963841969,
+      "ppl_ceiling_rel": 1.0286,
+      "ppl_ceiling_abs": 1.05,
+      "candidates": {
+        "base": {
+          "status": "MEASURED",
+          "best_rule_loss_ratio": 0.9814174219093205,
+          "at_alpha": 0.7,
+          "best_ppl_ratio": 0.9985964963841969,
+          "passing_alphas_frontier": [
+            0.7
+          ],
+          "passing_alphas_ppl_abs": [
+            0.7
+          ],
+          "verdict_frontier_relative": true,
+          "verdict_mixed_ppl_absolute": true,
+          "absolute_retention_verdict_old": false
+        },
+        "g3_pow2": {
+          "status": "MEASURED",
+          "best_rule_loss_ratio": 772.168103171104,
+          "at_alpha": 0.7,
+          "best_ppl_ratio": 717216.8922521626,
+          "passing_alphas_frontier": [],
+          "passing_alphas_ppl_abs": [],
+          "verdict_frontier_relative": false,
+          "verdict_mixed_ppl_absolute": false,
+          "absolute_retention_verdict_old": false
+        },
+        "g3_pow2_rep": {
+          "status": "MEASURED",
+          "best_rule_loss_ratio": 1.0120443971170476,
+          "at_alpha": 0.7,
+          "best_ppl_ratio": 1.0558781294285002,
+          "passing_alphas_frontier": [],
+          "passing_alphas_ppl_abs": [],
+          "verdict_frontier_relative": false,
+          "verdict_mixed_ppl_absolute": false,
+          "absolute_retention_verdict_old": false
+        }
+      }
+    }
+  },
+  "status": "OK"
+}

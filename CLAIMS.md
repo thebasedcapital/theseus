@@ -219,6 +219,30 @@ it; a present-matched pair whose reserves are equal would refute it. Neither has
 ## K-9 — Merge compatibility is gauge-dependent
 
 **State: CONTROLLED.** The corrected specialist is true LoRA, saved-artifact verified and
+
+**Qwen3 status (2026-08-31): mechanism replicated, but the contract had to be repaired first.**
+Two defects stood between the panel and a verdict. (1) The Qwen2 specialist budget breached its own
+collateral gate on Qwen3 (rule-holdout ppl 45.46 against a 42.44 ceiling); a 7-config sweep cleared
+it at 150 steps / lr 1e-4, keeping rank 32 because rank changes merge arithmetic. (2) Incident #21:
+the absolute term `rule_loss_ratio <= 0.75` is unattainable there, since a specialist at loss 0.0194
+makes it demand 0.0146 - better than the specialist - and the pristine base tops out at 0.958.
+`analysis/merge_frontier.py` re-grades the committed cells against a **frontier-relative** ceiling
+derived from the base itself (base frontier x 1.03, mirroring the ppl slack), so the reference
+checkpoint can satisfy every term - the I4 requirement #4 established and this contract had not
+applied to retention. Verdicts must hold at a single alpha; grading that combines a good retention at
+one alpha with a good perplexity at another would credit a merge no setting realises.
+
+Graded result on Qwen3-0.6B-Base (linear / TIES):
+- `base` **passes** both operators (rule 0.958 / 0.981 at a=0.7, ppl 1.010 / 1.009) - and fails the
+  old absolute term, confirming #21 was a contract defect rather than bad data.
+- `g3_pow2` **fails** both, catastrophically: rule ratio 768 / 772, ppl ratio 6.97e5 / 7.17e5.
+- `g3_pow2_rep` **still fails** both. Retention recovers to 0.939 (better than base's own 0.958) but
+  no alpha gets perplexity under the ceiling (best 1.057 against 1.028 frontier-relative, 1.05
+  absolute), so lattice repair restores rule transferability and not merge perplexity.
+
+That last row is the same shape as the Qwen2 panel, where every repaired representative also failed
+both operators - so K-9's mechanism now has a second architecture, while the exact threshold values
+remain architecture-specific by construction.
 calibrated so base passes linear merge at α=0.3 and TIES-trim at α=0.4. Eleven gauged/prepared
 representatives fail both operators; G5 is the exception, passing linear at α=0.4 while failing
 TIES-trim. The result depends on coordinates and on the merge algorithm.
