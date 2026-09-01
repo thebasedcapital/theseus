@@ -296,18 +296,22 @@ Stated in the repo itself (`m1/passport.py` `UNCLAIMED`, `CLAIMS.md`):
   contract's `0.0`. The duplicate has since been deleted so `m3` delegates to
   `m1/adapt_probe.train_once`, and `m3/screens/README.md` records the divergence. These values are
   superseded until the sweep is re-run under the consolidated trainer.
-- **Surgery is one model, one scale, base (non-instruct) weights.** Exactness now has a second
-  architecture: 4 measured equivalence cells on Qwen3-0.6B-Base reproduce the bit-identical
-  result (`g3_pow2`: max|Δlogit| 0.0, KL 0.0, top-1 1.00000) and G2 correctly refuses there.
-  Quantization reserve now replicates there too: bf16 export is ppl 12.004 on both artifacts and
-  the bit-identical twin collapses to Q8_0 ppl 1.20e9 / Q4_K_M KLD 18.83 against base 0.001491 /
-  0.091089, with the static cause transferring nearly numerically (J 0.01020→0.02886, dyn range
-  8.66→14.54, flags 0→21). **Adaptation and merge reserve have not been measured on a second
-  architecture** (base 0.9613 ± 0.0080 vs `g3_pow2` 0.2511 ± 0.0211, gap −0.710 against a 3σ bar
-  of 0.223; the repair restores 0.9376), so K-3 and K-5 are two-architecture claims. **Merge
-  reserve is still single-model**, so K-9 is not. Two corpora support the Q4 result but only on
-  Qwen2. Caveat kept attached: the seed drives LoRA init only, and an extra Qwen3 init fell to
-  base capture 0.676 beside the panel's 0.951-0.971, so three seeds are thin on that model.
+- **Two architectures, one scale, base (non-instruct) weights.** Exactness now has a second
+  architecture: 4 measured equivalence cells on Qwen3-0.6B-Base reproduce the bit-identical result
+  (`g3_pow2`: max|Δlogit| 0.0, KL 0.0, top-1 1.00000) and G2 correctly refuses there. Quantization
+  reserve replicates too - bf16 export is ppl 12.004 on both artifacts while the bit-identical twin
+  collapses to Q8_0 ppl 1.20e9 / Q4_K_M KLD 18.83 against base 0.001491 / 0.091089, with the static
+  cause transferring nearly numerically (J 0.01020→0.02886, dyn range 8.66→14.54, flags 0→21).
+  Adaptation reserve replicates as well: base 0.9613 ± 0.0080 against `g3_pow2` 0.2511 ± 0.0211,
+  gap −0.710 versus a 3σ bar of 0.223, so K-3 and K-5 are two-architecture claims.
+- **Merge reserve is the one surgery still single-model.** On Qwen3 the probe refuses at its own
+  specialist gate: rule learning succeeds (0.0717 against a 0.962 ceiling) but collateral perplexity
+  reaches 45.46 where 18.01 is allowed. K-9 therefore stands as a single-model claim and that
+  calibration is explicitly Qwen2-specific.
+- **Two corpora support the Q4 result, but only on Qwen2.**
+- **The Qwen3 adaptation panel is thin.** The seed drives LoRA init only, and a fourth init fell to
+  base capture 0.676 beside the panel's 0.951-0.971. Three seeds therefore understate that model's
+  sensitivity, and its base mean should be read as provisional.
 - **Merge tests are constructed** against a specialist derived from the ungauged base.
 - **Lattice repair is not a universal cure.** `bad_all_exact` clears every static flag and still
   fails adaptation and both merges.

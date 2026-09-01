@@ -226,5 +226,15 @@ TIES-trim. The result depends on coordinates and on the merge algorithm.
 The tied-head storage bug found on G5 is fixed in `common.merge_sd`: tied checkpoints materialize
 `lm_head.weight` from the embedding before key comparison; every other key mismatch fails closed.
 
+**Attempted on Qwen3-0.6B-Base and refused, not fabricated.** Running `merge_probe` there fails
+its own specialist quality gate: rule learning passes easily (`rule_loss` 0.0717 against a 0.962
+ceiling) but collateral perplexity is **45.46 where the gate allows 18.01** (1.5 × base 12.004), a
+3.8x degradation. The probe raised `SPECIALIST_GATE_FAILED_LIVE` and wrote error cells for all
+three candidates (`m1/work-qwen3/*.merge.json`) rather than emitting merge verdicts from a
+specialist that wrecked the model. This claim is therefore still single-architecture, and the
+blocker is specific and named: the specialist hyperparameters (600 steps, rank 32, alpha 32,
+lr 3e-4) are Qwen2-calibrated and need a recalibration sweep before K-9 can be tested on Qwen3.
+Second independent sign of fragility on that model, after the init sensitivity in K-3.
+
 **Refuter:** the base reference fails on rerun, or two independent gauged representatives pass
 both operators under the same calibrated contract.

@@ -1,0 +1,13 @@
+{
+  "duration_s": 174.48118509794585,
+  "error": {
+    "message": "SPECIALIST_GATE_FAILED_LIVE rule_loss=0.07166652885538992 base_rule_loss=1.9245079786286994 eval_ppl=45.458946228027344 base_eval_ppl=28.295549392700195",
+    "type": "RuntimeError"
+  },
+  "git_head": "9b026d4e012a501fa4b4cd125efc88de31dadb47",
+  "model_dir": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B-Base/snapshots/da87bfb608c14b7cf20ba1ce41287e8de496c0cd",
+  "results": {},
+  "script": "merge_probe.py",
+  "tag": "base",
+  "torch": "2.13.0+cu130"
+}
