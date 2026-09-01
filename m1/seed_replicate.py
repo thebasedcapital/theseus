@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import statistics as st
+import subprocess
 import sys
 from pathlib import Path
 
@@ -62,6 +63,13 @@ def main():
     ap_.add_argument("--seeds", default="1729,23,44")
     ap_.add_argument("--out", default=str(common.WORK / "seed_replicate.json"))
     a = ap_.parse_args()
+    # A wiped HuggingFace cache once made three variants measure and seven vanish mid-panel, 15
+    # minutes and one GPU lock into the run. The snapshots behind every cell are external, shared,
+    # deletable state, so assert their identity before spending any of it (MODELS.json, I9).
+    gate = subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "check_models.py")])
+    if gate.returncode:
+        raise SystemExit("model snapshots unverified - refusing to measure "
+                         "(restore with: python m1/check_models.py --fix)")
     variants = [v.strip() for v in a.variants.split(",") if v.strip()]
     seeds = [int(s) for s in a.seeds.split(",") if s.strip()]
     dev = common.pick_device(2.4)
@@ -77,13 +85,19 @@ def main():
             d = common.REF_MODEL if v == "base" else common.WORK / v
             built = False
             if not (d / "model.safetensors").exists():
-                import subprocess
-                subprocess.run([sys.executable, str(common.M1 / "make_variants.py"), "--only", v,
-                                "--out", str(common.WORK)], check=False, capture_output=True)
+                build = subprocess.run([sys.executable, str(common.M1 / "make_variants.py"),
+                                        "--only", v, "--out", str(common.WORK)],
+                                       check=False, capture_output=True, text=True)
                 built = True
-            if not (d / "model.safetensors").exists():
-                log(f"{v:14s} skipped (no artifact)")
-                continue
+                if not (d / "model.safetensors").exists():
+                    # A silent "skipped" is how a missing base snapshot hid for 15 minutes: the
+                    # build failed loudly and capture_output threw the noise away.
+                    tail = (build.stderr or build.stdout or "").strip().splitlines()
+                    log(f"{v:14s} BUILD FAILED (exit {build.returncode}): "
+                        f"{tail[-1] if tail else 'no diagnostic output'}")
+                    continue
+                if build.returncode:
+                    log(f"{v:14s} note: builder exited {build.returncode} but the artifact exists")
             entry = out.setdefault(v, {"device": dev, "seeds": {}, "capture_ref_seed": AP.SEED})
             before, ppl_before = AP.base_metrics(d, tok, train, held, dev)
             entry["task_loss_before"] = before
