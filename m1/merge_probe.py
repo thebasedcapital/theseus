@@ -248,16 +248,29 @@ def external_specialist(path: Path, device: str):
 
 
 def main():
+    global STEPS, RANK, ALPHA, LR   # must precede any read of these names in the function,
+                                    # including the argparse defaults below
     ap = argparse.ArgumentParser()
     ap.add_argument("--model-dir", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--tags", default="")
+    # Calibration is a first-class flag rather than an edited constant: K-9 could only be tested on
+    # Qwen3 after the Qwen2 recipe (600 steps at lr 3e-4) was shown to breach the collateral gate
+    # there, and reproducing a panel requires stating which budget produced it. Defaults keep the
+    # original Qwen2 behaviour byte-identical.
+    ap.add_argument("--steps", type=int, default=STEPS)
+    ap.add_argument("--rank", type=int, default=RANK)
+    ap.add_argument("--alpha", type=int, default=ALPHA)
+    ap.add_argument("--lr", type=float, default=LR)
     ap.add_argument("--specialist", default="",
                     help="HF-style directory of an EXTERNALLY sourced specialist. Without it the "
                          "specialist is trained from the same ungauged base as the candidates, so "
                          "merge verdicts are partly a measurement of that construction (weakness #9)")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
+    STEPS, RANK, ALPHA, LR = args.steps, args.rank, args.alpha, args.lr
+    if (STEPS, RANK, ALPHA, LR) != (600, 32, 32, 3e-4):
+        print(f"specialist calibration overridden: steps={STEPS} rank={RANK} alpha={ALPHA} lr={LR}")
     t0 = time.perf_counter()
     model_dir, out = Path(args.model_dir).expanduser().resolve(), Path(args.out)
     result = {"script": "merge_probe.py", "model_dir": str(model_dir),
