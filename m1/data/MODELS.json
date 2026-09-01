@@ -1,0 +1,22 @@
+{
+  "_why": "Pinned identity of every external weight file this project's evidence is derived from. On 2026-08-31 the shared ~/.cache/huggingface directory was deleted wholesale by another process while the panel was running: the first variants measured cleanly and the rest died with FileNotFoundError on config.json, because a HuggingFace cache is not a project-owned artifact. Record the identity here and assert it before measuring, so a wiped or substituted snapshot fails loudly at preflight instead of silently voiding reproducibility (I9: a number that cannot be reproduced from its named generator is void).",
+  "_restore": "python m1/check_models.py --fix",
+  "models": {
+    "ref": {
+      "repo": "Qwen/Qwen2.5-0.5B",
+      "revision": "060db6499f32faf8b98477b0a26969ef7d8b9987",
+      "role": "reference checkpoint for every Qwen2 gauge, equivalence, quantization and adaptation cell",
+      "weight_file": "model.safetensors",
+      "sha256": "88c142557820ccad55bb59756bfcfcf891de9cc6202816bd346445188a0ed342",
+      "sha_source": "independently confirmed: m1/verify_g5_recovery.py recovers this exact blob byte-for-byte via the lattice path, so the hash is corroborated by the pipeline and not just by the download"
+    },
+    "ref_qwen3": {
+      "repo": "Qwen/Qwen3-0.6B-Base",
+      "revision": "da87bfb608c14b7cf20ba1ce41287e8de496c0cd",
+      "role": "second architecture; the fail-closed static-audit result and the cross-architecture transfer cells",
+      "weight_file": "model.safetensors",
+      "sha256": "cd2a512003e2f9f3cd3c32a9c3573f820bb28c940f73c57b1ddaa983d9223eba",
+      "sha_source": "pinned 2026-08-31 after the shared HF cache was found deleted: this snapshot was re-fetched at the recorded revision and confirmed present and complete by m1/check_models.py"
+    }
+  }
+}
