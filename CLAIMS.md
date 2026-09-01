@@ -73,6 +73,16 @@ rank-16 adapters. Three optimizer seeds per artifact establish the effect:
 | **`g7_rand`** | **0.1931** | 0.1537–0.2226 | 0.0290 | **−77.7 pp** |
 | `g7_rand_rep` | 0.9359 | 0.8853–0.9806 | 0.0391 | −3.5 pp |
 
+**Cross-architecture replication (Qwen3-0.6B-Base, same contract, same 3 seeds, all at one commit).**
+base `0.9613 ± 0.0080`, `g3_pow2` `0.2511 ± 0.0211` (gap **−0.710**), `g3_pow2_rep` `0.9376 ± 0.0744`
+(gap −0.024). Largest within-variant sd `0.0744` puts the 3σ bar at `0.223`, which `g3_pow2` clears by
+over 3x: **K-3 holds on a second architecture**. Cells: `m1/work-qwen3/seed_replicate.json`.
+
+Kept attached rather than smoothed: the seed drives LoRA **init only** - `seed_replicate.py:72-73`
+pins the data via `RULE_SEED` - and an extra Qwen3 init gave base capture **0.676** against the
+panel's 0.951-0.971. Qwen3 is markedly more init-sensitive than Qwen2 (0.951-0.986 across 3 seeds),
+so three seeds are thin on this model and its base mean is provisional.
+
 The registered gate is conservative: a gap must exceed three times the largest within-variant SD
 across the panel. Only G3 and G7 pass it. G1, G2 and the head-permutation control do not.
 `m1/work/seed_replicate.json` carries the contract and all per-seed grids.
@@ -119,6 +129,8 @@ power-of-two G5/G3/G7 path, then the same three-seed true-LoRA probe:
 This is operation-specific. `bad_all_exact` clears every static flag but still fails adaptation
 and both merge operators. The full non-lattice canonicalizer is diagnostic-only: `m1/rescue.py`
 refuses to ship it even when a finite token probe happens to return `EQUIVALENT`.
+
+On Qwen3-0.6B-Base the repair also replicates: `g3_pow2` 0.2511 → `g3_pow2_rep` 0.9376, landing within 0.024 of that panel's base. G7 has not been measured there.
 
 **Refuter:** either repaired G3/G7 mean remains more than 3σ below base.
 

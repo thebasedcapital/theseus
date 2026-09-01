@@ -303,8 +303,11 @@ Stated in the repo itself (`m1/passport.py` `UNCLAIMED`, `CLAIMS.md`):
   the bit-identical twin collapses to Q8_0 ppl 1.20e9 / Q4_K_M KLD 18.83 against base 0.001491 /
   0.091089, with the static cause transferring nearly numerically (J 0.01020→0.02886, dyn range
   8.66→14.54, flags 0→21). **Adaptation and merge reserve have not been measured on a second
-  architecture**, so K-3 and K-9 remain single-model claims; two corpora support the Q4 result
-  but only for Qwen2.
+  architecture** (base 0.9613 ± 0.0080 vs `g3_pow2` 0.2511 ± 0.0211, gap −0.710 against a 3σ bar
+  of 0.223; the repair restores 0.9376), so K-3 and K-5 are two-architecture claims. **Merge
+  reserve is still single-model**, so K-9 is not. Two corpora support the Q4 result but only on
+  Qwen2. Caveat kept attached: the seed drives LoRA init only, and an extra Qwen3 init fell to
+  base capture 0.676 beside the panel's 0.951-0.971, so three seeds are thin on that model.
 - **Merge tests are constructed** against a specialist derived from the ungauged base.
 - **Lattice repair is not a universal cure.** `bad_all_exact` clears every static flag and still
   fails adaptation and both merges.
