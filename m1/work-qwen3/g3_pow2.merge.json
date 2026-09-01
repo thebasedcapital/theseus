@@ -1,0 +1,13 @@
+{
+  "duration_s": 175.80354700912721,
+  "error": {
+    "message": "SPECIALIST_GATE_FAILED_LIVE rule_loss=0.07166652885538992 base_rule_loss=1.9245079786286994 eval_ppl=45.458946228027344 base_eval_ppl=28.295549392700195",
+    "type": "RuntimeError"
+  },
+  "git_head": "cf41f67ae08f3a7e79629f227420ed3d74ce2885",
+  "model_dir": "/home/admin/theseus/m1/work-qwen3/g3_pow2",
+  "results": {},
+  "script": "merge_probe.py",
+  "tag": "g3_pow2",
+  "torch": "2.13.0+cu130"
+}
