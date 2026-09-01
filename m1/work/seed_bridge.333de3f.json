@@ -1,0 +1,310 @@
+{
+  "_contract": {
+    "base_frozen": true,
+    "gap_threshold_sd": 3,
+    "version": "adapt-v2-true-lora-base-frozen"
+  },
+  "_summary": {
+    "base_capture": 0.9516,
+    "gaps_beyond_3sd": [
+      [
+        "g3_pow2",
+        -0.78882
+      ]
+    ],
+    "max_within_variant_sd": 0.0723,
+    "threshold_sd": 3
+  },
+  "base": {
+    "capture_mean": 0.9516,
+    "capture_ref_seed": 1729,
+    "capture_spread": [
+      0.8666,
+      0.99615
+    ],
+    "capture_stdev": 0.04606,
+    "device": "cuda",
+    "seeds": {
+      "101": {
+        "capture": 0.9961544895072172,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.9961544895072172,
+            "lr": 0.0003,
+            "runtime_s": 18.8,
+            "task_loss_after": 0.010470638715229474
+          },
+          {
+            "capture": 0.02341456575493335,
+            "lr": 0.003,
+            "runtime_s": 18.3,
+            "task_loss_after": 2.6590678339654747
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "1729": {
+        "capture": 0.9859822708366603,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.9859822708366603,
+            "lr": 0.0003,
+            "runtime_s": 16.7,
+            "task_loss_after": 0.038167774591365534
+          },
+          {
+            "capture": 0.09083241307875914,
+            "lr": 0.003,
+            "runtime_s": 18.0,
+            "task_loss_after": 2.4755010686137457
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "202": {
+        "capture": 0.8999111825365463,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.8999111825365463,
+            "lr": 0.0003,
+            "runtime_s": 17.9,
+            "task_loss_after": 0.2725239858430293
+          },
+          {
+            "capture": 0.19043788538143738,
+            "lr": 0.003,
+            "runtime_s": 17.1,
+            "task_loss_after": 2.2042931453748182
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "23": {
+        "capture": 0.9508782266223277,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.9508782266223277,
+            "lr": 0.0003,
+            "runtime_s": 18.5,
+            "task_loss_after": 0.13374982152675907
+          },
+          {
+            "capture": 0.061274987342560955,
+            "lr": 0.003,
+            "runtime_s": 18.6,
+            "task_loss_after": 2.5559806634079325
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "303": {
+        "capture": 0.8666024277433525,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.8666024277433525,
+            "lr": 0.0003,
+            "runtime_s": 17.1,
+            "task_loss_after": 0.3632177801125429
+          },
+          {
+            "capture": -0.015714933106639534,
+            "lr": 0.003,
+            "runtime_s": 17.0,
+            "task_loss_after": 2.765610475431789
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "404": {
+        "capture": 0.987099464717003,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.987099464717003,
+            "lr": 0.0003,
+            "runtime_s": 16.8,
+            "task_loss_after": 0.03512585505483334
+          },
+          {
+            "capture": 0.0648802838265785,
+            "lr": 0.003,
+            "runtime_s": 16.6,
+            "task_loss_after": 2.546164084564556
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "44": {
+        "capture": 0.9745514631803446,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.9745514631803446,
+            "lr": 0.0003,
+            "runtime_s": 18.7,
+            "task_loss_after": 0.06929182363951854
+          },
+          {
+            "capture": 0.08199299498718203,
+            "lr": 0.003,
+            "runtime_s": 18.7,
+            "task_loss_after": 2.4995692263950002
+          }
+        ],
+        "selected_lr": 0.0003
+      }
+    },
+    "task_loss_before": 2.72282151742415
+  },
+  "g3_pow2": {
+    "capture_mean": 0.16278,
+    "capture_ref_seed": 1729,
+    "capture_spread": [
+      0.03998,
+      0.21604
+    ],
+    "capture_stdev": 0.0723,
+    "device": "cuda",
+    "seeds": {
+      "101": {
+        "capture": 0.2088473437423892,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.2088473437423892,
+            "lr": 0.0003,
+            "runtime_s": 18.0,
+            "task_loss_after": 2.1541674760254947
+          },
+          {
+            "capture": 0.03493009697775866,
+            "lr": 0.003,
+            "runtime_s": 17.9,
+            "task_loss_after": 2.6277130977673964
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "1729": {
+        "capture": 0.19881507002899362,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.19881507002899362,
+            "lr": 0.0003,
+            "runtime_s": 21.3,
+            "task_loss_after": 2.181483566761017
+          },
+          {
+            "capture": 0.010578954761843546,
+            "lr": 0.003,
+            "runtime_s": 16.6,
+            "task_loss_after": 2.6940169117667456
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "202": {
+        "capture": 0.20929234517456263,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.20929234517456263,
+            "lr": 0.0003,
+            "runtime_s": 18.2,
+            "task_loss_after": 2.1529558165506884
+          },
+          {
+            "capture": -0.030238660359080356,
+            "lr": 0.003,
+            "runtime_s": 18.3,
+            "task_loss_after": 2.8051559925079346
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "23": {
+        "capture": 0.057943522432417655,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": -0.17307245330427287,
+            "lr": 0.0003,
+            "runtime_s": 16.7,
+            "task_loss_after": 3.1940669173544105
+          },
+          {
+            "capture": 0.057943522432417655,
+            "lr": 0.003,
+            "runtime_s": 16.6,
+            "task_loss_after": 2.565051647749814
+          }
+        ],
+        "selected_lr": 0.003
+      },
+      "303": {
+        "capture": 0.216043393282479,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.216043393282479,
+            "lr": 0.0003,
+            "runtime_s": 18.3,
+            "task_loss_after": 2.134573917497288
+          },
+          {
+            "capture": 0.02846289447346784,
+            "lr": 0.003,
+            "runtime_s": 18.4,
+            "task_loss_after": 2.6453221359036188
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "404": {
+        "capture": 0.20857468730455767,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": 0.20857468730455767,
+            "lr": 0.0003,
+            "runtime_s": 18.5,
+            "task_loss_after": 2.1549098708412866
+          },
+          {
+            "capture": 0.09055463320698592,
+            "lr": 0.003,
+            "runtime_s": 18.5,
+            "task_loss_after": 2.476257413625717
+          }
+        ],
+        "selected_lr": 0.0003
+      },
+      "44": {
+        "capture": 0.0399755689515183,
+        "git_head": "333de3f",
+        "grid": [
+          {
+            "capture": -0.20581332357583682,
+            "lr": 0.0003,
+            "runtime_s": 16.7,
+            "task_loss_after": 3.2832144634290175
+          },
+          {
+            "capture": 0.0399755689515183,
+            "lr": 0.003,
+            "runtime_s": 16.7,
+            "task_loss_after": 2.613975178111683
+          }
+        ],
+        "selected_lr": 0.003
+      }
+    },
+    "task_loss_before": 2.72282151742415
+  }
+}

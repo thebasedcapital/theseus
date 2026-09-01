@@ -7,7 +7,7 @@
 > training at LoRA learning rates because embeddings, norms and the LM head remained trainable.
 > Twenty-one cells are archived under `m1/work/invalidated/full_model_training/` and count toward
 > no claim. The corrected probes freeze the whole base before adapters; the replacement panel and
-> three-seed adaptation replication are complete. Equivalence, export, static and quantization
+> seven-seed adaptation replication are complete. Equivalence, export, static and quantization
 > measurements were unaffected.
 
 Subject: `Qwen/Qwen2.5-0.5B` (base, bf16, tied), surgery executed by real tools (llama.cpp
@@ -195,7 +195,7 @@ Reference-relative contracts, fixed on base *before* any variant was measured:
 - **bounded true-LoRA r16 on pristine base** (reverse a 10-digit identifier; 512 train / 128
   held-out, 80 steps, batch 2 × seq 128, lr chosen from {3e-4, 3e-3}): seed 1729 captures
   **0.9860** of the available task-loss reduction and moves protected WikiText PPL by **+1.224**.
-  Across seeds 1729/23/44, mean capture is **0.9705**, range 0.9509–0.9860, SD 0.0146. The
+  Across the seven-seed panel (§5), mean capture is **0.9516**, range 0.8666–0.9962, SD 0.0461; the original three-seed figure was 0.9705 ± 0.0146. The
   reference-relative pass contract is `capture ≥ 0.75 × capture_ref` and
   `protected_dppl ≤ dppl_ref + 0.02`.
 
@@ -219,29 +219,53 @@ quantizing. Audited against the actual artifacts (`m1/check_gguf_layout.py`, lay
 
 The corrected probe globally freezes embeddings, norms, LM head and all base Linear weights before
 installing rank-16 adapters. Every artifact uses the same data order, 80 steps, two-learning-rate
-grid and three optimizer seeds. The registered effect gate is deliberately conservative: a gap
-must exceed three times the largest within-variant SD in the panel.
+grid and **seven optimizer seeds** (1729, 23, 44, 101, 202, 303, 404), all cells `device=cuda`, one
+contract, one measurement configuration: `m1/work/seed_replicate.7seed.json`. The registered effect
+gate is deliberately conservative: a gap must exceed three times the largest within-variant SD.
 
 | checkpoint | mean capture | range | SD | gap vs base | 3σ result |
 |---|---:|---:|---:|---:|---|
-| `base` | 0.9705 | 0.9509–0.9860 | 0.0146 | — | reference |
-| `g1_haar` | 0.9141 | 0.8876–0.9336 | 0.0194 | −5.6 pp | below 3σ |
-| `g1_haar_rep` | 0.8839 | 0.7300–0.9628 | 0.1088 | −8.7 pp | below 3σ |
-| `g2_rand` | 0.9058 | 0.8794–0.9551 | 0.0349 | −6.5 pp | below 3σ |
-| **`g3_pow2`** | **0.0989** | 0.0400–0.1988 | 0.0710 | **−87.2 pp** | **effect** |
-| `g3_pow2_rep` | **0.9753** | 0.9639–0.9876 | 0.0097 | +0.5 pp | restored |
-| `g4_perm` | 0.8827 | 0.7788–0.9839 | 0.0837 | −8.8 pp | below 3σ |
-| `g5_c8` | 0.9813 | 0.9722–0.9860 | 0.0065 | +1.1 pp | below 3σ |
-| **`g7_rand`** | **0.1931** | 0.1537–0.2226 | 0.0290 | **−77.7 pp** | **effect** |
-| `g7_rand_rep` | **0.9359** | 0.8853–0.9806 | 0.0391 | −3.5 pp | restored |
+| `base` | 0.9516 | 0.8666–0.9962 | 0.0461 | — | reference |
+| `g1_haar` | 0.9437 | 0.8876–0.9826 | 0.0311 | −0.8 pp | below 3σ |
+| `g1_haar_rep` | 0.9072 | 0.7300–0.9748 | 0.0945 | −4.4 pp | below 3σ |
+| `g2_rand` | 0.9202 | 0.8772–0.9850 | 0.0471 | −3.1 pp | below 3σ |
+| **`g3_pow2`** | **0.1628** | 0.0400–0.2160 | 0.0723 | **−78.9 pp** | **effect** |
+| `g3_pow2_rep` | **0.9744** | 0.9470–0.9876 | 0.0134 | +2.3 pp | restored |
+| `g4_perm` | 0.9123 | 0.7788–0.9839 | 0.0652 | −3.9 pp | below 3σ |
+| `g5_c8` | 0.9719 | 0.9582–0.9860 | 0.0098 | +2.0 pp | below 3σ |
+| **`g7_rand`** | **0.1908** | 0.1537–0.2227 | 0.0226 | **−76.1 pp** | **effect** |
+| `g7_rand_rep` | **0.9403** | 0.8695–0.9923 | 0.0429 | −1.1 pp | restored |
 
-Only G3 and G7 clear the 3σ bar. Later a 7-seed extension was attempted and **not adopted**: the added seeds ran under a different commit than the cached three, incident #20 shows that changes capture by points, so the combined mean mixes measurements of two experiments. Direction and size of the effect survived (gaps −0.789 and −0.761 against a 0.326 bar), but the base SD tripled from 0.0146 to 0.0461 across 7 seeds, which means the 3-seed panel understated its own variance. A homogeneous rerun at a single commit is open work; see `analysis/data/reverification.json`. The smaller G1/G2/permutation differences do not survive
+Bar = 3 × 0.0945 = 0.2836, set by `g1_haar_rep`'s SD.
+
+Only G3 and G7 clear the 3σ bar; the smaller G1/G2/permutation differences do not survive
 optimizer variance and are not claims. `g3_pow2` is the strongest case: its stored artifact is
 bit-identical in logits and PPL to base in both fp32 and bf16 compute, yet its mean adaptation
-capture falls from 0.9705 to 0.0989. Artifact-only lattice repair returns it to 0.9753.
+capture falls from 0.9516 to 0.1628. Artifact-only lattice repair returns it to 0.9744.
 
 G7 tells the same story with a weaker equivalence condition. It is exact in fp32 arithmetic but
-not bit-identical under bf16 compute; mean capture falls to 0.1931 and repair returns it to 0.9359.
+not bit-identical under bf16 compute; mean capture falls to 0.1908 and repair returns it to 0.9403.
+
+**How this panel replaced the three-seed one, twice.** A first 7-seed attempt was **rejected**: the
+added seeds ran under a different commit than the three cached ones, and incident #20 shows a commit
+change moves capture by points, so that mean mixed two experiments (kept as
+`m1/work/seed_replicate.mixed-n.2026-08-31.json`, never cited). The rerun above completed, but a
+shared-cache deletion interrupted it part-way, leaving 21 seed-cells at `2a15503` and 49 at `333de3f`.
+Every variant was internally uniform, so the per-variant guard said nothing — yet each `gap vs base`
+was a cross-commit subtraction. Two responses, in order: first close the blind spot
+(`panel_provenance()`, regression-tested — it flags exactly this shape, which the old guard cannot
+see), then *demonstrate* the split harmless instead of reasoning that the diff looked inert: `base`
+and `g3_pow2` were re-measured at all seven seeds under `333de3f` and returned bit-identical captures
+(max |Δ| = 0.0e+00 over 14 cells, `m1/work/seed_bridge.333de3f.json`).
+
+**What doubling the panel corrected.** Two published figures were wrong, in structurally different
+ways. Base SD was 0.0146 at three seeds and is **0.0461** at seven: three draws happened to land
+tight, which also means the old bar (0.213) was too permissive; both effects clear the stricter
+0.2836. And `g3_pow2`'s captures are **bimodal** — `{0.0400, 0.0579}` versus
+`{0.1988, 0.2086, 0.2089, 0.2093, 0.2160}` — so the three seeds, which drew two from the low
+cluster, published a mean of 0.0989 and a −87.2 pp gap. The correct gap is **−78.9 pp**: still 2.8×
+the bar, but the earlier magnitude was an n=3 artifact. `g1_haar_rep` is bimodal the same way, more
+mildly (`0.7300, 0.7903` then a tight `0.9589–0.9748`), which is why it dominates the bar.
 The evidence therefore supports adaptation reserve as a property of artifact coordinates plus
 runtime arithmetic, not of the realized fp32 function alone.
 
@@ -306,7 +330,7 @@ Readings that matter:
   `q4_block_mse > 0.01282348` with recall 1.0, precision 0.40 and specificity 0.833. Q4's
   recall-preserving fit is refused because precision 0.278 is below the required 0.3125.
   Q8 v3 is an in-sample calibrated preflight rule; it is not an out-of-sample model.
-* G3/G7 repair restores adaptation across three seeds and restores quantization where measured,
+* G3/G7 repair restores adaptation across seven seeds and restores quantization where measured,
   but `bad_all_exact` shows that clearing static flags does not guarantee every operation passes.
 
 ### Pre-registered prediction ledger

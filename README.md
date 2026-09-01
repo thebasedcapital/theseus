@@ -60,20 +60,22 @@ session that loses its working tree loses nothing.
 Qwen2.5-0.5B, exact architecture-valid gauges verified to logit equivalence, surgery executed by
 `llama.cpp b9851` and hand-written AdamW LoRA / task-vector merges:
 
-| checkpoint | max\|Δlogit\| vs base | Q4_K_M KLD | true-LoRA mean capture | merge |
+| checkpoint | max\|Δlogit\| vs base | Q4_K_M KLD | true-LoRA mean capture (7 seeds) | merge |
 |---|---:|---:|---:|---|
-| `base` | 0 | 0.0319 | 0.9705 | linear + TIES pass |
-| `g3_pow2` | **0.00e+00** | undefined; Q8 KLD **10.69** | **0.0989** | both fail |
-| `g3_pow2_rep` | 0.00e+00 | 0.0350 | **0.9753** | both fail |
-| `g7_rand` | 3.1e-01 | undefined | **0.1931** | both fail |
-| `g7_rand_rep` | 4.8e-01 | 0.0314 | **0.9359** | both fail |
-| `g5_c8` | 1.7e-01 | 0.0325 | 0.9813 | linear passes, TIES fails |
+| `base` | 0 | 0.0319 | 0.9516 | linear + TIES pass |
+| `g3_pow2` | **0.00e+00** | undefined; Q8 KLD **10.69** | **0.1628** | both fail |
+| `g3_pow2_rep` | 0.00e+00 | 0.0350 | **0.9744** | both fail |
+| `g7_rand` | 3.1e-01 | undefined | **0.1908** | both fail |
+| `g7_rand_rep` | 4.8e-01 | 0.0314 | **0.9403** | both fail |
+| `g5_c8` | 1.7e-01 | 0.0325 | 0.9719 | linear passes, TIES fails |
 | `prep_base_exact` | EQUIVALENT | 0.0316 | 0.9900 (one seed) | both fail |
 
 For G3, logits agree to the last bit in fp32 and bf16 compute, yet mean adaptation capture falls
-from 0.9705 to 0.0989 and Q8 KLD jumps from 0.00094 to 10.69. Artifact-only lattice repair returns
-adaptation to 0.9753 and Q4 close to base. G7 repeats the adaptation result under fp32-equivalent,
-bf16-sensitive arithmetic. Both effects survive a conservative three-seed, 3σ gate.
+from 0.9516 to 0.1628 and Q8 KLD jumps from 0.00094 to 10.69. Artifact-only lattice repair returns
+adaptation to 0.9744 and Q4 close to base. G7 repeats the adaptation result under fp32-equivalent,
+bf16-sensitive arithmetic. Both effects survive a 3σ gate on a full ten-variant, seven-seed panel
+where the bar is set by the *largest* within-variant SD in the panel (0.2836), not by the two
+artifacts being compared.
 
 There is no single reserve score. `prep_base_exact` improves Q4 relative ΔPPL on two disjoint
 corpus slices, by 0.185 pp and 0.478 pp versus base, while both merge operators fail.

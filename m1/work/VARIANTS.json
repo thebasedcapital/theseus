@@ -426,7 +426,7 @@
     "untied": false
   },
   "g1_haar": {
-    "build_s": 5.5,
+    "build_s": 6.3,
     "bytes": 988097824,
     "canonicalize": null,
     "dir": "/home/admin/theseus/m1/work/g1_haar",
@@ -451,7 +451,7 @@
     "untied": false
   },
   "g1_haar_rep": {
-    "build_s": 5.8,
+    "build_s": 6.6,
     "bytes": 988116024,
     "canon": {
       "canonicalize": [
@@ -548,7 +548,7 @@
     "untied": false
   },
   "g2_rand": {
-    "build_s": 5.7,
+    "build_s": 6.4,
     "bytes": 988097824,
     "canonicalize": null,
     "dir": "/home/admin/theseus/m1/work/g2_rand",
@@ -605,7 +605,7 @@
     "untied": false
   },
   "g3_pow2": {
-    "build_s": 6.8,
+    "build_s": 8.3,
     "bytes": 988097824,
     "canonicalize": null,
     "dir": "m1/work/g3_pow2",
@@ -629,7 +629,7 @@
     "untied": false
   },
   "g3_pow2_rep": {
-    "build_s": 7.6,
+    "build_s": 8.4,
     "bytes": 988097824,
     "canon": {
       "canonicalize": [
@@ -719,7 +719,7 @@
     "untied": false
   },
   "g4_perm": {
-    "build_s": 5.5,
+    "build_s": 6.5,
     "bytes": 988097824,
     "canonicalize": null,
     "dir": "/home/admin/theseus/m1/work/g4_perm",
@@ -743,10 +743,10 @@
     "untied": false
   },
   "g5_c8": {
-    "build_s": 6.7,
+    "build_s": 7.7,
     "bytes": 1260367448,
     "canonicalize": null,
-    "dir": "m1/work/g5_c8",
+    "dir": "/home/admin/theseus/m1/work/g5_c8",
     "gauge": {
       "config_patch": null,
       "spec": "G5:c8",
@@ -910,7 +910,7 @@
     "untied": false
   },
   "g7_rand": {
-    "build_s": 6.4,
+    "build_s": 6.8,
     "bytes": 988097824,
     "canonicalize": null,
     "dir": "/home/admin/theseus/m1/work/g7_rand",
@@ -934,7 +934,7 @@
     "untied": false
   },
   "g7_rand_rep": {
-    "build_s": 6.9,
+    "build_s": 8.2,
     "bytes": 988097824,
     "canon": {
       "canonicalize": [
