@@ -46,7 +46,7 @@ ADAPT_V2 = "adapt-v2-true-lora-base-frozen"
 PF_INVARIANT = {1: "I2", 2: "I2", 3: "I6", 4: "I4", 5: "I3+I5", 6: "I3+I5",
                 7: "I1+I7", 8: "I6", 9: "I1+I7", 10: "I1+I7", 11: "I1+I7",
                 12: "K-7", 13: "I6", 14: "I1+I7", 15: "I2+I5", 16: "I1+I7",
-                17: "I2+I5", 18: "I2+I5+I10", 19: "I2+I5+I10", 20: "I3+I7", 21: "I4"}
+                17: "I2+I5", 18: "I2+I5+I10", 19: "I2+I5+I10", 20: "I3+I7", 21: "I4", 22: "I6+I9"}
 PF_SEVERITY = {4: "result-threatening", 5: "result-threatening", 6: "result-threatening",
                8: "result-threatening", 10: "result-threatening", 11: "result-threatening",
                14: "result-threatening", 15: "result-threatening", 17: "result-threatening",

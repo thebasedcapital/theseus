@@ -60,7 +60,9 @@ LLAMA = Path("/home/admin/tools/llama.cpp-vulkan/llama-b9851")
 CONVERTER = Path("/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py")
 INSPECT = ROOT / "inspect/target/release/theseus-inspect"
 SCAN = ROOT / "scan/target/release/theseus-scan"
-PY_EXTRA = Path("/home/admin/laps/benchmarks/swebench/.venv/lib/python3.12/site-packages")
+# see m1/gguf_probe.py: no borrowed site-packages; set THESEUS_EXPORT_PYTHONPATH if your
+# converter needs one
+PY_EXTRA = Path(os.environ["THESEUS_EXPORT_PYTHONPATH"]) if os.environ.get("THESEUS_EXPORT_PYTHONPATH") else None
 
 
 def git_head():
@@ -204,7 +206,8 @@ def run_cmd(cmd, commands, timeout=3600):
     commands[-1].update({"returncode": p.returncode, "stdout_tail": p.stdout[-1200:], "stderr_tail": p.stderr[-1200:]})
     return p
 def quantize(path: Path, work: Path, commands):
-    if PY_EXTRA.exists(): os.environ["PYTHONPATH"] = str(PY_EXTRA) + os.pathsep + os.environ.get("PYTHONPATH", "")
+    if PY_EXTRA is not None and PY_EXTRA.exists():
+        os.environ["PYTHONPATH"] = str(PY_EXTRA) + os.pathsep + os.environ.get("PYTHONPATH", "")
     env = dict(os.environ)
     bf16 = work / f"{path.name}.bf16.gguf"; q4 = work / f"{path.name}.q4_k_m.gguf"
     p = run_cmd([sys.executable, CONVERTER, "--outfile", bf16, "--outtype", "bf16", path], commands, 1800)
@@ -249,7 +252,7 @@ def future_cells(parents, work: Path, tok, device: str, commands):
         fresh = save_sd(adapted, work / f"{order}.future")
         native, q4 = work / f"{order}.future.bf16.gguf", work / f"{order}.future.q4_k_m.gguf"
         try:
-            if PY_EXTRA.exists():
+            if PY_EXTRA is not None and PY_EXTRA.exists():
                 os.environ["PYTHONPATH"] = str(PY_EXTRA) + os.pathsep + os.environ.get("PYTHONPATH", "")
             pc = run_cmd([sys.executable, CONVERTER, "--outfile", native, "--outtype", "bf16", fresh], commands, 1800)
             pqc = run_cmd([LLAMA / "llama-quantize", native, q4, "Q4_K_M", str(CONTRACT["quantizer"]["threads"])], commands, 1800) if pc.returncode == 0 and native.exists() else None

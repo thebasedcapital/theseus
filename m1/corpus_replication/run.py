@@ -28,9 +28,11 @@ BASE = Path(os.path.expanduser("~/.cache/huggingface/hub/models--Qwen--Qwen2.5-0
 PREP = M1 / "work" / "prep_base_exact"
 PREP_SCRIPT = M1 / "make_variants.py"
 PYTHON = Path(os.environ.get("THESEUS_PY", sys.executable))
-LLAMA = Path("/home/admin/tools/llama.cpp-vulkan/llama-b9851")
-CONVERTER = Path("/home/admin/tools/llama.cpp-cuda-src/convert_hf_to_gguf.py")
-EXTRA_SITE = Path("/home/admin/laps/benchmarks/swebench/.venv/lib/python3.12/site-packages")
+LLAMA = common.llama_dir()
+CONVERTER = common.converter()
+# llama.cpp export needs sentencepiece; it is declared in requirements.txt rather than
+# borrowed from another project's site-packages. Set THESEUS_EXPORT_PYTHONPATH to override.
+EXTRA_SITE = Path(os.environ["THESEUS_EXPORT_PYTHONPATH"]) if os.environ.get("THESEUS_EXPORT_PYTHONPATH") else None
 PPL_BYTES = 32768
 KL_BYTES = 8192
 OFFSET = 65536

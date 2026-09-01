@@ -6,7 +6,8 @@ from pathlib import Path
 
 LAYERS=24
 EXPECTED=290
-sys.path.insert(0,"/home/admin/tools/llama.cpp-cuda-src/gguf-py")
+_src = __import__("common").converter().parent
+sys.path.insert(0, str(_src / "gguf-py"))
 
 def main():
  ap=argparse.ArgumentParser(); ap.add_argument('--gguf',type=Path,required=True); ap.add_argument('--out',type=Path,default=None); a=ap.parse_args(); p=a.gguf.resolve()
