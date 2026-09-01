@@ -20,7 +20,7 @@ verification and multi-seed replication.
 | architecture | `Qwen2ForCausalLM`: 24 layers, hidden 896, 14 q-heads / 2 kv-heads (GQA group 7), `head_dim` 64, SwiGLU MLP `intermediate` 4864, RMSNorm pre-norm, RoPE `theta=1e6` (`rotate_half` convention), q/k/v biases, no qk-norm, `tie_word_embeddings=true` |
 | params | 494.03 M |
 | eval corpus | `m1/data/eval_wikitext.txt` — pinned 401,943-char slice (94,099 Qwen tokens) of WikiText-2 raw `test`, CC BY-SA 4.0, provenance in `m1/data/PROVENANCE.json`; verification uses the first 4,096 tokens, 8×512 |
-| torch | 2.13.0+cu130, transformers 5.16.1, safetensors 0.8.0 (`$THESEUS_PY`, defaulting to an existing environment on this box) |
+| torch | 2.13.0+cu130, transformers 5.16.1, safetensors 0.8.0, datasets 5.0.1 (project `.venv`; `$THESEUS_PY` overrides) |
 | surgery backend | llama.cpp `b9851` (Vulkan, Quadro RTX 4000) for real GGUF `Q8_0/Q6_K/Q5_K_M/Q4_K_M` + `f16`; hand-written LoRA and linear/TIES merges in torch |
 | contention | one 8 GB GPU shared with the desktop and sibling agents → `common.pick_device()` + `common.lock("gpu")` serialize big loads; a probe that cannot get resources records `UNAVAILABLE`, never a fake PASS |
 

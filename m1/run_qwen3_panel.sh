@@ -9,7 +9,9 @@ set -uo pipefail
 cd /home/admin/theseus
 REF=/home/admin/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B-Base/snapshots/da87bfb608c14b7cf20ba1ce41287e8de496c0cd
 W="$PWD/m1/work-qwen3"
-PY=/home/admin/counterpoint/.venv/bin/python
+# project-local interpreter; override with THESEUS_PY
+PY="${THESEUS_PY:-$ROOT/.venv/bin/python}"
+[ -x "$PY" ] || PY="${THESEUS_PY:-python3}"
 export THESEUS_REF_MODEL="$REF" THESEUS_WORK="$W"
 mkdir -p "$W/equiv"
 pass=0; refused=0; failed=0
