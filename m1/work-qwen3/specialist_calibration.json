@@ -1,0 +1,22 @@
+{
+  "architecture": "da87bfb608c14b7cf20ba1ce41287e8de496c0cd",
+  "base_rule_loss": 1.9245079786286994,
+  "base_ppl": 28.295549392700195,
+  "ppl_ceiling": 42.44332408905029,
+  "gate": "rule_loss < 0.5*base_rule_loss AND eval_ppl <= 1.5*base_ppl",
+  "configs": [
+    {
+      "steps": 2,
+      "rank": 8,
+      "alpha": 8,
+      "lr": 0.0003,
+      "refused": "SPECIALIST_GATE_FAILED_LIVE rule_loss=1.4563265237251837 base_rule_loss=1.9245079786286994 eval_ppl=28.283018112182617 base_eval_ppl=28.295549392700195",
+      "eval_ppl": 28.295549392700195,
+      "gate_pass": false,
+      "wall_s": 9.9
+    }
+  ],
+  "passing": [],
+  "chosen": null,
+  "note": "trains via merge_probe.train_specialist with module globals overridden; no forked trainer (incident #19). Specialist directory removed after each trial."
+}
