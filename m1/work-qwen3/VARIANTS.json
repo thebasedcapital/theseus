@@ -28,7 +28,7 @@
     "build_s": 6.3,
     "bytes": 1192135096,
     "canonicalize": null,
-    "dir": "m1/work-qwen3/g3_pow2",
+    "dir": "/home/admin/theseus/m1/work-qwen3/g3_pow2",
     "gauge": {
       "config_patch": null,
       "spec": "G3:pow2:1",
@@ -45,6 +45,39 @@
     "name": "g3_pow2",
     "note": "same family with bf16-EXACT scales (d = 2^k, k in [-512,512]) so the gauge itself costs no representation noise",
     "sha256": "fab898d4924de852",
+    "spec": "G3:pow2:1",
+    "untied": false
+  },
+  "g3_pow2_rep": {
+    "build_s": 7.6,
+    "bytes": 1192135096,
+    "canon": {
+      "canonicalize": [
+        {
+          "applied_span_median": 2097152.0,
+          "canon": "G3",
+          "target": "equal consumer column energy"
+        }
+      ]
+    },
+    "canonicalize": "g3s",
+    "dir": "/home/admin/theseus/m1/work-qwen3/g3_pow2_rep",
+    "gauge": {
+      "config_patch": null,
+      "spec": "G3:pow2:1",
+      "transforms": [
+        {
+          "decades": 3.0,
+          "family": "G3",
+          "max_d_span": 1048576.0,
+          "mode": "pow2",
+          "seed": 1
+        }
+      ]
+    },
+    "name": "g3_pow2_rep",
+    "note": "exact-storage stress + exponent-lattice repair (lossless end to end)",
+    "sha256": "bba4f60cfd9cb1f6",
     "spec": "G3:pow2:1",
     "untied": false
   },
