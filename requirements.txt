@@ -1,10 +1,16 @@
 # Theseus environment. Create it inside the repo; the scripts look for ./.venv first.
 #   python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 #
-# torch is CPU-only here on purpose: it installs in ~1.7 GB and every equivalence, gauge and
-# adaptation cell in this repo was produced on CUDA. To reproduce on GPU, install the CUDA build
-# instead (pip install torch --index-url https://download.pytorch.org/whl/cu130) and re-run
-# m1/verify_equiv.py, whose recorded cells carry device=cuda.
+# torch MUST be the CUDA build to reproduce the recorded cells: they carry device=cuda, and
+# perplexity differs between devices in the 4th decimal (Qwen2.5-0.5B base ppl 17.7106437683 on
+# cuda vs 17.7101917267 on cpu), which is exactly the cross-environment mixing incident #20 warns
+# against. The verified toolchain is torch 2.13.0+cu130 + transformers 5.16.1 + safetensors 0.8.0
+# + datasets 5.0.1, and equivalence fidelity is checked by asserting ppl_a reproduces to <1e-9.
+#
+#   .venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cu130     # ~5.4 GB venv
+#
+# A CPU-only build is fine for gauges, canonicalisation, ledger, analysis and archcheck, none of
+# which touch llama.cpp or device-sensitive perplexity.
 
 # surgery probes, gauges, equivalence verifier
 torch>=2.13
