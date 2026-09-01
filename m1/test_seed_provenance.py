@@ -9,12 +9,14 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from seed_replicate import mixed_provenance  # noqa: E402
+from seed_replicate import mixed_provenance, panel_provenance  # noqa: E402
 
 fails = []
+runs = []
 
 
 def check(name, got, want):
+    runs.append(name)
     if got != want:
         fails.append(f"{name}: got {got!r} want {want!r}")
 
@@ -49,6 +51,28 @@ m = mixed_provenance(out, ["g3_pow2"])[0]
 check("commits listed", m["commits"], ["aaaaaaa", "bbbbbbb"])
 check("seed count", m["n_seeds"], 2)
 
+# 7. panel_provenance: the cross-variant split mixed_provenance cannot see. This is the real
+#    2026-08-31 failure - an interrupted panel left base at one commit and the stressed variants at
+#    another. Every variant was internally uniform, so the per-variant guard said nothing, while
+#    every "gap vs base" in the summary was a cross-commit subtraction.
+split = {"base": {"seeds": {"1729": {"capture": 0.95, "git_head": "aaaaaaa"}}},
+         "g4_perm": {"seeds": {"1729": {"capture": 0.91, "git_head": "bbbbbbb"}}}}
+check("per-variant guard is blind here", mixed_provenance(split, ["base", "g4_perm"]), [])
+check("panel guard catches it", [s["commit"] for s in panel_provenance(split, ["base", "g4_perm"])],
+      ["aaaaaaa", "bbbbbbb"])
+check("panel guard counts cells",
+      [s["seed_cells"] for s in panel_provenance(split, ["base", "g4_perm"])], [1, 1])
+
+# 8. a single-commit panel stays quiet, and malformed records do not raise
+whole = {"base": {"seeds": {"1": {"git_head": "aaaaaaa"}, "2": {"git_head": "aaaaaaa"}}}}
+check("homogeneous panel quiet", panel_provenance(whole, ["base"]), [])
+check("panel guard on missing variant", panel_provenance({}, ["absent"]), [])
+check("panel guard groups by commit",
+      [s["variants"] for s in panel_provenance(
+          {"a": {"seeds": {"1": {"git_head": "x"}}}, "b": {"seeds": {"1": {"git_head": "x"}}},
+           "c": {"seeds": {"1": {"git_head": "y"}}}}, ["a", "b", "c"])],
+      [["a", "b"], ["c"]])
+
 print("\n".join(f"FAIL {f}" for f in fails) if fails else
-      "seed provenance guard: 7/7 checks pass")
+      f"seed provenance guard: {len(runs)}/{len(runs)} checks pass")
 sys.exit(1 if fails else 0)

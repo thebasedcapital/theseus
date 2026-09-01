@@ -63,25 +63,54 @@ gitignored: rebuild it with `python m1/make_variants.py --only g3_pow2` after `m
 ## K-3 — Function-equivalent checkpoints have materially different adaptation reserve
 
 **State: CONTROLLED.** The corrected probe freezes every base parameter before installing
-rank-16 adapters. Three optimizer seeds per artifact establish the effect:
+rank-16 adapters. **All ten artifacts × seven optimizer seeds**, every cell `device=cuda`, one
+contract (`adapt-v2-true-lora-base-frozen`), one measurement configuration
+(`m1/work/seed_replicate.7seed.json`):
 
-| checkpoint | mean capture | range | SD | gap vs base |
-|---|---:|---:|---:|---:|
-| `base` | 0.9705 | 0.9509–0.9860 | 0.0146 | — |
-| **`g3_pow2`** | **0.0989** | 0.0400–0.1988 | 0.0710 | **−87.2 pp** |
-| `g3_pow2_rep` | 0.9753 | 0.9639–0.9876 | 0.0097 | +0.5 pp |
-| **`g7_rand`** | **0.1931** | 0.1537–0.2226 | 0.0290 | **−77.7 pp** |
-| `g7_rand_rep` | 0.9359 | 0.8853–0.9806 | 0.0391 | −3.5 pp |
+| checkpoint | mean capture | range | SD | gap vs base | beyond 3σ bar? |
+|---|---:|---:|---:|---:|:--:|
+| `base` | 0.9516 | 0.8666–0.9962 | 0.0461 | — | — |
+| **`g3_pow2`** | **0.1628** | 0.0400–0.2160 | 0.0723 | **−78.9 pp** | **yes** |
+| **`g7_rand`** | **0.1908** | 0.1537–0.2227 | 0.0226 | **−76.1 pp** | **yes** |
+| `g3_pow2_rep` | 0.9744 | 0.9470–0.9876 | 0.0134 | +2.3 pp | no |
+| `g7_rand_rep` | 0.9403 | 0.8695–0.9923 | 0.0429 | −1.1 pp | no |
+| `g1_haar` | 0.9437 | 0.8876–0.9826 | 0.0311 | −0.8 pp | no |
+| `g1_haar_rep` | 0.9072 | 0.7300–0.9748 | 0.0945 | −4.4 pp | no |
+| `g2_rand` | 0.9202 | 0.8772–0.9850 | 0.0471 | −3.1 pp | no |
+| `g4_perm` | 0.9123 | 0.7788–0.9839 | 0.0652 | −3.9 pp | no |
+| `g5_c8` | 0.9719 | 0.9582–0.9860 | 0.0098 | +2.0 pp | no |
+
+The bar is 3 × the largest within-variant SD = 3 × 0.0945 = **0.2836**. Exactly the two
+function-preserving *and*-damage artifacts fall outside it; every benign transform and every repair
+sits inside. Nothing about which variants clear the bar changed when the panel more than doubled.
+
+**Two numbers the three-seed panel got wrong, and why they moved.** (i) `base` SD was published as
+0.0146; at seven seeds it is 0.0461, **3.2× wider**. Three draws from a spread this size were a
+lucky-tight sample, which also means the old 3σ bar (0.213) was too permissive — the conclusion
+above holds against the stricter 0.2836. (ii) `g3_pow2`'s captures are **bimodal**, not merely noisy:
+`{0.0400, 0.0579}` then `{0.1988, 0.2086, 0.2089, 0.2093, 0.2160}`. The three seeds happened to draw
+two from the low cluster, so the published mean 0.0989 and gap −87.2 pp overstate the effect. The
+correct figures are 0.1628 and **−78.9 pp** — still 2.8× the bar, but the earlier magnitude was an
+artifact of n=3 and is now corrected rather than carried forward. `g1_haar_rep` shows the same shape
+more mildly (`0.7300, 0.7903` then a tight `0.9589–0.9748`), which is why its SD dominates the bar.
 
 **Cross-architecture replication (Qwen3-0.6B-Base, same contract, same 3 seeds, all at one commit).**
 base `0.9613 ± 0.0080`, `g3_pow2` `0.2511 ± 0.0211` (gap **−0.710**), `g3_pow2_rep` `0.9376 ± 0.0744`
 (gap −0.024). Largest within-variant sd `0.0744` puts the 3σ bar at `0.223`, which `g3_pow2` clears by
 over 3x: **K-3 holds on a second architecture**. Cells: `m1/work-qwen3/seed_replicate.json`.
 
+**Panel provenance.** The 70 seed-cells were recorded across two commits (21 under `2a15503`, 49
+under `333de3f`) because a shared-cache deletion interrupted the first pass; each variant is
+internally uniform, so the per-variant guard reported nothing, while every `gap vs base` was a
+cross-commit subtraction. That is a real blind spot in `mixed_provenance()`, now closed by
+`panel_provenance()`. The split was then *demonstrated* harmless rather than assumed so: `base` and
+`g3_pow2` were re-measured at all seven seeds under `333de3f` and every capture came back
+bit-identical (max |Δ| = 0.0e+00 over 14 cells; control cell `m1/work/seed_bridge.333de3f.json`).
+
 Kept attached rather than smoothed: the seed drives LoRA **init only** - `seed_replicate.py:72-73`
 pins the data via `RULE_SEED` - and an extra Qwen3 init gave base capture **0.676** against the
-panel's 0.951-0.971. Qwen3 is markedly more init-sensitive than Qwen2 (0.951-0.986 across 3 seeds),
-so three seeds are thin on this model and its base mean is provisional.
+panel's 0.9516-0.9962. Qwen3 is markedly more init-sensitive than Qwen2 (spread 0.8666-0.9962 across 7 seeds),
+so even seven seeds leave its base mean provisional on that model.
 
 The registered gate is conservative: a gap must exceed three times the largest within-variant SD
 across the panel. Only G3 and G7 pass it. G1, G2 and the head-permutation control do not.

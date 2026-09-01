@@ -57,6 +57,30 @@ def mixed_provenance(out: dict, variants) -> list:
     return mixed
 
 
+
+def panel_provenance(out: dict, variants) -> list:
+    """Cross-variant commit splits, which mixed_provenance() structurally cannot see.
+
+    Per-variant uniformity is necessary but not sufficient: the summary compares each variant's
+    mean against the BASE mean, so a panel that is clean variant-by-variant can still be comparing
+    a base measured under one commit against stressed variants measured under another. That happened
+    2026-08-31: an interrupted panel left 21 seed-cells at 2a15503 and 49 at 333de3f, every variant
+    internally uniform, and the guard reported nothing. A gap is only comparable if both sides of
+    the subtraction share a commit; if they do not, the split has to be demonstrated harmless
+    (re-measure the shared side under both commits and diff it) rather than assumed so.
+    """
+    by_commit = {}
+    for v in variants:
+        seeds = (out.get(v) or {}).get("seeds") or {}
+        for s in seeds.values():
+            if isinstance(s, dict):
+                by_commit.setdefault(s.get("git_head") or "unstamped", []).append(v)
+    if len(by_commit) <= 1:
+        return []
+    return [{"commit": c, "variants": sorted(set(vs)), "seed_cells": len(vs)}
+            for c, vs in sorted(by_commit.items())]
+
+
 def main():
     ap_ = argparse.ArgumentParser()
     ap_.add_argument("--variants", default="base,g1_haar,g1_haar_rep,g2_rand,g4_perm")
@@ -152,8 +176,20 @@ def main():
     real = [(v, g) for v, g, _ in gaps if abs(g) > 3 * max(spread, 1e-4)]
     print(f"\nlargest within-variant sd = {spread:.4f}; "
           f"gaps exceeding 3 sd: {real if real else 'none'}")
+    # ...plus the split mixed_provenance() structurally cannot see: every gap above subtracts the
+    # BASE mean, so base-at-commit-A against a variant-at-commit-B crosses commits even when each
+    # variant looks internally clean. Report it instead of assuming the diff was inert.
+    split = panel_provenance(out, measured_homog)
+    if split:
+        print("\nPANEL SPANS COMMITS (gap vs base is a cross-commit subtraction; demonstrate the "
+              "split harmless by re-measuring the shared side under both commits):")
+        for s in split:
+            print(f"  {s['commit']:10} {s['seed_cells']:3d} cells: {', '.join(s['variants'])}")
+        out["_summary_panel_commit_split"] = split
+    else:
+        out.pop("_summary_panel_commit_split", None)
     out["_summary"] = {"base_capture": base, "max_within_variant_sd": spread,
-                       "threshold_sd": 3,
+                       "threshold_sd": 3, "panel_spans_commits": bool(split),
                        "gaps_beyond_3sd": [[v, round(g, 5)] for v, g in real]}
     out["_contract"] = CONTRACT
     common.wjson(Path(a.out), out)

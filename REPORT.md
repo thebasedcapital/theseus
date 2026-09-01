@@ -17,7 +17,7 @@ to powers of two so that bf16 storage is exact, yields a different file whose lo
 bit-identical to the original (`max|Δlogit| = 0.00e+00`, mean KL `0`, top-1 `1.00000`, perplexity
 `12.1351` vs base `12.1399`). That checkpoint is then destroyed by 8-bit quantization (KL
 divergence `0.00094 → 10.69` nats) and loses almost all of its adaptation capacity under a
-three-seed rank-16 LoRA probe (mean capture `0.9705 → 0.0989`), while merges that the base survives
+seven-seed rank-16 LoRA probe over ten artifacts (mean capture `0.9516 → 0.1628`), while merges that the base survives
 both fail. An artifact-only repair that never sees the original restores both reserves, and in one
 case reproduces the pristine checkpoint's file byte for byte.
 
@@ -127,12 +127,12 @@ PPL change ≤ `2e-3`, over 4,096 tokens of a pinned WikiText-2 slice. Harness f
 `g3_pow2` rescales the RMSNorm/consumer pairs by `2^k`, `k ∈ [-10,10]`, on q, k, v, gate and up
 across all 24 layers, and is bit-exact because bf16 × `2^k` is lossless:
 
-| artifact | `max\|Δlogit\|` | mean KL | top-1 | Q8_0 KLD | LoRA capture (3 seeds) | linear merge | TIES |
+| artifact | `max\|Δlogit\|` | mean KL | top-1 | Q8_0 KLD | LoRA capture (7 seeds) | linear merge | TIES |
 |---|---:|---:|---:|---:|---:|---|---|
-| `base` | 0 | 0 | 1.00000 | 0.00094 | **0.9705** | pass | pass |
-| `g3_pow2` | **0.00e+00** | **0.00e+00** | **1.00000** | **10.69** | **0.0989** | fail | fail |
+| `base` | 0 | 0 | 1.00000 | 0.00094 | **0.9516** | pass | pass |
+| `g3_pow2` | **0.00e+00** | **0.00e+00** | **1.00000** | **10.69** | **0.1628** | fail | fail |
 | `g3_pow2_rep` | 0.00e+00 | 0.00e+00 | 1.00000 | 0.00106 | **0.9753** | fail | fail |
-| `g7_rand` | 3.15e-1 | 1.95e-5 | 0.99683 | — | **0.1931** | fail | fail |
+| `g7_rand` | 3.15e-1 | 1.95e-5 | 0.99683 | — | **0.1908** | fail | fail |
 | `g7_rand_rep` | 4.8e-01 | — | — | 0.00088 | **0.9359** | fail | fail |
 
 Same logits, same perplexity, reserve collapsed. Both halves of that sentence were re-derived on 2026-08-31 after incident #18 showed a recorded cell here could be unreproducible from its own generator: `make_variants` rebuilt `g3_pow2` to the identical sha256 (`0c106a426af05dc8`), equivalence came back `max|Δlogit| 0.0 / KL 0.0 / top-1 1.0`, and the 8-bit collapse measured KLD `10.690189` against the recorded `10.690304` with perplexity `633431.0375` reproduced exactly. Full log in `analysis/data/reverification.json`. `g7_rand` repeats the result under a weaker
@@ -175,10 +175,26 @@ The scale `c = 8.0` is recovered from the embedding/LM-head tie alone; the repai
 the pristine file. `verify_g5_recovery.py` re-derives this end to end, so the claim no longer rests
 on a log line from a run whose artifact is gitignored.
 
-Adaptation recovery is consistent across families: `g3_pow2` `0.0989 → 0.9753` and `g7_rand`
-`0.1931 → 0.9359` mean capture, with all repaired artifacts passing the fp32 equivalence gate and
+Adaptation recovery is consistent across families: `g3_pow2` `0.1628 → 0.9744` and `g7_rand`
+`0.1908 → 0.9403` mean capture, with all repaired artifacts passing the fp32 equivalence gate and
 G3 staying bit-identical under bf16 compute.
 
+Two properties of the Qwen2 adaptation panel are corrections rather than details, so they are stated
+here. `g3_pow2`'s seven captures are **bimodal** — `0.0400, 0.0579` against `0.1988–0.2160` — and the
+three-seed panel that first published this row drew two of its three seeds from the low cluster, so
+its gap of −87.2 pp was 8.3 pp too large; the figure above is the seven-seed one. Base SD likewise
+tripled, 0.0146 → 0.0461. Because the 3σ bar is the largest within-variant SD in the panel,
+under-sampling any variant weakens the gate for all of them; the doubling was required for the bar to
+mean anything, and both effects still clear it at the stricter 0.2836 (incident #23).
+
+The panel's provenance needed the same treatment. A shared HuggingFace-cache deletion interrupted
+the seven-seed run, so it spans two commits (`2a15503`, `333de3f`). two commits (`2a15503`, `333de3f`) after a shared HuggingFace-cache deletion
+interrupted the first pass. Every variant was internally uniform, so the per-variant provenance guard
+stayed silent, yet each gap subtracted a base measured under a different commit. The guard now checks
+the panel as well as the row (`panel_provenance()`), and the split was cleared by measurement rather
+than by arguing the diff looked inert: `base` and `g3_pow2` re-run at all seven seeds under the later
+commit returned bit-identical captures, maximum absolute difference 0.0 over 14 cells
+(incident #24).
 The repair has a precision cost, reported against myself. The full continuous canonicalizer run on
 the *pristine* checkpoint fails its own equivalence gate (`max|Δlogit| 0.96`, top-1 `0.99487` under
 the `0.995` bar) because the value-subspace Hadamard rewrites every v/o entry and the continuous
@@ -234,8 +250,8 @@ It reports per family `q4_block_mse`, `dyn_range_log10`, `row_energy_imbalance` 
 
 | artifact | total J | dyn range | frac below f16 normal | flags | measured outcome |
 |---|---:|---:|---:|---:|---|
-| `base` | 0.01123 | 8.83 | 0.00282 | 0 | capture 0.9705; Q4 KLD 0.0319 |
-| `g3_pow2` | 0.02955 | 14.6 | 0.0987 | **15** | capture **0.0989**; Q8 KLD **10.69** |
+| `base` | 0.01123 | 8.83 | 0.00282 | 0 | capture 0.9516; Q4 KLD 0.0319 |
+| `g3_pow2` | 0.02955 | 14.6 | 0.0987 | **15** | capture **0.1628**; Q8 KLD **10.69** |
 | `g3_pow2_rep` | 0.01148 | 8.76 | 0.00281 | **0** | capture **0.9753** |
 | `bad_all` (4 families) | 0.03315 | 18.81 | 0.15486 | 20 | adaptation + both merges fail |
 | `bad_all_exact` | 0.01159 | 9.99 | 0.00279 | **0** | adaptation + both merges **still fail** |
@@ -386,7 +402,7 @@ python -m unittest discover -s analysis             # 37 tests; ledger suite: 21
 ```
 
 Quantization rows require a llama.cpp build (`b9851` here); adaptation and merge rows are pure
-torch. Deterministic seeds: `1729`, `23`, `44` for the three-seed adaptation panels; `42` for the
+torch. Deterministic seeds: `1729`, `23`, `44`, `101`, `202`, `303`, `404` for the seven-seed Qwen2 adaptation panel (the Qwen3 panel still uses the first three); `42` for the
 lattice gauge. The pinned corpus is `m1/data/eval_wikitext.txt`, 401,943 chars / 94,099 Qwen tokens,
 derived from WikiText-2 raw `test` (CC BY-SA 4.0) and regenerated rather than redistributed.
 `m1/work/` outputs and Rust `target/` are gitignored.

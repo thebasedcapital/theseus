@@ -104,3 +104,15 @@ freeze the base before adapter insertion; their contract is
 
 M1 remains Python because it directly drives torch, transformers and llama.cpp. New standalone
 tools are Rust (`scan/`, `inspect/`).
+
+**Weakness #3 closed 2026-08-31 — the adaptation panel is now ten variants × seven seeds.**
+All 70 seed-cells `device=cuda` under one contract, in `m1/work/seed_replicate.7seed.json`; the
+3-seed panel is superseded (retained as `m1/work/seed_replicate.3seed.2026-08-31.json`). Doubling it
+moved two published figures: base SD 0.0146 → 0.0461 and `g3_pow2` gap −87.2 pp → −78.9 pp, because
+`g3_pow2` is bimodal and three seeds drew two from the low cluster. Which variants clear the 3σ bar
+did not change, and the bar itself tightened to 0.2836. Logged as incidents #23 (under-sampled
+control) and #24 (provenance guard blind to cross-variant commit splits; closed by
+`panel_provenance()` plus a bit-identical 14-cell bridge control, `m1/work/seed_bridge.333de3f.json`).
+Environment: the project venv now carries the CUDA torch build (2.13.0+cu130) the recorded cells were
+made with, `m1/data/MODELS.json` + `m1/check_models.py` pin and assert the two reference checkpoints
+by sha256, and `/` went from 4.4 GB to ~47 GB free.
