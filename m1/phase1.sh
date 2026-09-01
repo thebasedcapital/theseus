@@ -3,7 +3,10 @@
 # build -> verify vs base -> record J -> free the disk (variants are rebuildable in ~30 s).
 set -uo pipefail
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # repo root, no hardcoded path
-PY="${THESEUS_PY:-/home/admin/counterpoint/.venv/bin/python}"
+# Interpreter resolution, in order: $THESEUS_PY, the project .venv, then whatever is
+# already running. No sibling checkout is consulted.
+PY="${THESEUS_PY:-$(command -v python3 2>/dev/null || echo python3)}"
+[ -n "${THESEUS_PY:-}" ] || { [ -x "$ROOT/.venv/bin/python" ] && PY="$ROOT/.venv/bin/python"; }
 export TSX_THREADS="${TSX_THREADS:-4}" OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}" MKL_NUM_THREADS="${MKL_NUM_THREADS:-4}"
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export TSX_CPU=1   # the surgery probes own the GPU; verification is CPU-only

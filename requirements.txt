@@ -1,4 +1,20 @@
-torch
-numpy
-scikit-learn
-matplotlib
+# Theseus environment. Create it inside the repo; the scripts look for ./.venv first.
+#   python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
+#
+# torch is CPU-only here on purpose: it installs in ~1.7 GB and every equivalence, gauge and
+# adaptation cell in this repo was produced on CUDA. To reproduce on GPU, install the CUDA build
+# instead (pip install torch --index-url https://download.pytorch.org/whl/cu130) and re-run
+# m1/verify_equiv.py, whose recorded cells carry device=cuda.
+
+# surgery probes, gauges, equivalence verifier
+torch>=2.13
+transformers>=5.16        # m1/common.py, m1/test_gauge_math.py  (was missing: fresh clones failed)
+safetensors>=0.8          # m1/common.py state load/save
+numpy>=2.0
+
+# pinned eval corpus (m1/prep_data.py)
+datasets>=5.0             # was missing: m1/prep_data.py could not run on a fresh clone
+
+# V0 prototype only (prototype.py)
+scikit-learn>=1.5
+matplotlib>=3.9

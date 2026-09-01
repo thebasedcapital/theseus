@@ -8,7 +8,10 @@
 # admission derived from on-disk cell state.
 set -u
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"   # repo root, no hardcoded path
-PY="${THESEUS_PY:-/home/admin/counterpoint/.venv/bin/python}"
+# Interpreter resolution, in order: $THESEUS_PY, the project .venv, then whatever is
+# already running. No sibling checkout is consulted.
+PY="${THESEUS_PY:-$(command -v python3 2>/dev/null || echo python3)}"
+[ -n "${THESEUS_PY:-}" ] || { [ -x "$ROOT/.venv/bin/python" ] && PY="$ROOT/.venv/bin/python"; }
 export TSX_THREADS=4 OMP_NUM_THREADS=4 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 CORE="base,g1_haar,g1_haar_rep,g2_rand,g3_pow2,g3_pow2_rep,g7_rand,g7_rand_rep,g4_perm,g5_c8,bad_all,bad_all_rep,bad_all_exact,prep_base_exact"
 LOG=m1/work/drive.log

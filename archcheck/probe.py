@@ -28,7 +28,7 @@ FAMILIES = ("q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "dow
 # Static per-architecture facts.  Every row is grounded in the two source trees
 # on this box:
 #   L = /home/admin/tools/llama.cpp-cuda-src   (conversion/*.py, ggml/src/ggml-common.h)
-#   T = /home/admin/counterpoint/.venv/lib/python3.12/site-packages/transformers/models/<arch>/
+#   T = <site-packages>/transformers/models/<arch>/  (pip show -f transformers | grep Location)
 # Gauge semantics (M1_NOTES.md §2 / m1/gauge.py): G1 value-subspace basis change
 # (needs GQA: U constant per kv-group when kv<q), G2 RoPE-plane rotations (needs the
 # rotate_half pairing AND distinct per-pair frequencies for the claimed maximality; pair

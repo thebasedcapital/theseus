@@ -37,7 +37,10 @@ import common  # noqa: E402
 from common import log  # noqa: E402
 import canonicalize as canon  # noqa: E402
 
-PY = os.environ.get("THESEUS_PY", "/home/admin/counterpoint/.venv/bin/python")
+# $THESEUS_PY, else this project's own .venv, else the running interpreter. Verified to exist:
+# a default that silently does not exist produces unavailable cells, not an error.
+_VENV = Path(__file__).resolve().parents[1] / ".venv" / "bin" / "python"
+PY = os.environ.get("THESEUS_PY") or (str(_VENV) if _VENV.exists() else sys.executable)
 INSPECT = common.REPO / "inspect" / "target" / "release" / "theseus-inspect"
 SCRATCH = common.M1 / "rescue_out"          # this slice's owned scratch (never m1/work/)
 DISK_MIN_GB = 2.0                           # refuse any weight write below this much free

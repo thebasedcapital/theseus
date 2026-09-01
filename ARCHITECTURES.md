@@ -10,7 +10,7 @@ Source anchors use two roots:
 | root | path |
 |---|---|
 | L | `/home/admin/tools/llama.cpp-cuda-src`            (conversion/*.py, ggml/src/ggml-common.h) |
-| T | `/home/admin/counterpoint/.venv/lib/python3.12/site-packages/transformers/models/<arch>/` |
+| T | `<site-packages>/transformers/models/<arch>/` (whatever environment holds transformers 5.16) |
 | I | `/home/admin/theseus/inspect/src/main.rs`          (the static-feature inspector) |
 
 Semantics used below: gauge families are the five *knottable* exact transforms from
