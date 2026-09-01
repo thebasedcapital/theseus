@@ -1,12 +1,151 @@
 {
-  "duration_s": 174.48118509794585,
-  "error": {
-    "message": "SPECIALIST_GATE_FAILED_LIVE rule_loss=0.07166652885538992 base_rule_loss=1.9245079786286994 eval_ppl=45.458946228027344 base_eval_ppl=28.295549392700195",
-    "type": "RuntimeError"
-  },
-  "git_head": "9b026d4e012a501fa4b4cd125efc88de31dadb47",
+  "duration_s": 376.15402243612334,
+  "git_head": "23142239a4f649cb90b3b3c2ccabc80521cadb1f",
   "model_dir": "/home/admin/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B-Base/snapshots/da87bfb608c14b7cf20ba1ce41287e8de496c0cd",
-  "results": {},
+  "results": {
+    "alphas": [
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7
+    ],
+    "base_eval_ppl": 28.295549392700195,
+    "base_frozen": true,
+    "base_rule_loss": 1.9245079786286994,
+    "candidate_ppl": 28.295549392700195,
+    "contract": {
+      "calibration": "base v1: TIES alpha=.5 ppl_ratio 1.0479, rule_loss_ratio .712; linear frontier required alpha=.4",
+      "ppl_ratio_max": 1.05,
+      "rule_loss_ratio_max": 0.75,
+      "version": "merge-v2-base-calibrated"
+    },
+    "density": 0.2,
+    "device": "cuda",
+    "linear": {
+      "matrix": [
+        {
+          "alpha": 0.3,
+          "eval_ppl": 28.236164093017578,
+          "pass": false,
+          "ppl_ratio": 0.9979012494559325,
+          "rule_loss_ratio": 14.319202606421333,
+          "specialist_rule_loss": 0.2772756528829967
+        },
+        {
+          "alpha": 0.4,
+          "eval_ppl": 28.28128433227539,
+          "pass": false,
+          "ppl_ratio": 0.9994958549761015,
+          "rule_loss_ratio": 2.9959325124624905,
+          "specialist_rule_loss": 0.05801294710460436
+        },
+        {
+          "alpha": 0.5,
+          "eval_ppl": 28.386262893676758,
+          "pass": false,
+          "ppl_ratio": 1.003205928243965,
+          "rule_loss_ratio": 1.2272619147659976,
+          "specialist_rule_loss": 0.023764580893811667
+        },
+        {
+          "alpha": 0.6,
+          "eval_ppl": 28.44414520263672,
+          "pass": false,
+          "ppl_ratio": 1.005251561221669,
+          "rule_loss_ratio": 1.000440644835826,
+          "specialist_rule_loss": 0.019372435783759568
+        },
+        {
+          "alpha": 0.7,
+          "eval_ppl": 28.585906982421875,
+          "pass": false,
+          "ppl_ratio": 1.0102615992957744,
+          "rule_loss_ratio": 0.9581913358242606,
+          "specialist_rule_loss": 0.018554324254645236
+        }
+      ],
+      "smallest_passing_alpha": null
+    },
+    "lora_alpha": 32,
+    "lora_rank": 32,
+    "lr": 0.0001,
+    "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+    "seed": 2718,
+    "specialist": {
+      "alpha": 32,
+      "base_eval_ppl": 28.295549392700195,
+      "base_frozen": true,
+      "base_rule_loss": 1.9245079786286994,
+      "batch_size": 2,
+      "caveat": "specialist trained from the same ungauged base as every candidate, so a merge failure is partly a property of this construction, not of merging in general",
+      "eval_ppl": 29.173137664794922,
+      "gate_pass": true,
+      "heldout_examples": 128,
+      "heldout_rule_loss": 0.019363903179821944,
+      "kind": "self-derived",
+      "live_eval_ppl": 29.182327270507812,
+      "live_rule_loss": 0.01926688176409142,
+      "lr": 0.0001,
+      "max_memory_allocated_gb": 2.827532288,
+      "rank": 32,
+      "rule": "key:value reformat: kv: KEY=VALUE => KEY: VALUE",
+      "rule_loss": 0.019363903179821944,
+      "runtime_s": 38.46735207620077,
+      "saved_artifact_verified": true,
+      "seed": 2718,
+      "seq_len": 128,
+      "steps": 150,
+      "train_examples": 512
+    },
+    "specialist_provenance": "self-derived",
+    "steps": 150,
+    "ties": {
+      "matrix": [
+        {
+          "alpha": 0.3,
+          "eval_ppl": 28.255836486816406,
+          "pass": false,
+          "ppl_ratio": 0.9985964963841969,
+          "rule_loss_ratio": 29.10940286450243,
+          "specialist_rule_loss": 0.5636716586906566
+        },
+        {
+          "alpha": 0.4,
+          "eval_ppl": 28.277326583862305,
+          "pass": false,
+          "ppl_ratio": 0.9993559832118831,
+          "rule_loss_ratio": 15.020558351875891,
+          "specialist_rule_loss": 0.2908566376325906
+        },
+        {
+          "alpha": 0.5,
+          "eval_ppl": 28.411348342895508,
+          "pass": false,
+          "ppl_ratio": 1.0040924793008326,
+          "rule_loss_ratio": 2.0695435738944616,
+          "specialist_rule_loss": 0.04007444139131504
+        },
+        {
+          "alpha": 0.6,
+          "eval_ppl": 28.43653106689453,
+          "pass": false,
+          "ppl_ratio": 1.0049824681697366,
+          "rule_loss_ratio": 1.0522259214931553,
+          "specialist_rule_loss": 0.020375200867092384
+        },
+        {
+          "alpha": 0.7,
+          "eval_ppl": 28.558917999267578,
+          "pass": false,
+          "ppl_ratio": 1.0093077749759236,
+          "rule_loss_ratio": 0.9814174219093205,
+          "specialist_rule_loss": 0.019004071936842545
+        }
+      ],
+      "smallest_passing_alpha": null
+    }
+  },
   "script": "merge_probe.py",
   "tag": "base",
   "torch": "2.13.0+cu130"

@@ -17,8 +17,12 @@ for tag in base g3_pow2 g3_pow2_rep; do
     timeout 600 "$PY" m1/make_variants.py --only "$tag" --out "$W" >/tmp/mq_$tag.log 2>&1 || {
       echo "  build failed: $(tail -1 /tmp/mq_$tag.log | cut -c1-90)"; continue; }
   fi
+  # Calibration found by m1/calibrate_specialist.py: Qwen2's 600 steps at lr 3e-4 breaches the
+  # collateral gate on Qwen3 (rule-holdout ppl 45.46 vs 42.44 allowed). Adapter geometry is kept
+  # identical to Qwen2 (rank 32, alpha/rank = 1) because rank changes merge arithmetic; only the
+  # optimisation budget is softened. rule 0.0194, ppl 29.17 against a 42.44 ceiling.
   timeout 3000 "$PY" m1/merge_probe.py --model-dir "$dir" --out "$W/$tag.merge.json" \
-      >/tmp/mp_$tag.log 2>&1
+      --steps 150 --rank 32 --alpha 32 --lr 1e-4 >/tmp/mp_$tag.log 2>&1
   rc=$?
   "$PY" - "$tag" "$W/$tag.merge.json" "$rc" <<'PYIN'
 import json, sys

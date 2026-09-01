@@ -6,17 +6,157 @@
   "gate": "rule_loss < 0.5*base_rule_loss AND eval_ppl <= 1.5*base_ppl",
   "configs": [
     {
-      "steps": 2,
+      "steps": 150,
+      "rank": 16,
+      "alpha": 16,
+      "lr": 0.0003,
+      "rule_loss": 0.027283335539265444,
+      "eval_ppl": 29.556894302368164,
+      "gate_pass": true,
+      "wall_s": 56.9
+    },
+    {
+      "steps": 300,
+      "rank": 16,
+      "alpha": 16,
+      "lr": 0.0003,
+      "rule_loss": 0.02422159732111607,
+      "eval_ppl": 31.708845138549805,
+      "gate_pass": true,
+      "wall_s": 99.5
+    },
+    {
+      "steps": 150,
       "rank": 8,
       "alpha": 8,
       "lr": 0.0003,
-      "refused": "SPECIALIST_GATE_FAILED_LIVE rule_loss=1.4563265237251837 base_rule_loss=1.9245079786286994 eval_ppl=28.283018112182617 base_eval_ppl=28.295549392700195",
-      "eval_ppl": 28.295549392700195,
-      "gate_pass": false,
-      "wall_s": 9.9
+      "rule_loss": 0.023432587922580288,
+      "eval_ppl": 29.18575096130371,
+      "gate_pass": true,
+      "wall_s": 61.5
+    },
+    {
+      "steps": 300,
+      "rank": 8,
+      "alpha": 8,
+      "lr": 0.0003,
+      "rule_loss": 0.01900259277550027,
+      "eval_ppl": 29.685998916625977,
+      "gate_pass": true,
+      "wall_s": 102.9
+    },
+    {
+      "steps": 600,
+      "rank": 8,
+      "alpha": 8,
+      "lr": 0.0001,
+      "rule_loss": 0.020030269689169298,
+      "eval_ppl": 28.910369873046875,
+      "gate_pass": true,
+      "wall_s": 184.3
+    },
+    {
+      "steps": 150,
+      "rank": 32,
+      "alpha": 32,
+      "lr": 0.0001,
+      "rule_loss": 0.019363903179821944,
+      "eval_ppl": 29.173137664794922,
+      "gate_pass": true,
+      "wall_s": 63.1
+    },
+    {
+      "steps": 600,
+      "rank": 16,
+      "alpha": 16,
+      "lr": 0.0001,
+      "rule_loss": 0.045091652373122335,
+      "eval_ppl": 29.349822998046875,
+      "gate_pass": true,
+      "wall_s": 184.6
     }
   ],
-  "passing": [],
-  "chosen": null,
+  "passing": [
+    {
+      "steps": 150,
+      "rank": 16,
+      "alpha": 16,
+      "lr": 0.0003,
+      "rule_loss": 0.027283335539265444,
+      "eval_ppl": 29.556894302368164,
+      "gate_pass": true,
+      "wall_s": 56.9
+    },
+    {
+      "steps": 300,
+      "rank": 16,
+      "alpha": 16,
+      "lr": 0.0003,
+      "rule_loss": 0.02422159732111607,
+      "eval_ppl": 31.708845138549805,
+      "gate_pass": true,
+      "wall_s": 99.5
+    },
+    {
+      "steps": 150,
+      "rank": 8,
+      "alpha": 8,
+      "lr": 0.0003,
+      "rule_loss": 0.023432587922580288,
+      "eval_ppl": 29.18575096130371,
+      "gate_pass": true,
+      "wall_s": 61.5
+    },
+    {
+      "steps": 300,
+      "rank": 8,
+      "alpha": 8,
+      "lr": 0.0003,
+      "rule_loss": 0.01900259277550027,
+      "eval_ppl": 29.685998916625977,
+      "gate_pass": true,
+      "wall_s": 102.9
+    },
+    {
+      "steps": 600,
+      "rank": 8,
+      "alpha": 8,
+      "lr": 0.0001,
+      "rule_loss": 0.020030269689169298,
+      "eval_ppl": 28.910369873046875,
+      "gate_pass": true,
+      "wall_s": 184.3
+    },
+    {
+      "steps": 150,
+      "rank": 32,
+      "alpha": 32,
+      "lr": 0.0001,
+      "rule_loss": 0.019363903179821944,
+      "eval_ppl": 29.173137664794922,
+      "gate_pass": true,
+      "wall_s": 63.1
+    },
+    {
+      "steps": 600,
+      "rank": 16,
+      "alpha": 16,
+      "lr": 0.0001,
+      "rule_loss": 0.045091652373122335,
+      "eval_ppl": 29.349822998046875,
+      "gate_pass": true,
+      "wall_s": 184.6
+    }
+  ],
+  "chosen": {
+    "steps": 150,
+    "rank": 16,
+    "alpha": 16,
+    "lr": 0.0003,
+    "rule_loss": 0.027283335539265444,
+    "eval_ppl": 29.556894302368164,
+    "gate_pass": true,
+    "wall_s": 56.9
+  },
   "note": "trains via merge_probe.train_specialist with module globals overridden; no forked trainer (incident #19). Specialist directory removed after each trial."
 }

@@ -232,9 +232,7 @@ ceiling) but collateral perplexity on the rule holdout is **45.46 where the gate
 (1.5 × base 28.2955, measured on the rule task rather than on WikiText). The probe raised `SPECIALIST_GATE_FAILED_LIVE` and wrote error cells for all
 three candidates (`m1/work-qwen3/*.merge.json`) rather than emitting merge verdicts from a
 specialist that wrecked the model. This claim is therefore still single-architecture, and the
-blocker is specific and named: the specialist hyperparameters (600 steps, rank 32, alpha 32,
-lr 3e-4) are Qwen2-calibrated and need a recalibration sweep before K-9 can be tested on Qwen3.
-Second independent sign of fragility on that model, after the init sensitivity in K-3.
+blocker was two-stage. Stage one was real: the 600-step / lr 3e-4 budget breached the collateral term. A calibration sweep (`m1/calibrate_specialist.py`, 7 configs, ALL passing at the softer budget) fixed it - keeping Qwen2's rank 32 and alpha/rank = 1 since rank changes merge arithmetic, and only softening the optimisation to 150 steps at lr 1e-4 gave rule loss 0.0194 with rule-holdout ppl 29.17, inside the 42.44 ceiling. Stage two is a contract defect, logged as incident #21: with a specialist that good, the absolute term `rule_loss_ratio <= 0.75` demands merged loss below 0.0146, better than the specialist itself, so the **pristine base cannot pass** (1.227 at a=0.5). No K-9 verdict can be issued there. What IS measured, and striking, is the perplexity axis where the contract is reference-relative: linear merge ppl_ratio base **1.00**, `g3_pow2` **696,800**, `g3_pow2_rep` **1.057** (`m1/work-qwen3/*.merge.json`) - the gauge destroys mergeability on Qwen3 too and the repair restores it. Mechanism replicated, verdict withheld until the retention frontier is calibrated per architecture.
 
 **Refuter:** the base reference fails on rerun, or two independent gauged representatives pass
 both operators under the same calibrated contract.

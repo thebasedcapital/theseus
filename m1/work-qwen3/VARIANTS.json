@@ -25,7 +25,7 @@
     "untied": false
   },
   "g3_pow2": {
-    "build_s": 6.3,
+    "build_s": 6.4,
     "bytes": 1192135096,
     "canonicalize": null,
     "dir": "/home/admin/theseus/m1/work-qwen3/g3_pow2",
