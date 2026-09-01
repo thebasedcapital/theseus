@@ -228,8 +228,8 @@ The tied-head storage bug found on G5 is fixed in `common.merge_sd`: tied checkp
 
 **Attempted on Qwen3-0.6B-Base and refused, not fabricated.** Running `merge_probe` there fails
 its own specialist quality gate: rule learning passes easily (`rule_loss` 0.0717 against a 0.962
-ceiling) but collateral perplexity is **45.46 where the gate allows 18.01** (1.5 × base 12.004), a
-3.8x degradation. The probe raised `SPECIALIST_GATE_FAILED_LIVE` and wrote error cells for all
+ceiling) but collateral perplexity on the rule holdout is **45.46 where the gate allows 42.44**
+(1.5 × base 28.2955, measured on the rule task rather than on WikiText). The probe raised `SPECIALIST_GATE_FAILED_LIVE` and wrote error cells for all
 three candidates (`m1/work-qwen3/*.merge.json`) rather than emitting merge verdicts from a
 specialist that wrecked the model. This claim is therefore still single-architecture, and the
 blocker is specific and named: the specialist hyperparameters (600 steps, rank 32, alpha 32,

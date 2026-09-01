@@ -306,7 +306,7 @@ Stated in the repo itself (`m1/passport.py` `UNCLAIMED`, `CLAIMS.md`):
   gap −0.710 versus a 3σ bar of 0.223, so K-3 and K-5 are two-architecture claims.
 - **Merge reserve is the one surgery still single-model.** On Qwen3 the probe refuses at its own
   specialist gate: rule learning succeeds (0.0717 against a 0.962 ceiling) but collateral perplexity
-  reaches 45.46 where 18.01 is allowed. K-9 therefore stands as a single-model claim and that
+  on the rule holdout reaches 45.46 where 42.44 is allowed. K-9 therefore stands as a single-model claim and that
   calibration is explicitly Qwen2-specific.
 - **Two corpora support the Q4 result, but only on Qwen2.**
 - **The Qwen3 adaptation panel is thin.** The seed drives LoRA init only, and a fourth init fell to
